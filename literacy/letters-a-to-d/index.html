@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alphabet Game</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial;
+  background: #dfe9f3;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+/* Screens */
+#logo, #end {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  background: #dfe9f3;
+}
+
+#game { display: none; width: 100%; max-width: 520px; text-align: center; }
+
+/* Letter */
+.letter {
+  font-size: 64px;
+  color: #355c7d;
+}
+
+/* Options */
+.options {
+  display: flex;
+  gap: 10px;
+}
+
+.option {
+  width: 50%;
+  background: #fff3d6;
+  border-radius: 15px;
+  padding: 10px;
+}
+
+.option img {
+  width: 100%;
+  height: 150px;
+  object-fit: contain;
+}
+
+.option p {
+  font-size: 18px;
+}
+
+/* Button */
+button {
+  padding: 12px 20px;
+  font-size: 18px;
+  border: none;
+  border-radius: 10px;
+  background: #6bbf59;
+  color: white;
+}
+
+/* Confetti */
+canvas {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+</style>
+</head>
+
+<body>
+
+<!-- Logo -->
+<div id="logo">
+  <img src="assets/innovine-logo.png" width="180">
+</div>
+
+<!-- Game -->
+<div id="game">
+  <div class="letter" id="letter"></div>
+
+  <div class="options">
+    <div class="option" onclick="check(0)">
+      <img id="img1">
+      <p id="txt1"></p>
+    </div>
+    <div class="option" onclick="check(1)">
+      <img id="img2">
+      <p id="txt2"></p>
+    </div>
+  </div>
+
+  <canvas id="confetti"></canvas>
+</div>
+
+<!-- End -->
+<div id="end" style="display:none;">
+  <h1>Well Done 🎉</h1>
+  <button onclick="restart()">Play Again</button>
+  <canvas id="confettiEnd"></canvas>
+</div>
+
+<audio id="right" src="assets/correct.mp3"></audio>
+<audio id="wrong" src="assets/wrong.mp3"></audio>
+
+<script>
+const base = [
+{l:'A', c:{i:'apple.png',t:'Apple'}, w:{i:'egg.png',t:'Egg'}},
+{l:'B', c:{i:'books.png',t:'Books'}, w:{i:'elephant.png',t:'Elephant'}},
+{l:'C', c:{i:'carrot.png',t:'Carrot'}, w:{i:'frog.png',t:'Frog'}},
+{l:'D', c:{i:'drum.png',t:'Drum'}, w:{i:'sun.png',t:'Sun'}},
+{l:'B', c:{i:'banana.png',t:'Banana'}, w:{i:'van.png',t:'Van'}},
+{l:'A', c:{i:'ant.png',t:'Ant'}, w:{i:'queen.png',t:'Queen'}},
+{l:'D', c:{i:'dog.png',t:'Dog'}, w:{i:'tree.png',t:'Tree'}},
+{l:'C', c:{i:'cake.png',t:'Cake'}, w:{i:'xylophone.png',t:'Xylophone'}}
+];
+
+let q=[], index=0, lock=false;
+
+function shuffle(a){
+  for(let i=a.length-1;i>0;i--){
+    let j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function prepare(){
+  q = base.map(x=>{
+    let o=[
+      {...x.c,correct:true},
+      {...x.w,correct:false}
+    ];
+    return {l:x.l, o:shuffle(o)};
+  });
+}
+
+function load(){
+  lock=false;
+  let x=q[index];
+  letter.innerText=x.l;
+  img1.src='assets/'+x.o[0].i;
+  txt1.innerText=x.o[0].t;
+  img2.src='assets/'+x.o[1].i;
+  txt2.innerText=x.o[1].t;
+}
+
+function check(i){
+  if(lock) return;
+  lock=true;
+
+  if(q[index].o[i].correct){
+    right.play();
+    confetti('confetti');
+  } else {
+    wrong.play();
+  }
+
+  setTimeout(()=>{
+    index++;
+    if(index>=q.length) endGame();
+    else load();
+  },500);
+}
+
+function endGame(){
+  game.style.display='none';
+  end.style.display='flex';
+  confetti('confettiEnd');
+}
+
+function restart(){
+  index=0;
+  prepare();
+  end.style.display='none';
+  game.style.display='block';
+  load();
+}
+
+/* Confetti */
+function confetti(id){
+  let c=document.getElementById(id);
+  let ctx=c.getContext('2d');
+  c.width=window.innerWidth;
+  c.height=window.innerHeight;
+
+  let p=Array.from({length:50},()=>({
+    x:Math.random()*c.width,
+    y:Math.random()*c.height,
+    r:Math.random()*5+2
+  }));
+
+  setInterval(()=>{
+    ctx.clearRect(0,0,c.width,c.height);
+    ctx.fillStyle='#6bbf59';
+    p.forEach(x=>{
+      ctx.beginPath();
+      ctx.arc(x.x,x.y,x.r,0,6.28);
+      ctx.fill();
+      x.y+=2;
+      if(x.y>c.height) x.y=0;
+    });
+  },30);
+}
+
+/* Start */
+setTimeout(()=>{
+  logo.style.display='none';
+  game.style.display='block';
+  prepare();
+  load();
+},5000);
+</script>
+
+</body>
+</html>
