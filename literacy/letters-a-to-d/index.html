@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Alphabet Game</title>
 
 <style>
@@ -11,14 +11,14 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background: #e8f0f7;
+  background: #dfe7ef;
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
-  overflow: hidden;
 }
 
+/* Screens */
 #logo, #end {
   position: absolute;
   width: 100%;
@@ -29,43 +29,50 @@ body {
   flex-direction: column;
 }
 
+/* Game container */
 #game {
   display: none;
   width: 100%;
-  max-width: 480px;
+  max-width: 500px;
   padding: 10px;
   text-align: center;
 }
 
+/* Letter */
 .letter {
-  font-size: 56px;
-  color: #355c7d;
+  font-size: 60px;
+  color: #2f4f6f;
   margin-bottom: 10px;
 }
 
+/* Options */
 .options {
   display: flex;
-  gap: 8px;
+  gap: 10px;
 }
 
 .option {
   width: 50%;
-  background: #fff6e5;
+  background: #fff4dc;
   border-radius: 12px;
-  padding: 8px;
+  padding: 10px;
 }
 
+/* IMAGE FIX */
 .option img {
   width: 100%;
   height: 140px;
   object-fit: contain;
+  display: block;
 }
 
+/* Text */
 .option p {
   font-size: 16px;
-  margin: 5px 0 0;
+  margin-top: 6px;
 }
 
+/* Button */
 button {
   padding: 10px 18px;
   font-size: 16px;
@@ -74,39 +81,36 @@ button {
   background: #6bbf59;
   color: white;
 }
-
-canvas {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
 </style>
 </head>
 
 <body>
 
+<!-- LOGO -->
 <div id="logo">
   <img src="assets/innovine-logo.png" width="160">
 </div>
 
+<!-- GAME -->
 <div id="game">
   <div class="letter" id="letter"></div>
 
   <div class="options">
     <div class="option" onclick="check(0)">
-      <img id="img1"><p id="txt1"></p>
+      <img id="img1">
+      <p id="txt1"></p>
     </div>
     <div class="option" onclick="check(1)">
-      <img id="img2"><p id="txt2"></p>
+      <img id="img2">
+      <p id="txt2"></p>
     </div>
   </div>
 </div>
 
+<!-- END -->
 <div id="end" style="display:none;">
   <h2>Well Done 🎉</h2>
   <button onclick="restart()">Play Again</button>
-  <canvas id="confetti"></canvas>
 </div>
 
 <audio id="right" src="assets/correct.mp3"></audio>
@@ -126,6 +130,7 @@ const base = [
 
 let q=[], i=0, lock=false;
 
+/* Shuffle */
 function shuffle(a){
   for(let j=a.length-1;j>0;j--){
     let k=Math.floor(Math.random()*(j+1));
@@ -134,6 +139,7 @@ function shuffle(a){
   return a;
 }
 
+/* Prepare */
 function prepare(){
   q = base.map(x=>{
     let o=[{...x.c,correct:true},{...x.w,correct:false}];
@@ -141,9 +147,14 @@ function prepare(){
   });
 }
 
+/* Load (FAST + IMAGE FIRST) */
 function load(){
   lock=false;
   let x=q[i];
+
+  // preload next images silently
+  new Image().src = 'assets/'+x.o[0].i;
+  new Image().src = 'assets/'+x.o[1].i;
 
   img1.src='assets/'+x.o[0].i;
   img2.src='assets/'+x.o[1].i;
@@ -153,6 +164,7 @@ function load(){
   txt2.innerText=x.o[1].t;
 }
 
+/* Answer */
 function check(idx){
   if(lock) return;
   lock=true;
@@ -167,12 +179,13 @@ function check(idx){
   },250);
 }
 
+/* End */
 function endGame(){
   game.style.display='none';
   end.style.display='flex';
-  confetti();
 }
 
+/* Restart */
 function restart(){
   i=0;
   prepare();
@@ -181,32 +194,7 @@ function restart(){
   load();
 }
 
-function confetti(){
-  let c=document.getElementById('confetti');
-  let ctx=c.getContext('2d');
-  c.width=window.innerWidth;
-  c.height=window.innerHeight;
-
-  let p=Array.from({length:60},()=>({
-    x:Math.random()*c.width,
-    y:Math.random()*c.height,
-    r:Math.random()*4+2
-  }));
-
-  setInterval(()=>{
-    ctx.clearRect(0,0,c.width,c.height);
-    ctx.fillStyle='#6bbf59';
-    p.forEach(x=>{
-      ctx.beginPath();
-      ctx.arc(x.x,x.y,x.r,0,6.28);
-      ctx.fill();
-      x.y+=2;
-      if(x.y>c.height) x.y=0;
-    });
-  },30);
-}
-
-/* SIMPLE START (NO BLOCKING PRELOAD) */
+/* START (NO BLOCKING) */
 setTimeout(()=>{
   logo.style.display='none';
   game.style.display='block';
