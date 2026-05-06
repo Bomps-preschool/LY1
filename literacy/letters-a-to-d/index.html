@@ -197,65 +197,39 @@ function checkAnswer(index) {
     document.getElementById('wrongSound').play();
   }
 
-  setTimeout(() => {
-    current++;
-    if (current >= questions.length) {
-      endGame();
-    } else {
-      loadQuestion();
-    }
-  }, 300);
-}
-
-function endGame() {
-  document.getElementById('game-container').style.display = 'none';
-  document.getElementById('end-screen').style.display = 'flex';
-  startConfetti('confettiEnd');
-}
-
-function restartGame() {
-  current = 0;
-  prepareQuestions();
-  document.getElementById('end-screen').style.display = 'none';
+  // Start only AFTER images are fully loaded
+function startGameAfterLoad() {
+  document.getElementById('logo-screen').style.display = 'none';
   document.getElementById('game-container').style.display = 'block';
+  prepareQuestions();
   loadQuestion();
 }
 
-function startConfetti(canvasId) {
-  const canvas = document.getElementById(canvasId);
-  const ctx = canvas.getContext('2d');
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+// Preload and wait until ALL images are ready
+function preloadAllAndStart() {
+  const imgs = [
+    'assets/apple.png','assets/egg.png','assets/books.png','assets/elephant.png',
+    'assets/carrot.png','assets/frog.png','assets/drum.png','assets/sun.png',
+    'assets/banana.png','assets/van.png','assets/ant.png','assets/queen.png',
+    'assets/dog.png','assets/tree.png','assets/cake.png','assets/xylophone.png'
+  ];
 
-  let pieces = Array.from({length:60}, () => ({
-    x: Math.random()*canvas.width,
-    y: Math.random()*canvas.height,
-    r: Math.random()*5+2
-  }));
+  let loaded = 0;
 
-  function draw() {
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    ctx.fillStyle = '#6bbf59';
-    pieces.forEach(p => {
-      ctx.beginPath();
-      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-      ctx.fill();
-    });
-    pieces.forEach(p => {
-      p.y += 2;
-      if (p.y > canvas.height) p.y = 0;
-    });
-  }
-
-  setInterval(draw, 30);
+  imgs.forEach(src => {
+    const img = new Image();
+    img.onload = () => {
+      loaded++;
+      if (loaded === imgs.length) {
+        startGameAfterLoad();
+      }
+    };
+    img.src = src;
+  });
 }
 
 setTimeout(() => {
-  document.getElementById('logo-screen').style.display = 'none';
-  document.getElementById('game-container').style.display = 'block';
-  preloadImages();
-  prepareQuestions();
-  loadQuestion();
+  preloadAllAndStart();
 }, 5000);
 </script>
 
