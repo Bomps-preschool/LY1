@@ -168,10 +168,14 @@ function preloadImages() {
 function loadQuestion() {
   locked = false;
   const q = questions[current];
-  document.getElementById('letter').innerText = q.letter;
+
+  // Load images first for instant feel
   document.getElementById('img1').src = q.options[0].img;
-  document.getElementById('text1').innerText = q.options[0].text;
   document.getElementById('img2').src = q.options[1].img;
+
+  // Then update text and letter
+  document.getElementById('letter').innerText = q.letter;
+  document.getElementById('text1').innerText = q.options[0].text;
   document.getElementById('text2').innerText = q.options[1].text;
 }
 
@@ -183,7 +187,7 @@ function checkAnswer(index) {
 
   if (correct) {
     document.getElementById('rightSound').play();
-    startConfetti('confetti');
+    
   } else {
     document.getElementById('wrongSound').play();
   }
@@ -195,7 +199,7 @@ function checkAnswer(index) {
     } else {
       loadQuestion();
     }
-  }, 600);
+  }, 300);
 }
 
 function endGame() {
