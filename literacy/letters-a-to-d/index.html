@@ -3,21 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Alphabet Game</title>
-
+<title>Alphabet Game A-D</title>
 <style>
 body {
   margin: 0;
-  font-family: Arial;
-  background: #e8f0f7;
+  font-family: Arial, sans-serif;
+  background: #e8f0f7; /* soft blue background */
   display: flex;
   justify-content: center;
   align-items: center;
   height: 100vh;
 }
 
-/* Screens */
-#logo, #end {
+#logo-screen, #end-screen {
   position: absolute;
   width: 100%;
   height: 100%;
@@ -28,51 +26,56 @@ body {
   background: #e8f0f7;
 }
 
-#game {
+#logo-screen img {
+  width: 180px;
+}
+
+#game-container {
   display: none;
   width: 100%;
   max-width: 520px;
   text-align: center;
 }
 
-/* Letter */
 .letter {
   font-size: 64px;
-  color: #355c7d;
   margin-bottom: 10px;
+  color: #355c7d;
 }
 
-/* Options */
 .options {
   display: flex;
+  justify-content: space-between;
   gap: 10px;
 }
 
 .option {
-  width: 50%;
+  width: 48%;
   background: #fff6e5;
   border-radius: 15px;
   padding: 10px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  transition: transform 0.2s;
+}
+
+.option:active {
+  transform: scale(0.96);
 }
 
 .option img {
   width: 100%;
-  height: 160px;
+  height: 150px;
   object-fit: contain;
-}
-
-/* Elephant slightly bigger */
-.option img[src*="elephant"] {
-  height: 190px;
 }
 
 .option p {
   font-size: 18px;
+  margin: 5px 0 0;
 }
 
-/* Button */
 button {
-  padding: 12px 20px;
+  margin-top: 20px;
+  padding: 12px 24px;
   font-size: 18px;
   border: none;
   border-radius: 10px;
@@ -80,8 +83,7 @@ button {
   color: white;
 }
 
-/* Confetti */
-canvas {
+#confetti {
   position: absolute;
   width: 100%;
   height: 100%;
@@ -89,169 +91,146 @@ canvas {
 }
 </style>
 </head>
-
 <body>
 
-<!-- Logo -->
-<div id="logo">
-  <img src="assets/innovine-logo.png" width="180">
+<div id="logo-screen">
+  <img src="assets/innovine-logo.png" alt="Logo">
 </div>
 
-<!-- Game -->
-<div id="game">
+<div id="game-container">
   <div class="letter" id="letter"></div>
-
   <div class="options">
-    <div class="option" onclick="check(0)">
+    <div class="option" onclick="checkAnswer(0)">
       <img id="img1">
-      <p id="txt1"></p>
+      <p id="text1"></p>
     </div>
-    <div class="option" onclick="check(1)">
+    <div class="option" onclick="checkAnswer(1)">
       <img id="img2">
-      <p id="txt2"></p>
+      <p id="text2"></p>
     </div>
   </div>
-</div>
-
-<!-- End -->
-<div id="end" style="display:none;">
-  <h1>Well Done 🎉</h1>
-  <button onclick="restart()">Play Again</button>
   <canvas id="confetti"></canvas>
 </div>
 
-<audio id="right" src="assets/correct.mp3"></audio>
-<audio id="wrong" src="assets/wrong.mp3"></audio>
+<div id="end-screen" style="display:none;">
+  <h1>Well Done 🎉</h1>
+  <button onclick="restartGame()">Play Again</button>
+  <canvas id="confettiEnd"></canvas>
+</div>
+
+<audio id="rightSound" src="assets/correct.mp3"></audio>
+<audio id="wrongSound" src="assets/wrong.mp3"></audio>
 
 <script>
-const base = [
-{l:'A', c:{i:'apple.png',t:'Apple'}, w:{i:'egg.png',t:'Egg'}},
-{l:'B', c:{i:'books.png',t:'Books'}, w:{i:'elephant.png',t:'Elephant'}},
-{l:'C', c:{i:'carrot.png',t:'Carrot'}, w:{i:'frog.png',t:'Frog'}},
-{l:'D', c:{i:'drum.png',t:'Drum'}, w:{i:'sun.png',t:'Sun'}},
-{l:'B', c:{i:'banana.png',t:'Banana'}, w:{i:'van.png',t:'Van'}},
-{l:'A', c:{i:'ant.png',t:'Ant'}, w:{i:'queen.png',t:'Queen'}},
-{l:'D', c:{i:'dog.png',t:'Dog'}, w:{i:'tree.png',t:'Tree'}},
-{l:'C', c:{i:'cake.png',t:'Cake'}, w:{i:'xylophone.png',t:'Xylophone'}}
+const baseQuestions = [
+  { letter: 'A', correct:{img:'assets/apple.png',text:'Apple'}, wrong:{img:'assets/egg.png',text:'Egg'} },
+  { letter: 'B', correct:{img:'assets/books.png',text:'Books'}, wrong:{img:'assets/elephant.png',text:'Elephant'} },
+  { letter: 'C', correct:{img:'assets/carrot.png',text:'Carrot'}, wrong:{img:'assets/frog.png',text:'Frog'} },
+  { letter: 'D', correct:{img:'assets/drum.png',text:'Drum'}, wrong:{img:'assets/sun.png',text:'Sun'} },
+  { letter: 'B', correct:{img:'assets/banana.png',text:'Banana'}, wrong:{img:'assets/van.png',text:'Van'} },
+  { letter: 'A', correct:{img:'assets/ant.png',text:'Ant'}, wrong:{img:'assets/queen.png',text:'Queen'} },
+  { letter: 'D', correct:{img:'assets/dog.png',text:'Dog'}, wrong:{img:'assets/tree.png',text:'Tree'} },
+  { letter: 'C', correct:{img:'assets/cake.png',text:'Cake'}, wrong:{img:'assets/xylophone.png',text:'Xylophone'} }
 ];
 
-let q=[], index=0, lock=false;
+let questions = [];
+let current = 0;
+let locked = false;
 
-/* Shuffle */
-function shuffle(a){
-  for(let i=a.length-1;i>0;i--){
-    let j=Math.floor(Math.random()*(i+1));
-    [a[i],a[j]]=[a[j],a[i]];
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
   }
-  return a;
+  return array;
 }
 
-/* Prepare questions */
-function prepare(){
-  q = base.map(x=>{
-    let o=[
-      {...x.c,correct:true},
-      {...x.w,correct:false}
+function prepareQuestions() {
+  questions = baseQuestions.map(q => {
+    const opts = [
+      {...q.correct, correct:true},
+      {...q.wrong, correct:false}
     ];
-    return {l:x.l, o:shuffle(o)};
+    return { letter:q.letter, options:shuffle(opts) };
   });
 }
 
-/* Load question (instant) */
-function load(){
-  lock=false;
-  let x=q[index];
-
-  img1.src='assets/'+x.o[0].i;
-  img2.src='assets/'+x.o[1].i;
-
-  letter.innerText=x.l;
-  txt1.innerText=x.o[0].t;
-  txt2.innerText=x.o[1].t;
+// Strong preloading (keeps images in memory)
+let imageCache = {};
+function preloadImages() {
+  const imgs = [
+    'assets/apple.png','assets/egg.png','assets/books.png','assets/elephant.png',
+    'assets/carrot.png','assets/frog.png','assets/drum.png','assets/sun.png',
+    'assets/banana.png','assets/van.png','assets/ant.png','assets/queen.png',
+    'assets/dog.png','assets/tree.png','assets/cake.png','assets/xylophone.png'
+  ];
+  imgs.forEach(src => {
+    const img = new Image();
+    img.src = src;
+    imageCache[src] = img;
+  });
+});
 }
 
-/* Answer */
-function check(i){
-  if(lock) return;
-  lock=true;
+function loadQuestion() {
+  locked = false;
+  const q = questions[current];
 
-  if(q[index].o[i].correct){
-    right.play();
+  // Use preloaded images (instant display)
+  document.getElementById('img1').src = imageCache[q.options[0].img]?.src || q.options[0].img;
+  document.getElementById('img2').src = imageCache[q.options[1].img]?.src || q.options[1].img;
+
+  document.getElementById('letter').innerText = q.letter;
+  document.getElementById('text1').innerText = q.options[0].text;
+  document.getElementById('text2').innerText = q.options[1].text;
+}
+
+function checkAnswer(index) {
+  if (locked) return;
+  locked = true;
+
+  const correct = questions[current].options[index].correct;
+
+  if (correct) {
+    document.getElementById('rightSound').play();
   } else {
-    wrong.play();
+    document.getElementById('wrongSound').play();
   }
 
-  setTimeout(()=>{
-    index++;
-    if(index>=q.length) endGame();
-    else load();
-  },300);
+  // Start only AFTER images are fully loaded
+function startGameAfterLoad() {
+  document.getElementById('logo-screen').style.display = 'none';
+  document.getElementById('game-container').style.display = 'block';
+  prepareQuestions();
+  loadQuestion();
 }
 
-/* End */
-function endGame(){
-  game.style.display='none';
-  end.style.display='flex';
-  confetti();
-}
+// Preload and wait until ALL images are ready
+function preloadAllAndStart() {
+  const imgs = [
+    'assets/apple.png','assets/egg.png','assets/books.png','assets/elephant.png',
+    'assets/carrot.png','assets/frog.png','assets/drum.png','assets/sun.png',
+    'assets/banana.png','assets/van.png','assets/ant.png','assets/queen.png',
+    'assets/dog.png','assets/tree.png','assets/cake.png','assets/xylophone.png'
+  ];
 
-/* Restart */
-function restart(){
-  index=0;
-  prepare();
-  end.style.display='none';
-  game.style.display='block';
-  load();
-}
+  let loaded = 0;
 
-/* Confetti only at end */
-function confetti(){
-  let c=document.getElementById('confetti');
-  let ctx=c.getContext('2d');
-  c.width=window.innerWidth;
-  c.height=window.innerHeight;
-
-  let p=Array.from({length:80},()=>({
-    x:Math.random()*c.width,
-    y:Math.random()*c.height,
-    r:Math.random()*5+2
-  }));
-
-  setInterval(()=>{
-    ctx.clearRect(0,0,c.width,c.height);
-    ctx.fillStyle='#6bbf59';
-    p.forEach(x=>{
-      ctx.beginPath();
-      ctx.arc(x.x,x.y,x.r,0,6.28);
-      ctx.fill();
-      x.y+=2;
-      if(x.y>c.height) x.y=0;
-    });
-  },30);
-}
-
-/* PRELOAD → THEN START */
-function preloadAndStart(){
-  const imgs = base.flatMap(x => ['assets/'+x.c.i,'assets/'+x.w.i]);
-  let loaded=0;
-
-  imgs.forEach(src=>{
-    let i=new Image();
-    i.onload=()=>{
+  imgs.forEach(src => {
+    const img = new Image();
+    img.onload = () => {
       loaded++;
-      if(loaded===imgs.length){
-        logo.style.display='none';
-        game.style.display='block';
-        prepare();
-        load();
+      if (loaded === imgs.length) {
+        startGameAfterLoad();
       }
     };
-    i.src=src;
+    img.src = src;
   });
 }
 
-/* Start after 5 sec */
-setTimeout(preloadAndStart,5000);
+setTimeout(() => {
+  preloadAllAndStart();
+}, 5000);
 </script>
 
 </body>
