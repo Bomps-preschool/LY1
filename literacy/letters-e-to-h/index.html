@@ -14,7 +14,7 @@
 body{
   margin:0;
   font-family:Arial, sans-serif;
-  background:#d8e6ef;
+  background:#d7e7ef;
   height:100vh;
   overflow:hidden;
   display:flex;
@@ -22,7 +22,7 @@ body{
   align-items:center;
 }
 
-/* SCREENS */
+/* LOGO + END */
 #logoScreen,
 #endScreen{
   position:absolute;
@@ -34,22 +34,23 @@ body{
   flex-direction:column;
 }
 
+/* GAME */
 #game{
   display:none;
   width:100%;
-  max-width:900px;
+  max-width:950px;
   padding:15px;
 }
 
-/* GAME LAYOUT */
+/* LAYOUT */
 .game-area{
   display:flex;
-  align-items:center;
   justify-content:space-between;
+  align-items:center;
   gap:20px;
 }
 
-/* LETTER */
+/* LETTER SIDE */
 .letter-box{
   width:30%;
   display:flex;
@@ -58,69 +59,68 @@ body{
 }
 
 .letter{
-  width:130px;
-  height:130px;
-  border-radius:20px;
-  background:#fff4dc;
+  width:140px;
+  height:140px;
+  border-radius:22px;
+  background:#fff3d6;
   border:4px dashed #355c7d;
   display:flex;
   justify-content:center;
   align-items:center;
-  font-size:70px;
+  font-size:80px;
   font-weight:bold;
   color:#355c7d;
   cursor:grab;
-  touch-action:none;
+  user-select:none;
 }
 
-/* PICTURES */
+/* PICTURE SIDE */
 .options{
   width:70%;
   display:flex;
-  gap:12px;
+  gap:15px;
 }
 
 .option{
   width:50%;
-  background:#fff4dc;
+  background:#fff3d6;
   border-radius:18px;
   padding:10px;
-  border:4px solid transparent;
-  min-height:240px;
   display:flex;
   flex-direction:column;
   justify-content:center;
   align-items:center;
+  min-height:260px;
 }
 
 .option img{
   width:100%;
-  height:150px;
+  height:170px;
   object-fit:contain;
 }
 
 .option p{
   font-size:20px;
-  margin:8px 0 0;
   color:#333;
+  margin-top:8px;
 }
 
 /* FEEDBACK */
 #feedback{
-  height:90px;
-  margin-top:10px;
+  height:100px;
   display:flex;
   justify-content:center;
   align-items:center;
+  margin-top:10px;
 }
 
 #feedback img{
-  height:80px;
+  height:90px;
 }
 
 /* BUTTON */
 button{
-  padding:12px 22px;
+  padding:12px 24px;
   border:none;
   border-radius:10px;
   background:#6bbf59;
@@ -136,22 +136,26 @@ button{
   }
 
   .letter{
-    width:95px;
-    height:95px;
-    font-size:55px;
+    width:100px;
+    height:100px;
+    font-size:58px;
   }
 
   .option{
-    min-height:200px;
+    min-height:210px;
     padding:8px;
   }
 
   .option img{
-    height:110px;
+    height:120px;
   }
 
   .option p{
     font-size:16px;
+  }
+
+  #feedback img{
+    height:70px;
   }
 }
 </style>
@@ -196,6 +200,7 @@ button{
 
   </div>
 
+  <!-- FEEDBACK -->
   <div id="feedback"></div>
 
 </div>
@@ -213,68 +218,106 @@ button{
 
 <script>
 const base = [
+
 {l:'E', c:{i:'egg.png',t:'Egg'}, w:{i:'bat.png',t:'Bat'}},
+
 {l:'G', c:{i:'girl.png',t:'Girl'}, w:{i:'sun.png',t:'Sun'}},
+
 {l:'H', c:{i:'house.png',t:'House'}, w:{i:'kite.png',t:'Kite'}},
+
 {l:'F', c:{i:'fish.png',t:'Fish'}, w:{i:'jacket.png',t:'Jacket'}},
+
 {l:'E', c:{i:'elephant.png',t:'Elephant'}, w:{i:'inkpot.png',t:'Inkpot'}},
+
 {l:'H', c:{i:'hat.png',t:'Hat'}, w:{i:'yarn.png',t:'Yarn'}},
+
 {l:'F', c:{i:'fan.png',t:'Fan'}, w:{i:'bag.png',t:'Bag'}},
+
 {l:'G', c:{i:'gift.png',t:'Gift'}, w:{i:'aligator.png',t:'Aligator'}}
+
 ];
 
 let questions = [];
 let current = 0;
 let locked = false;
 
+/* AUDIO */
+const rightAudio = document.getElementById("rightSound");
+const wrongAudio = document.getElementById("wrongSound");
+
+/* IMAGE PRELOAD */
+const preload = [];
+
+base.forEach(q=>{
+
+  [q.c.i, q.w.i].forEach(imgName=>{
+
+    const img = new Image();
+    img.src = "assets/" + imgName;
+    preload.push(img);
+
+  });
+
+});
+
 /* SHUFFLE */
-function shuffle(a){
-  for(let i=a.length-1;i>0;i--){
+function shuffle(arr){
+
+  for(let i=arr.length-1;i>0;i--){
+
     let j=Math.floor(Math.random()*(i+1));
-    [a[i],a[j]]=[a[j],a[i]];
+
+    [arr[i],arr[j]]=[arr[j],arr[i]];
   }
-  return a;
+
+  return arr;
 }
 
-/* PREPARE */
+/* PREPARE QUESTIONS */
 function prepareQuestions(){
+
   questions = base.map(q=>{
+
     const options = shuffle([
       {...q.c,correct:true},
       {...q.w,correct:false}
     ]);
 
-    return {
+    return{
       letter:q.l,
       options
     };
+
   });
+
 }
 
-/* LOAD */
+/* LOAD QUESTION */
 function loadQuestion(){
 
-  locked=false;
+  locked = false;
+
+  feedback.innerHTML = "";
 
   const q = questions[current];
 
   dragLetter.innerText = q.letter;
 
-  img1.src = 'assets/' + q.options[0].i;
+  img1.src = "assets/" + q.options[0].i;
   txt1.innerText = q.options[0].t;
 
-  img2.src = 'assets/' + q.options[1].i;
+  img2.src = "assets/" + q.options[1].i;
   txt2.innerText = q.options[1].t;
 
   drop1.dataset.correct = q.options[0].correct;
   drop2.dataset.correct = q.options[1].correct;
-
-  feedback.innerHTML = "";
 }
 
 /* DRAG */
-dragLetter.addEventListener("dragstart", e=>{
+dragLetter.addEventListener("dragstart",e=>{
+
   e.dataTransfer.setData("text","drag");
+
 });
 
 /* DROP */
@@ -285,63 +328,80 @@ dragLetter.addEventListener("dragstart", e=>{
   });
 
   box.addEventListener("drop",e=>{
+
     e.preventDefault();
 
     if(locked) return;
 
-    locked=true;
+    locked = true;
 
     const correct = box.dataset.correct === "true";
 
+    /* CORRECT */
     if(correct){
 
-      rightSound.play();
+      rightAudio.pause();
+      rightAudio.currentTime = 0;
+      rightAudio.play();
 
       feedback.innerHTML =
       "<img src='assets/thumbs-up.png'>";
 
-    }else{
+    }
 
-      wrongSound.play();
+    /* WRONG */
+    else{
+
+      wrongAudio.pause();
+      wrongAudio.currentTime = 0;
+      wrongAudio.play();
 
       feedback.innerHTML =
       "<img src='assets/try-again.png'>";
+
     }
 
+    /* NEXT */
     setTimeout(()=>{
 
       current++;
 
       if(current >= questions.length){
+
         endGame();
+
       }else{
+
         loadQuestion();
+
       }
 
-    },700);
+    },1200);
 
   });
 
 });
 
-/* END */
+/* END GAME */
 function endGame(){
 
-  game.style.display="none";
-  endScreen.style.display="flex";
+  game.style.display = "none";
+
+  endScreen.style.display = "flex";
 
   startConfetti();
 }
 
-/* RESTART */
+/* PLAY AGAIN */
 function restartGame(){
 
-  current=0;
+  current = 0;
 
   prepareQuestions();
 
-  endScreen.style.display="none";
-  game.style.display="block";
+  endScreen.style.display = "none";
+
+  game.style.display = "block";
 
   loadQuestion();
 }
@@ -350,33 +410,40 @@ function restartGame(){
 function startConfetti(){
 
   const c = document.getElementById("confetti");
+
   const ctx = c.getContext("2d");
 
   c.width = window.innerWidth;
   c.height = window.innerHeight;
 
   const pieces = Array.from({length:80},()=>({
+
     x:Math.random()*c.width,
     y:Math.random()*c.height,
     r:Math.random()*5+2
+
   }));
 
   setInterval(()=>{
 
     ctx.clearRect(0,0,c.width,c.height);
 
-    ctx.fillStyle="#6bbf59";
+    ctx.fillStyle = "#6bbf59";
 
     pieces.forEach(p=>{
 
       ctx.beginPath();
+
       ctx.arc(p.x,p.y,p.r,0,6.28);
+
       ctx.fill();
 
       p.y += 2;
 
       if(p.y > c.height){
+
         p.y = 0;
+
       }
 
     });
@@ -384,12 +451,12 @@ function startConfetti(){
   },30);
 }
 
-/* START */
+/* START GAME */
 setTimeout(()=>{
 
-  logoScreen.style.display="none";
+  logoScreen.style.display = "none";
 
-  game.style.display="block";
+  game.style.display = "block";
 
   prepareQuestions();
 
