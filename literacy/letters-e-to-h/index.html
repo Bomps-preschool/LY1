@@ -14,9 +14,9 @@
 body{
   margin:0;
   font-family:Arial, sans-serif;
-  background:#d7e7ef;
-  height:100vh;
+  background:#d9e7ef;
   overflow:hidden;
+  height:100vh;
   display:flex;
   justify-content:center;
   align-items:center;
@@ -50,9 +50,9 @@ body{
   gap:20px;
 }
 
-/* LETTER SIDE */
+/* LETTER */
 .letter-box{
-  width:30%;
+  width:28%;
   display:flex;
   justify-content:center;
   align-items:center;
@@ -61,22 +61,22 @@ body{
 .letter{
   width:140px;
   height:140px;
-  border-radius:22px;
   background:#fff3d6;
+  border-radius:22px;
   border:4px dashed #355c7d;
   display:flex;
   justify-content:center;
   align-items:center;
-  font-size:80px;
+  font-size:78px;
   font-weight:bold;
   color:#355c7d;
   cursor:grab;
   user-select:none;
 }
 
-/* PICTURE SIDE */
+/* OPTIONS */
 .options{
-  width:70%;
+  width:72%;
   display:flex;
   gap:15px;
 }
@@ -84,13 +84,13 @@ body{
 .option{
   width:50%;
   background:#fff3d6;
-  border-radius:18px;
-  padding:10px;
+  border-radius:20px;
+  padding:12px;
+  min-height:260px;
   display:flex;
   flex-direction:column;
   justify-content:center;
   align-items:center;
-  min-height:260px;
 }
 
 .option img{
@@ -100,27 +100,27 @@ body{
 }
 
 .option p{
+  margin-top:8px;
   font-size:20px;
   color:#333;
-  margin-top:8px;
 }
 
 /* FEEDBACK */
 #feedback{
   height:100px;
+  margin-top:10px;
   display:flex;
   justify-content:center;
   align-items:center;
-  margin-top:10px;
 }
 
 #feedback img{
-  height:90px;
+  height:85px;
 }
 
 /* BUTTON */
 button{
-  padding:12px 24px;
+  padding:12px 22px;
   border:none;
   border-radius:10px;
   background:#6bbf59;
@@ -147,7 +147,7 @@ button{
   }
 
   .option img{
-    height:120px;
+    height:115px;
   }
 
   .option p{
@@ -155,7 +155,7 @@ button{
   }
 
   #feedback img{
-    height:70px;
+    height:65px;
   }
 }
 </style>
@@ -175,25 +175,29 @@ button{
 
     <!-- LETTER -->
     <div class="letter-box">
+
       <div class="letter"
            id="dragLetter"
            draggable="true">
       </div>
+
     </div>
 
     <!-- PICTURES -->
     <div class="options">
 
-      <div class="option"
-           id="drop1">
+      <div class="option" id="drop1">
+
         <img id="img1">
         <p id="txt1"></p>
+
       </div>
 
-      <div class="option"
-           id="drop2">
+      <div class="option" id="drop2">
+
         <img id="img2">
         <p id="txt2"></p>
+
       </div>
 
     </div>
@@ -207,14 +211,25 @@ button{
 
 <!-- END -->
 <div id="endScreen" style="display:none;">
+
   <h1>Well Done 🎉</h1>
-  <button onclick="restartGame()">Play Again</button>
+
+  <button onclick="restartGame()">
+    Play Again
+  </button>
+
   <canvas id="confetti"></canvas>
+
 </div>
 
 <!-- AUDIO -->
-<audio id="rightSound" src="assets/correct.mp3"></audio>
-<audio id="wrongSound" src="assets/wrong.mp3"></audio>
+<audio id="rightSound" preload="auto">
+  <source src="assets/correct.mp3" type="audio/mpeg">
+</audio>
+
+<audio id="wrongSound" preload="auto">
+  <source src="assets/wrong.mp3" type="audio/mpeg">
+</audio>
 
 <script>
 const base = [
@@ -245,16 +260,13 @@ let locked = false;
 const rightAudio = document.getElementById("rightSound");
 const wrongAudio = document.getElementById("wrongSound");
 
-/* IMAGE PRELOAD */
-const preload = [];
-
+/* PRELOAD IMAGES */
 base.forEach(q=>{
 
-  [q.c.i, q.w.i].forEach(imgName=>{
+  [q.c.i,q.w.i].forEach(img=>{
 
-    const img = new Image();
-    img.src = "assets/" + imgName;
-    preload.push(img);
+    const preload = new Image();
+    preload.src = "assets/" + img;
 
   });
 
@@ -273,7 +285,7 @@ function shuffle(arr){
   return arr;
 }
 
-/* PREPARE QUESTIONS */
+/* PREPARE */
 function prepareQuestions(){
 
   questions = base.map(q=>{
@@ -292,7 +304,7 @@ function prepareQuestions(){
 
 }
 
-/* LOAD QUESTION */
+/* LOAD */
 function loadQuestion(){
 
   locked = false;
@@ -324,7 +336,9 @@ dragLetter.addEventListener("dragstart",e=>{
 [drop1,drop2].forEach(box=>{
 
   box.addEventListener("dragover",e=>{
+
     e.preventDefault();
+
   });
 
   box.addEventListener("drop",e=>{
@@ -340,24 +354,34 @@ dragLetter.addEventListener("dragstart",e=>{
     /* CORRECT */
     if(correct){
 
-      rightAudio.pause();
-      rightAudio.currentTime = 0;
-      rightAudio.play();
-
       feedback.innerHTML =
       "<img src='assets/thumbs-up.png'>";
+
+      rightAudio.pause();
+      rightAudio.currentTime = 0;
+
+      let playPromise = rightAudio.play();
+
+      if(playPromise !== undefined){
+        playPromise.catch(()=>{});
+      }
 
     }
 
     /* WRONG */
     else{
 
-      wrongAudio.pause();
-      wrongAudio.currentTime = 0;
-      wrongAudio.play();
-
       feedback.innerHTML =
       "<img src='assets/try-again.png'>";
+
+      wrongAudio.pause();
+      wrongAudio.currentTime = 0;
+
+      let playPromise = wrongAudio.play();
+
+      if(playPromise !== undefined){
+        playPromise.catch(()=>{});
+      }
 
     }
 
@@ -382,7 +406,7 @@ dragLetter.addEventListener("dragstart",e=>{
 
 });
 
-/* END GAME */
+/* END */
 function endGame(){
 
   game.style.display = "none";
@@ -410,7 +434,6 @@ function restartGame(){
 function startConfetti(){
 
   const c = document.getElementById("confetti");
-
   const ctx = c.getContext("2d");
 
   c.width = window.innerWidth;
@@ -451,7 +474,7 @@ function startConfetti(){
   },30);
 }
 
-/* START GAME */
+/* START */
 setTimeout(()=>{
 
   logoScreen.style.display = "none";
