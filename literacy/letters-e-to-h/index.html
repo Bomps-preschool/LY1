@@ -2,19 +2,25 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport"
+content="width=device-width,
+initial-scale=1.0,
+maximum-scale=1.0,
+user-scalable=no">
+
 <title>Letter Drag Game</title>
 
 <style>
+
 *{
   box-sizing:border-box;
-  -webkit-tap-highlight-color: transparent;
+  -webkit-tap-highlight-color:transparent;
 }
 
 body{
   margin:0;
-  font-family:Arial, sans-serif;
-  background:#d9e7ef;
+  font-family:Arial,sans-serif;
+  background:#d8e7ef;
   overflow:hidden;
   height:100vh;
   display:flex;
@@ -47,7 +53,7 @@ body{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  gap:20px;
+  gap:18px;
 }
 
 /* LETTER */
@@ -61,17 +67,20 @@ body{
 .letter{
   width:140px;
   height:140px;
-  background:#fff3d6;
   border-radius:22px;
   border:4px dashed #355c7d;
+  background:#fff3d6;
   display:flex;
   justify-content:center;
   align-items:center;
   font-size:78px;
   font-weight:bold;
   color:#355c7d;
-  cursor:grab;
   user-select:none;
+  cursor:grab;
+  touch-action:none;
+  position:relative;
+  z-index:10;
 }
 
 /* OPTIONS */
@@ -84,25 +93,28 @@ body{
 .option{
   width:50%;
   background:#fff3d6;
-  border-radius:20px;
-  padding:12px;
+  border-radius:18px;
+  padding:10px;
   min-height:260px;
   display:flex;
   flex-direction:column;
   justify-content:center;
   align-items:center;
+  position:relative;
 }
 
 .option img{
   width:100%;
   height:170px;
   object-fit:contain;
+  pointer-events:none;
 }
 
 .option p{
-  margin-top:8px;
   font-size:20px;
+  margin-top:8px;
   color:#333;
+  pointer-events:none;
 }
 
 /* FEEDBACK */
@@ -115,12 +127,12 @@ body{
 }
 
 #feedback img{
-  height:85px;
+  height:80px;
 }
 
 /* BUTTON */
 button{
-  padding:12px 22px;
+  padding:12px 24px;
   border:none;
   border-radius:10px;
   background:#6bbf59;
@@ -136,9 +148,9 @@ button{
   }
 
   .letter{
-    width:100px;
-    height:100px;
-    font-size:58px;
+    width:95px;
+    height:95px;
+    font-size:56px;
   }
 
   .option{
@@ -158,6 +170,7 @@ button{
     height:65px;
   }
 }
+
 </style>
 </head>
 
@@ -177,27 +190,22 @@ button{
     <div class="letter-box">
 
       <div class="letter"
-           id="dragLetter"
-           draggable="true">
+           id="dragLetter">
       </div>
 
     </div>
 
-    <!-- PICTURES -->
+    <!-- OPTIONS -->
     <div class="options">
 
       <div class="option" id="drop1">
-
         <img id="img1">
         <p id="txt1"></p>
-
       </div>
 
       <div class="option" id="drop2">
-
         <img id="img2">
         <p id="txt2"></p>
-
       </div>
 
     </div>
@@ -232,6 +240,7 @@ button{
 </audio>
 
 <script>
+
 const base = [
 
 {l:'E', c:{i:'egg.png',t:'Egg'}, w:{i:'bat.png',t:'Bat'}},
@@ -257,235 +266,382 @@ let current = 0;
 let locked = false;
 
 /* AUDIO */
-const rightAudio = document.getElementById("rightSound");
-const wrongAudio = document.getElementById("wrongSound");
+const rightAudio =
+document.getElementById("rightSound");
 
-/* PRELOAD IMAGES */
+const wrongAudio =
+document.getElementById("wrongSound");
+
+/* PRELOAD */
 base.forEach(q=>{
 
-  [q.c.i,q.w.i].forEach(img=>{
+[q.c.i,q.w.i].forEach(img=>{
 
-    const preload = new Image();
-    preload.src = "assets/" + img;
+  let preload = new Image();
+  preload.src = "assets/" + img;
 
-  });
+});
 
 });
 
 /* SHUFFLE */
 function shuffle(arr){
 
-  for(let i=arr.length-1;i>0;i--){
+for(let i=arr.length-1;i>0;i--){
 
-    let j=Math.floor(Math.random()*(i+1));
+  let j=Math.floor(Math.random()*(i+1));
 
-    [arr[i],arr[j]]=[arr[j],arr[i]];
-  }
+  [arr[i],arr[j]]=[arr[j],arr[i]];
 
-  return arr;
+}
+
+return arr;
+
 }
 
 /* PREPARE */
 function prepareQuestions(){
 
-  questions = base.map(q=>{
+questions = base.map(q=>{
 
-    const options = shuffle([
-      {...q.c,correct:true},
-      {...q.w,correct:false}
-    ]);
+  let options = shuffle([
+    {...q.c,correct:true},
+    {...q.w,correct:false}
+  ]);
 
-    return{
-      letter:q.l,
-      options
-    };
+  return{
+    letter:q.l,
+    options
+  };
 
-  });
+});
 
 }
 
 /* LOAD */
 function loadQuestion(){
 
-  locked = false;
+locked=false;
 
-  feedback.innerHTML = "";
+feedback.innerHTML="";
 
-  const q = questions[current];
+let q = questions[current];
 
-  dragLetter.innerText = q.letter;
+dragLetter.innerText = q.letter;
 
-  img1.src = "assets/" + q.options[0].i;
-  txt1.innerText = q.options[0].t;
+img1.src = "assets/" + q.options[0].i;
+txt1.innerText = q.options[0].t;
 
-  img2.src = "assets/" + q.options[1].i;
-  txt2.innerText = q.options[1].t;
+img2.src = "assets/" + q.options[1].i;
+txt2.innerText = q.options[1].t;
 
-  drop1.dataset.correct = q.options[0].correct;
-  drop2.dataset.correct = q.options[1].correct;
+drop1.dataset.correct =
+q.options[0].correct;
+
+drop2.dataset.correct =
+q.options[1].correct;
+
+resetLetter();
+
 }
 
-/* DRAG */
-dragLetter.addEventListener("dragstart",e=>{
+/* RESET LETTER */
+function resetLetter(){
 
-  e.dataTransfer.setData("text","drag");
+dragLetter.style.transform =
+"translate(0px,0px)";
 
-});
+}
 
-/* DROP */
-[drop1,drop2].forEach(box=>{
+/* CHECK ANSWER */
+function checkAnswer(correct){
 
-  box.addEventListener("dragover",e=>{
+if(locked) return;
 
-    e.preventDefault();
+locked = true;
 
-  });
+/* CORRECT */
+if(correct){
 
-  box.addEventListener("drop",e=>{
+  feedback.innerHTML =
+  "<img src='assets/thumbs-up.png'>";
 
-    e.preventDefault();
+  rightAudio.pause();
+  rightAudio.currentTime = 0;
 
-    if(locked) return;
+  let p = rightAudio.play();
 
-    locked = true;
+  if(p!==undefined){
+    p.catch(()=>{});
+  }
 
-    const correct = box.dataset.correct === "true";
+}
 
-    /* CORRECT */
-    if(correct){
+/* WRONG */
+else{
 
-      feedback.innerHTML =
-      "<img src='assets/thumbs-up.png'>";
+  feedback.innerHTML =
+  "<img src='assets/try-again.png'>";
 
-      rightAudio.pause();
-      rightAudio.currentTime = 0;
+  wrongAudio.pause();
+  wrongAudio.currentTime = 0;
 
-      let playPromise = rightAudio.play();
+  let p = wrongAudio.play();
 
-      if(playPromise !== undefined){
-        playPromise.catch(()=>{});
-      }
+  if(p!==undefined){
+    p.catch(()=>{});
+  }
 
-    }
+}
 
-    /* WRONG */
-    else{
+setTimeout(()=>{
 
-      feedback.innerHTML =
-      "<img src='assets/try-again.png'>";
+  current++;
 
-      wrongAudio.pause();
-      wrongAudio.currentTime = 0;
+  if(current >= questions.length){
 
-      let playPromise = wrongAudio.play();
+    endGame();
 
-      if(playPromise !== undefined){
-        playPromise.catch(()=>{});
-      }
+  }else{
 
-    }
+    loadQuestion();
 
-    /* NEXT */
-    setTimeout(()=>{
+  }
 
-      current++;
+},1200);
 
-      if(current >= questions.length){
+}
 
-        endGame();
+/* DRAG FOR MOBILE + TAB + DESKTOP */
 
-      }else{
+const dragLetter =
+document.getElementById("dragLetter");
 
-        loadQuestion();
+let startX = 0;
+let startY = 0;
+let moveX = 0;
+let moveY = 0;
 
-      }
+/* TOUCH START */
+dragLetter.addEventListener(
+"touchstart",
+startDrag,
+{passive:false}
+);
 
-    },1200);
+/* MOUSE START */
+dragLetter.addEventListener(
+"mousedown",
+startDrag
+);
 
-  });
+function startDrag(e){
 
-});
+e.preventDefault();
+
+let touch = e.touches ?
+e.touches[0] : e;
+
+startX = touch.clientX;
+startY = touch.clientY;
+
+document.addEventListener(
+"touchmove",
+moveDrag,
+{passive:false}
+);
+
+document.addEventListener(
+"mousemove",
+moveDrag
+);
+
+document.addEventListener(
+"touchend",
+endDrag
+);
+
+document.addEventListener(
+"mouseup",
+endDrag
+);
+
+}
+
+/* MOVE */
+function moveDrag(e){
+
+e.preventDefault();
+
+let touch = e.touches ?
+e.touches[0] : e;
+
+moveX = touch.clientX - startX;
+moveY = touch.clientY - startY;
+
+dragLetter.style.transform =
+`translate(${moveX}px,${moveY}px)`;
+
+}
 
 /* END */
+function endDrag(){
+
+document.removeEventListener(
+"touchmove",
+moveDrag
+);
+
+document.removeEventListener(
+"mousemove",
+moveDrag
+);
+
+document.removeEventListener(
+"touchend",
+endDrag
+);
+
+document.removeEventListener(
+"mouseup",
+endDrag
+);
+
+/* DROP DETECTION */
+const letterRect =
+dragLetter.getBoundingClientRect();
+
+const d1 =
+drop1.getBoundingClientRect();
+
+const d2 =
+drop2.getBoundingClientRect();
+
+/* DROP 1 */
+if(intersect(letterRect,d1)){
+
+  checkAnswer(
+  drop1.dataset.correct === "true"
+  );
+
+}
+
+/* DROP 2 */
+else if(intersect(letterRect,d2)){
+
+  checkAnswer(
+  drop2.dataset.correct === "true"
+  );
+
+}
+
+else{
+
+  resetLetter();
+
+}
+
+}
+
+/* INTERSECTION */
+function intersect(r1,r2){
+
+return !(
+r2.left > r1.right ||
+r2.right < r1.left ||
+r2.top > r1.bottom ||
+r2.bottom < r1.top
+);
+
+}
+
+/* END GAME */
 function endGame(){
 
-  game.style.display = "none";
+game.style.display="none";
 
-  endScreen.style.display = "flex";
+endScreen.style.display="flex";
 
-  startConfetti();
+startConfetti();
+
 }
 
 /* PLAY AGAIN */
 function restartGame(){
 
-  current = 0;
+current = 0;
 
-  prepareQuestions();
+prepareQuestions();
 
-  endScreen.style.display = "none";
+endScreen.style.display="none";
 
-  game.style.display = "block";
+game.style.display="block";
 
-  loadQuestion();
+loadQuestion();
+
 }
 
 /* CONFETTI */
 function startConfetti(){
 
-  const c = document.getElementById("confetti");
-  const ctx = c.getContext("2d");
+const c =
+document.getElementById("confetti");
 
-  c.width = window.innerWidth;
-  c.height = window.innerHeight;
+const ctx = c.getContext("2d");
 
-  const pieces = Array.from({length:80},()=>({
+c.width = window.innerWidth;
+c.height = window.innerHeight;
 
-    x:Math.random()*c.width,
-    y:Math.random()*c.height,
-    r:Math.random()*5+2
+const pieces =
+Array.from({length:80},()=>({
 
-  }));
+x:Math.random()*c.width,
+y:Math.random()*c.height,
+r:Math.random()*5+2
 
-  setInterval(()=>{
+}));
 
-    ctx.clearRect(0,0,c.width,c.height);
+setInterval(()=>{
 
-    ctx.fillStyle = "#6bbf59";
+ctx.clearRect(0,0,c.width,c.height);
 
-    pieces.forEach(p=>{
+ctx.fillStyle="#6bbf59";
 
-      ctx.beginPath();
+pieces.forEach(p=>{
 
-      ctx.arc(p.x,p.y,p.r,0,6.28);
+ctx.beginPath();
 
-      ctx.fill();
+ctx.arc(p.x,p.y,p.r,0,6.28);
 
-      p.y += 2;
+ctx.fill();
 
-      if(p.y > c.height){
+p.y += 2;
 
-        p.y = 0;
+if(p.y > c.height){
 
-      }
+p.y = 0;
 
-    });
+}
 
-  },30);
+});
+
+},30);
+
 }
 
 /* START */
 setTimeout(()=>{
 
-  logoScreen.style.display = "none";
+logoScreen.style.display="none";
 
-  game.style.display = "block";
+game.style.display="block";
 
-  prepareQuestions();
+prepareQuestions();
 
-  loadQuestion();
+loadQuestion();
 
 },5000);
+
 </script>
 
 </body>
