@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Letter Drag Game</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body{
+  margin:0;
+  font-family:Arial, sans-serif;
+  background:#d8e6ef;
+  height:100vh;
+  overflow:hidden;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+/* SCREENS */
+#logoScreen,
+#endScreen{
+  position:absolute;
+  width:100%;
+  height:100%;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
+}
+
+#game{
+  display:none;
+  width:100%;
+  max-width:900px;
+  padding:15px;
+}
+
+/* GAME LAYOUT */
+.game-area{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+}
+
+/* LETTER */
+.letter-box{
+  width:30%;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.letter{
+  width:130px;
+  height:130px;
+  border-radius:20px;
+  background:#fff4dc;
+  border:4px dashed #355c7d;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:70px;
+  font-weight:bold;
+  color:#355c7d;
+  cursor:grab;
+  touch-action:none;
+}
+
+/* PICTURES */
+.options{
+  width:70%;
+  display:flex;
+  gap:12px;
+}
+
+.option{
+  width:50%;
+  background:#fff4dc;
+  border-radius:18px;
+  padding:10px;
+  border:4px solid transparent;
+  min-height:240px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+}
+
+.option img{
+  width:100%;
+  height:150px;
+  object-fit:contain;
+}
+
+.option p{
+  font-size:20px;
+  margin:8px 0 0;
+  color:#333;
+}
+
+/* FEEDBACK */
+#feedback{
+  height:90px;
+  margin-top:10px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+#feedback img{
+  height:80px;
+}
+
+/* BUTTON */
+button{
+  padding:12px 22px;
+  border:none;
+  border-radius:10px;
+  background:#6bbf59;
+  color:white;
+  font-size:18px;
+}
+
+/* MOBILE */
+@media(max-width:700px){
+
+  .game-area{
+    gap:10px;
+  }
+
+  .letter{
+    width:95px;
+    height:95px;
+    font-size:55px;
+  }
+
+  .option{
+    min-height:200px;
+    padding:8px;
+  }
+
+  .option img{
+    height:110px;
+  }
+
+  .option p{
+    font-size:16px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- LOGO -->
+<div id="logoScreen">
+  <img src="assets/innovine-logo.png" width="180">
+</div>
+
+<!-- GAME -->
+<div id="game">
+
+  <div class="game-area">
+
+    <!-- LETTER -->
+    <div class="letter-box">
+      <div class="letter"
+           id="dragLetter"
+           draggable="true">
+      </div>
+    </div>
+
+    <!-- PICTURES -->
+    <div class="options">
+
+      <div class="option"
+           id="drop1">
+        <img id="img1">
+        <p id="txt1"></p>
+      </div>
+
+      <div class="option"
+           id="drop2">
+        <img id="img2">
+        <p id="txt2"></p>
+      </div>
+
+    </div>
+
+  </div>
+
+  <div id="feedback"></div>
+
+</div>
+
+<!-- END -->
+<div id="endScreen" style="display:none;">
+  <h1>Well Done 🎉</h1>
+  <button onclick="restartGame()">Play Again</button>
+  <canvas id="confetti"></canvas>
+</div>
+
+<!-- AUDIO -->
+<audio id="rightSound" src="assets/correct.mp3"></audio>
+<audio id="wrongSound" src="assets/wrong.mp3"></audio>
+
+<script>
+const base = [
+{l:'E', c:{i:'egg.png',t:'Egg'}, w:{i:'bat.png',t:'Bat'}},
+{l:'G', c:{i:'girl.png',t:'Girl'}, w:{i:'sun.png',t:'Sun'}},
+{l:'H', c:{i:'house.png',t:'House'}, w:{i:'kite.png',t:'Kite'}},
+{l:'F', c:{i:'fish.png',t:'Fish'}, w:{i:'jacket.png',t:'Jacket'}},
+{l:'E', c:{i:'elephant.png',t:'Elephant'}, w:{i:'inkpot.png',t:'Inkpot'}},
+{l:'H', c:{i:'hat.png',t:'Hat'}, w:{i:'yarn.png',t:'Yarn'}},
+{l:'F', c:{i:'fan.png',t:'Fan'}, w:{i:'bag.png',t:'Bag'}},
+{l:'G', c:{i:'gift.png',t:'Gift'}, w:{i:'aligator.png',t:'Aligator'}}
+];
+
+let questions = [];
+let current = 0;
+let locked = false;
+
+/* SHUFFLE */
+function shuffle(a){
+  for(let i=a.length-1;i>0;i--){
+    let j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+/* PREPARE */
+function prepareQuestions(){
+  questions = base.map(q=>{
+    const options = shuffle([
+      {...q.c,correct:true},
+      {...q.w,correct:false}
+    ]);
+
+    return {
+      letter:q.l,
+      options
+    };
+  });
+}
+
+/* LOAD */
+function loadQuestion(){
+
+  locked=false;
+
+  const q = questions[current];
+
+  dragLetter.innerText = q.letter;
+
+  img1.src = 'assets/' + q.options[0].i;
+  txt1.innerText = q.options[0].t;
+
+  img2.src = 'assets/' + q.options[1].i;
+  txt2.innerText = q.options[1].t;
+
+  drop1.dataset.correct = q.options[0].correct;
+  drop2.dataset.correct = q.options[1].correct;
+
+  feedback.innerHTML = "";
+}
+
+/* DRAG */
+dragLetter.addEventListener("dragstart", e=>{
+  e.dataTransfer.setData("text","drag");
+});
+
+/* DROP */
+[drop1,drop2].forEach(box=>{
+
+  box.addEventListener("dragover",e=>{
+    e.preventDefault();
+  });
+
+  box.addEventListener("drop",e=>{
+    e.preventDefault();
+
+    if(locked) return;
+
+    locked=true;
+
+    const correct = box.dataset.correct === "true";
+
+    if(correct){
+
+      rightSound.play();
+
+      feedback.innerHTML =
+      "<img src='assets/thumbs-up.png'>";
+
+    }else{
+
+      wrongSound.play();
+
+      feedback.innerHTML =
+      "<img src='assets/try-again.png'>";
+    }
+
+    setTimeout(()=>{
+
+      current++;
+
+      if(current >= questions.length){
+        endGame();
+      }else{
+        loadQuestion();
+      }
+
+    },700);
+
+  });
+
+});
+
+/* END */
+function endGame(){
+
+  game.style.display="none";
+  endScreen.style.display="flex";
+
+  startConfetti();
+}
+
+/* RESTART */
+function restartGame(){
+
+  current=0;
+
+  prepareQuestions();
+
+  endScreen.style.display="none";
+  game.style.display="block";
+
+  loadQuestion();
+}
+
+/* CONFETTI */
+function startConfetti(){
+
+  const c = document.getElementById("confetti");
+  const ctx = c.getContext("2d");
+
+  c.width = window.innerWidth;
+  c.height = window.innerHeight;
+
+  const pieces = Array.from({length:80},()=>({
+    x:Math.random()*c.width,
+    y:Math.random()*c.height,
+    r:Math.random()*5+2
+  }));
+
+  setInterval(()=>{
+
+    ctx.clearRect(0,0,c.width,c.height);
+
+    ctx.fillStyle="#6bbf59";
+
+    pieces.forEach(p=>{
+
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,6.28);
+      ctx.fill();
+
+      p.y += 2;
+
+      if(p.y > c.height){
+        p.y = 0;
+      }
+
+    });
+
+  },30);
+}
+
+/* START */
+setTimeout(()=>{
+
+  logoScreen.style.display="none";
+
+  game.style.display="block";
+
+  prepareQuestions();
+
+  loadQuestion();
+
+},5000);
+</script>
+
+</body>
+</html>
