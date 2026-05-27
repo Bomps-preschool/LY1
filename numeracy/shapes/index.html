@@ -3,120 +3,221 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shape Puzzle Fit</title>
+<title>Innovine Shapes Game</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;}
-html,body{width:100%;height:100%;font-family:"Comic Sans MS","Arial Rounded MT Bold",sans-serif; overflow:hidden;}
-.screen{width:100vw;height:100vh;display:none;flex-direction:column;align-items:center;justify-content:center;}
-.active{display:flex;}
-#logoScreen{background:white;align-items:center;justify-content:center;}
-#logoScreen img{width:min(300px,70vw);}
-#gameScreen{flex-direction:column;width:100%;align-items:center;position:relative;background: url('assets/d97129a7-954d-42b4-8a30-2ea13b2a469f.png') no-repeat center/cover;}
-.header{text-align:center;margin-bottom:12px;}
-.header h1{font-size:clamp(24px,5vw,40px);color:#6b2fa8;}
-.header p{font-size:16px;color:#555;}
-.gameArea{position:relative;width:100%;flex:1;}
-.topShapes{position:absolute;top:20%;width:100%;display:flex;justify-content:center;gap:40px;}
-.topShapes img{width:80px;height:80px;cursor:pointer;border-radius:12px;box-shadow:0 5px 15px rgba(0,0,0,0.15);transition:transform 0.2s;}
-.topShapes img:active{transform:scale(1.1);}
-.outlines{position:absolute;bottom:80px;width:100%;display:flex;justify-content:center;gap:120px;}
-.outline{width:150px;height:150px;display:flex;align-items:center;justify-content:center;}
-.outline img{width:100%;height:100%;}
+  body {
+    margin: 0;
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    background: #FFF8DC; /* soft background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .slide {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+  }
+
+  .active {
+    display: flex;
+  }
+
+  #logo img {
+    width: 200px;
+    height: auto;
+  }
+
+  .game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 50px;
+  }
+
+  .outlines {
+    display: flex;
+    gap: 50px;
+  }
+
+  .outlines img {
+    width: 120px;
+    height: 120px;
+    border: 2px dashed #888;
+  }
+
+  .draggables {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .draggables img {
+    width: 100px;
+    height: 100px;
+    cursor: grab;
+  }
+
+  .text-label {
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 5px;
+    color: #333;
+  }
+
+  .well-done {
+    font-size: 48px;
+    color: #4CAF50;
+    margin-bottom: 30px;
+  }
+
+  button {
+    padding: 15px 30px;
+    font-size: 24px;
+    background: #FFB347; 
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+  }
+
+  button:hover {
+    background: #FFCC70;
+  }
 </style>
 </head>
 <body>
-<div id="logoScreen" class="screen active"><img src="assets/innovine-logo.png" alt="Innovine Logo"></div>
-<div id="gameScreen" class="screen">
-  <div class="header"><h1>Shape Puzzle Fit</h1><p>Drag the shape and fit it in the matching outline.</p></div>
-  <div class="gameArea" id="gameArea">
-    <div class="topShapes" id="topShapes"></div>
-    <div class="outlines">
-      <div class="outline" id="outline-circle"><img src="assets/circle-outline.png"></div>
-      <div class="outline" id="outline-triangle"><img src="assets/triangle-outline.png"></div>
-      <div class="outline" id="outline-square"><img src="assets/square-outline.png"></div>
+
+<!-- Slide 1: Innovine Logo -->
+<div class="slide active" id="logo">
+  <img src="assets/innovine-logo.png" alt="Innovine Logo">
+</div>
+
+<!-- Slide 2: Drag and Drop Shapes -->
+<div class="slide" id="game">
+  <div class="game-container">
+    <div class="outlines" id="outlines">
+      <div>
+        <img src="assets/triangle-outline.png" data-shape="triangle" class="dropzone">
+        <div class="text-label">Triangle</div>
+      </div>
+      <div>
+        <img src="assets/square-outline.png" data-shape="square" class="dropzone">
+        <div class="text-label">Square</div>
+      </div>
+      <div>
+        <img src="assets/circle-outline.png" data-shape="circle" class="dropzone">
+        <div class="text-label">Circle</div>
+      </div>
+    </div>
+
+    <div class="draggables" id="draggables">
+      <img src="assets/triangle.png" data-shape="triangle" draggable="true" class="draggable">
+      <img src="assets/triangle.png" data-shape="triangle" draggable="true" class="draggable">
+      <img src="assets/square.png" data-shape="square" draggable="true" class="draggable">
+      <img src="assets/square.png" data-shape="square" draggable="true" class="draggable">
+      <img src="assets/circle.png" data-shape="circle" draggable="true" class="draggable">
+      <img src="assets/circle.png" data-shape="circle" draggable="true" class="draggable">
     </div>
   </div>
 </div>
-<audio id="correctSound" src="assets/correct.mp3"></audio>
-<audio id="wrongSound" src="assets/wrong.mp3"></audio>
+
+<!-- Slide 3: Well Done -->
+<div class="slide" id="well-done">
+  <div class="well-done">Well Done!</div>
+  <button id="play-again">Play Again</button>
+</div>
+
+<audio id="correct-sound" src="assets/correct.mp3"></audio>
+<audio id="wrong-sound" src="assets/wrong.mp3"></audio>
+
 <script>
-const shapesData=[
-  {type:'circle', img:'assets/circle.png'},
-  {type:'circle', img:'assets/circle.png'},
-  {type:'triangle', img:'assets/triangle.png'},
-  {type:'triangle', img:'assets/triangle.png'},
-  {type:'square', img:'assets/square.png'},
-  {type:'square', img:'assets/square.png'}
-];
-const topShapes=document.getElementById('topShapes');
-const correctSound=document.getElementById('correctSound');
-const wrongSound=document.getElementById('wrongSound');
-const logoScreen=document.getElementById('logoScreen');
-const gameScreen=document.getElementById('gameScreen');
+  const slides = document.querySelectorAll('.slide');
+  let currentSlide = 0;
 
-// Logo splash 5 sec
-setTimeout(()=>{logoScreen.classList.remove('active');gameScreen.classList.add('active'); initGame();},5000);
+  const showSlide = (index) => {
+    slides.forEach(slide => slide.classList.remove('active'));
+    slides[index].classList.add('active');
+  }
 
-function initGame(){
-  shapesData.forEach(shape=>{
-    const el=document.createElement('img');
-    el.src=shape.img;
-    el.dataset.type=shape.type;
-    topShapes.appendChild(el);
+  // Show logo for 5 seconds then start game
+  setTimeout(() => {
+    currentSlide = 1;
+    showSlide(currentSlide);
+  }, 5000);
 
-    let offsetX, offsetY, dragging=false;
-    el.addEventListener('mousedown', startDrag);
-    el.addEventListener('touchstart', startDrag);
+  // Drag and drop logic
+  const draggables = document.querySelectorAll('.draggable');
+  const dropzones = document.querySelectorAll('.dropzone');
+  const correctSound = document.getElementById('correct-sound');
+  const wrongSound = document.getElementById('wrong-sound');
 
-    function startDrag(e){
-      dragging=true;
-      const rect=el.getBoundingClientRect();
-      offsetX=(e.touches?e.touches[0].clientX:e.clientX)-rect.left;
-      offsetY=(e.touches?e.touches[0].clientY:e.clientY)-rect.top;
-      document.addEventListener('mousemove', drag);
-      document.addEventListener('mouseup', drop);
-      document.addEventListener('touchmove', drag);
-      document.addEventListener('touchend', drop);
-    }
+  draggables.forEach(drag => {
+    drag.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('text/plain', e.target.dataset.shape);
+      e.target.style.opacity = 0.5;
+    });
 
-    function drag(e){
-      if(!dragging) return;
+    drag.addEventListener('dragend', e => {
+      e.target.style.opacity = 1;
+    });
+  });
+
+  dropzones.forEach(drop => {
+    drop.addEventListener('dragover', e => {
       e.preventDefault();
-      const x=(e.touches?e.touches[0].clientX:e.clientX)-offsetX;
-      const y=(e.touches?e.touches[0].clientY:e.clientY)-offsetY;
-      el.style.position='absolute';
-      el.style.left=x+'px';
-      el.style.top=y+'px';
-      el.style.zIndex=100;
-    }
+    });
 
-    function drop(e){
-      dragging=false;
-      document.removeEventListener('mousemove', drag);
-      document.removeEventListener('mouseup', drop);
-      document.removeEventListener('touchmove', drag);
-      document.removeEventListener('touchend', drop);
+    drop.addEventListener('drop', e => {
+      e.preventDefault();
+      const draggedShape = e.dataTransfer.getData('text');
+      const dropShape = drop.dataset.shape;
 
-      const outline=document.getElementById('outline-'+el.dataset.type);
-      const outlineRect=outline.getBoundingClientRect();
-      const elRect=el.getBoundingClientRect();
-
-      if(elRect.left+elRect.width/2>outlineRect.left && elRect.left+elRect.width/2<outlineRect.right && elRect.top+elRect.height/2>outlineRect.top && elRect.top+elRect.height/2<outlineRect.bottom){
-        el.style.left=outlineRect.left+'px';
-        el.style.top=outlineRect.top+'px';
-        el.style.pointerEvents='none';
+      if(draggedShape === dropShape) {
         correctSound.play();
-        outline.style.backgroundColor='#c8f7c5';
+        // remove one draggable of the same type
+        const dragged = [...draggables].find(d => d.dataset.shape === draggedShape && !d.classList.contains('placed'));
+        if(dragged){
+          dragged.classList.add('placed');
+          dragged.style.display = 'none';
+        }
+
+        // Check if all placed
+        const allPlaced = [...draggables].every(d => d.classList.contains('placed'));
+        if(allPlaced){
+          currentSlide = 2;
+          showSlide(currentSlide);
+        }
       } else {
         wrongSound.play();
-        el.style.position='relative';
-        el.style.left='';
-        el.style.top='';
-        el.style.zIndex='';
       }
-    }
+    });
   });
-}
+
+  // Play Again button
+  document.getElementById('play-again').addEventListener('click', () => {
+    // Reset draggables
+    draggables.forEach(d => {
+      d.style.display = 'inline-block';
+      d.classList.remove('placed');
+    });
+    currentSlide = 0;
+    showSlide(currentSlide);
+
+    // show logo again for 5 sec
+    setTimeout(() => {
+      currentSlide = 1;
+      showSlide(currentSlide);
+    }, 5000);
+  });
 </script>
+
 </body>
 </html>
