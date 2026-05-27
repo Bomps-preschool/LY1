@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shape Puzzle Fit</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { width:100%; height:100%; font-family:"Comic Sans MS","Arial Rounded MT Bold",sans-serif; background: #fff7e6; overflow:hidden; }
+.screen { width:100vw; height:100vh; display:none; flex-direction:column; align-items:center; justify-content:center; }
+.active { display:flex; }
+#logoScreen { background:white; align-items:center; justify-content:center; }
+#logoScreen img { width:min(300px,70vw); }
+#gameScreen { flex-direction:column; width:100%; align-items:center; position:relative; }
+.header { width:100%; text-align:center; margin-bottom:12px; }
+.header h1 { font-size:clamp(22px,4vw,36px); }
+.gameArea { position:relative; width:100%; flex:1; display:flex; align-items:center; justify-content:center; }
+.outline { position:absolute; width:150px; height:150px; display:flex; align-items:center; justify-content:center; pointer-events:none; }
+.outline img { width:100%; height:100%; }
+.smallShape { width:80px; height:80px; position:absolute; cursor:pointer; transition: transform 0.2s; }
+.smallShape:active { transform: scale(1.1); }
+</style>
+</head>
+<body>
+
+<div id="logoScreen" class="screen active">
+  <img src="assets/innovine-logo.png" alt="Innovine Logo">
+</div>
+
+<div id="gameScreen" class="screen">
+  <div class="header"><h1>Shape Puzzle Fit</h1><p>Drag the shapes into the correct outline.</p></div>
+  <div class="gameArea" id="gameArea">
+    <!-- Outlines -->
+    <div class="outline" id="outline-circle" style="left:20%; top:20%;"><img src="assets/circle-outline.png"></div>
+    <div class="outline" id="outline-triangle" style="left:50%; top:20%;"><img src="assets/triangle-outline.png"></div>
+    <div class="outline" id="outline-square" style="left:80%; top:20%;"><img src="assets/square-outline.png"></div>
+  </div>
+</div>
+
+<audio id="correctSound" src="assets/correct.mp3"></audio>
+<audio id="wrongSound" src="assets/wrong.mp3"></audio>
+
+<script>
+const shapes = [
+  {type:'circle', img:'assets/circle.png'},
+  {type:'triangle', img:'assets/triangle.png'},
+  {type:'square', img:'assets/square.png'}
+];
+
+const logoScreen = document.getElementById('logoScreen');
+const gameScreen = document.getElementById('gameScreen');
+const gameArea = document.getElementById('gameArea');
+const correctSound = document.getElementById('correctSound');
+const wrongSound = document.getElementById('wrongSound');
+
+// Show logo for 5 seconds
+setTimeout(()=>{
+  logoScreen.classList.remove('active');
+  gameScreen.classList.add('active');
+  initGame();
+},5000);
+
+function initGame() {
+  shapes.forEach(shape => {
+    const el = document.createElement('img');
+    el.src = shape.img;
+    el.className = 'smallShape';
+    el.dataset.type = shape.type;
+    el.style.left = Math.random()*60 + 20 + '%';
+    el.style.top = Math.random()*50 + 40 + '%';
+    gameArea.appendChild(el);
+
+    let offsetX, offsetY, dragging=false;
+    el.addEventListener('mousedown', startDrag);
+    el.addEventListener('touchstart', startDrag);
+
+    function startDrag(e){
+      dragging=true;
+      const rect = el.getBoundingClientRect();
+      offsetX = (e.touches? e.touches[0].clientX : e.clientX) - rect.left;
+      offsetY = (e.touches? e.touches[0].clientY : e.clientY) - rect.top;
+      document.addEventListener('mousemove', drag);
+      document.addEventListener('mouseup', drop);
+      document.addEventListener('touchmove', drag);
+      document.addEventListener('touchend', drop);
+    }
+
+    function drag(e){
+      if(!dragging) return;
+      e.preventDefault();
+      const x = (e.touches? e.touches[0].clientX : e.clientX) - offsetX;
+      const y = (e.touches? e.touches[0].clientY : e.clientY) - offsetY;
+      el.style.left = x + 'px';
+      el.style.top = y + 'px';
+    }
+
+    function drop(e){
+      dragging=false;
+      document.removeEventListener('mousemove', drag);
+      document.removeEventListener('mouseup', drop);
+      document.removeEventListener('touchmove', drag);
+      document.removeEventListener('touchend', drop);
+
+      const outline = document.getElementById('outline-'+el.dataset.type);
+      const outlineRect = outline.getBoundingClientRect();
+      const elRect = el.getBoundingClientRect();
+      if(elRect.left + elRect.width/2 > outlineRect.left &&
+         elRect.left + elRect.width/2 < outlineRect.right &&
+         elRect.top + elRect.height/2 > outlineRect.top &&
+         elRect.top + elRect.height/2 < outlineRect.bottom){
+           el.style.left = outlineRect.left + 'px';
+           el.style.top = outlineRect.top + 'px';
+           correctSound.play();
+           el.style.pointerEvents='none';
+           outline.style.backgroundColor = '#c8f7c5';
+      } else {
+           wrongSound.play();
+           el.style.left = Math.random()*60 + 20 + '%';
+           el.style.top = Math.random()*50 + 40 + '%';
+      }
+    }
+  });
+}
+</script>
+</body>
+</html>
