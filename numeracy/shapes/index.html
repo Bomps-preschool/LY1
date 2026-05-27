@@ -11,27 +11,25 @@ html, body { width:100%; height:100%; font-family:"Comic Sans MS","Arial Rounded
 .active { display:flex; }
 #logoScreen { background:white; align-items:center; justify-content:center; }
 #logoScreen img { width:min(300px,70vw); }
-#gameScreen { flex-direction:column; width:100%; align-items:center; position:relative; 
-    background: url('assets/d97129a7-954d-42b4-8a30-2ea13b2a469f.png') no-repeat center/cover;
-}
+#gameScreen { flex-direction:column; width:100%; align-items:center; position:relative; background: url('assets/d97129a7-954d-42b4-8a30-2ea13b2a469f.png') no-repeat center/cover; }
 .header { width:100%; text-align:center; margin-bottom:12px; }
-.header h1 { font-size:clamp(22px,4vw,36px); color:#6b2fa8; }
+.header h1 { font-size:clamp(24px,5vw,40px); color:#6b2fa8; }
 .header p { font-size:16px; color:#555; }
 .gameArea { position:relative; width:100%; flex:1; display:flex; align-items:center; justify-content:center; }
 .outline { position:absolute; width:150px; height:150px; display:flex; align-items:center; justify-content:center; pointer-events:none; }
 .outline img { width:100%; height:100%; }
 #bottomShapes { position:absolute; bottom:20px; display:flex; justify-content:center; width:100%; gap:80px; }
-#bottomShapes img { width:120px; height:120px; cursor:pointer; border-radius:12px; }
+#bottomShapes .basket { display:flex; flex-direction:column; align-items:center; }
+#bottomShapes img { width:120px; height:120px; cursor:pointer; border-radius:12px; box-shadow: 0 5px 15px rgba(0,0,0,0.15); transition: transform 0.2s; }
+#bottomShapes span { margin-top:8px; font-size:18px; font-weight:bold; color:#333; }
 .smallShape { width:80px; height:80px; position:absolute; cursor:pointer; transition: transform 0.2s; }
 .smallShape:active { transform: scale(1.1); }
 </style>
 </head>
 <body>
-
 <div id="logoScreen" class="screen active">
   <img src="assets/innovine-logo.png" alt="Innovine Logo">
 </div>
-
 <div id="gameScreen" class="screen">
   <div class="header">
     <h1>Shape Puzzle Fit</h1>
@@ -44,23 +42,30 @@ html, body { width:100%; height:100%; font-family:"Comic Sans MS","Arial Rounded
     <div class="outline" id="outline-square" style="left:80%; top:20%;"><img src="assets/square-outline.png"></div>
   </div>
   <div id="bottomShapes">
-    <img src="assets/circle.png" data-type="circle">
-    <img src="assets/triangle.png" data-type="triangle">
-    <img src="assets/square.png" data-type="square">
+    <div class="basket">
+      <img src="assets/circle.png" data-type="circle">
+      <span>Circle</span>
+    </div>
+    <div class="basket">
+      <img src="assets/triangle.png" data-type="triangle">
+      <span>Triangle</span>
+    </div>
+    <div class="basket">
+      <img src="assets/square.png" data-type="square">
+      <span>Square</span>
+    </div>
   </div>
 </div>
-
 <audio id="correctSound" src="assets/correct.mp3"></audio>
 <audio id="wrongSound" src="assets/wrong.mp3"></audio>
-
 <script>
 const bottomShapes = document.querySelectorAll('#bottomShapes img');
 const correctSound = document.getElementById('correctSound');
 const wrongSound = document.getElementById('wrongSound');
-
-// Logo splash for 5 seconds
 const logoScreen = document.getElementById('logoScreen');
 const gameScreen = document.getElementById('gameScreen');
+
+// Logo splash for 5 seconds
 setTimeout(()=>{ logoScreen.classList.remove('active'); gameScreen.classList.add('active'); },5000);
 
 // Drag & Drop
@@ -116,7 +121,7 @@ bottomShapes.forEach(shape => {
                shape.style.position='relative';
                shape.style.left='';
                shape.style.top='';
-               shape.style.zIndex = '';
+               shape.style.zIndex='';
         }
     }
 });
