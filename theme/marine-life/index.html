@@ -38,9 +38,10 @@
     position: relative;
     width: 100vw;
     height: 100vh;
-    background-image: url('assets/947ccca0-0cc1-4879-bc04-b0788bec34f6.png');
+    background-image: url('assets/background-ocean.png');
     background-size: cover;
     background-position: center;
+    overflow: hidden;
   }
 
   .hiding-spot {
@@ -48,7 +49,7 @@
     width: 120px;
     height: 120px;
     cursor: pointer;
-    border: 2px dashed #fff;
+    border: 2px dashed rgba(255,255,255,0.7);
     border-radius: 50%;
     display: flex;
     justify-content: center;
@@ -70,6 +71,7 @@
     height: 120px;
     display: none;
     transition: transform 0.3s;
+    z-index: 6;
   }
 
   .animal.pop {
@@ -94,6 +96,22 @@
 
   #playAgainBtn:hover {
     background-color: #45a049;
+  }
+
+  /* Bubble animation */
+  .bubble {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background: url('assets/bubble.png') no-repeat center/contain;
+    opacity: 0.7;
+    animation: rise 5s linear infinite;
+  }
+
+  @keyframes rise {
+    0% { transform: translateY(100vh) scale(0.5); opacity:0.7; }
+    50% { opacity:1; }
+    100% { transform: translateY(-50px) scale(1); opacity:0; }
   }
 </style>
 </head>
@@ -139,11 +157,12 @@ function startGame() {
   logoScreen.style.display = 'flex';
   gameScreen.style.display = 'none';
   playAgainBtn.style.display = 'none';
-  
+
   setTimeout(() => {
     logoScreen.style.display = 'none';
     gameScreen.style.display = 'block';
     resetAnimals();
+    generateBubbles();
   }, 5000);
 }
 
@@ -160,7 +179,7 @@ Object.keys(spotAnimalMap).forEach(spotId => {
   const spot = document.getElementById(spotId);
   const animalId = spotAnimalMap[spotId];
   const animal = document.getElementById(animalId);
-  
+
   spot.addEventListener('click', () => {
     animal.classList.add('pop');
   });
@@ -171,6 +190,20 @@ playAgainBtn.addEventListener('click', () => {
   resetAnimals();
   startGame();
 });
+
+// Bubble generation
+function generateBubbles() {
+  // Remove existing bubbles
+  document.querySelectorAll('.bubble').forEach(b => b.remove());
+
+  for(let i=0;i<10;i++){
+    const bubble = document.createElement('div');
+    bubble.classList.add('bubble');
+    bubble.style.left = Math.random()*90 + 'vw';
+    bubble.style.animationDuration = (3 + Math.random()*3) + 's';
+    gameScreen.appendChild(bubble);
+  }
+}
 
 // Start game
 startGame();
