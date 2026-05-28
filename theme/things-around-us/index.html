@@ -7,10 +7,11 @@
 <style>
 body {
   margin:0;
-  font-family: 'Comic Sans MS', sans-serif;
+  font-family:'Comic Sans MS', sans-serif;
   overflow:hidden;
 }
 
+/* Screens */
 #logoScreen, #gameScreen, #winScreen {
   display:none;
   width:100vw;
@@ -34,20 +35,23 @@ body {
   flex-wrap:wrap;
   justify-content:space-around;
   align-items:center;
-  padding:2vw;
+  padding:1vw;
   box-sizing:border-box;
-  background-image: url('assets/a_bright_colorful_3_panel_children_s_educational.png');
-  background-size:cover;
-  background-position:center;
+  background-image: url('assets/background-room.png');
+  background-size: cover;
+  background-position: center;
 }
 
 .object-card {
-  position:relative;
+  position: relative;
   width: 15vw;
   max-width:180px;
   text-align:center;
   margin:1vw;
   cursor:pointer;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  background: #fff;
 }
 
 .object-card img {
@@ -56,21 +60,16 @@ body {
   transition: transform 0.3s;
 }
 
-.object-card.correct img {
-  transform: scale(1.1);
-}
-
-.object-card.incorrect img {
-  transform: rotate(-10deg);
-}
+.object-card.correct img { transform: scale(1.1); }
+.object-card.incorrect img { transform: rotate(-10deg); }
 
 .object-card span {
   display:block;
   margin-top:0.5vw;
   font-size:4vw;
   max-font-size:20px;
-  color:#000;
   font-weight:bold;
+  color:#000;
 }
 
 /* Win Screen */
@@ -102,7 +101,7 @@ body {
   z-index:26;
 }
 
-#playAgainBtn:hover {background-color:#45a049;}
+#playAgainBtn:hover { background-color:#45a049; }
 
 /* Confetti */
 .confetti {
@@ -124,12 +123,12 @@ body {
 </head>
 <body>
 
-<!-- Slide 1 -->
+<!-- Slide 1: Innovine Logo -->
 <div id="logoScreen">
   <img src="assets/innovine-logo.png" alt="Innovine Logo">
 </div>
 
-<!-- Slide 2 -->
+<!-- Slide 2: Game -->
 <div id="gameScreen">
   <div class="object-card" data-name="chair"><img src="assets/chair.png"><span>Chair</span></div>
   <div class="object-card" data-name="tree"><img src="assets/tree.png"><span>Tree</span></div>
@@ -139,7 +138,7 @@ body {
   <div class="object-card" data-name="fan"><img src="assets/fan.png"><span>Fan</span></div>
 </div>
 
-<!-- Slide 3 -->
+<!-- Slide 3: Win -->
 <div id="winScreen">
   <h1>Well Done!</h1>
   <button id="playAgainBtn">Play Again</button>
@@ -152,95 +151,105 @@ body {
 <audio id="refrigeratorAudio" src="assets/refrigerator.mp3"></audio>
 <audio id="clockAudio" src="assets/clock.mp3"></audio>
 <audio id="fanAudio" src="assets/fan.mp3"></audio>
-<audio id="correctSound" src="assets/right.mp3"></audio>
+<audio id="correctSound" src="assets/correct.mp3"></audio>
 <audio id="wrongSound" src="assets/wrong.mp3"></audio>
 
 <script>
-const logoScreen=document.getElementById('logoScreen');
-const gameScreen=document.getElementById('gameScreen');
-const winScreen=document.getElementById('winScreen');
-const playAgainBtn=document.getElementById('playAgainBtn');
+const logoScreen = document.getElementById('logoScreen');
+const gameScreen = document.getElementById('gameScreen');
+const winScreen = document.getElementById('winScreen');
+const playAgainBtn = document.getElementById('playAgainBtn');
 
-const objects=Array.from(document.querySelectorAll('.object-card'));
-const audioMap={
-  chair:document.getElementById('chairAudio'),
-  tree:document.getElementById('treeAudio'),
-  toys:document.getElementById('toysAudio'),
-  refrigerator:document.getElementById('refrigeratorAudio'),
-  clock:document.getElementById('clockAudio'),
-  fan:document.getElementById('fanAudio')
+const objects = Array.from(document.querySelectorAll('.object-card'));
+
+const audioMap = {
+  chair: document.getElementById('chairAudio'),
+  tree: document.getElementById('treeAudio'),
+  toys: document.getElementById('toysAudio'),
+  refrigerator: document.getElementById('refrigeratorAudio'),
+  clock: document.getElementById('clockAudio'),
+  fan: document.getElementById('fanAudio')
 };
-const correctSound=document.getElementById('correctSound');
-const wrongSound=document.getElementById('wrongSound');
 
-let sequence=['toys','refrigerator','tree','fan','chair','clock'];
-let currentIndex=0;
+const correctSound = document.getElementById('correctSound');
+const wrongSound = document.getElementById('wrongSound');
 
-function startGame(){
-  logoScreen.style.display='flex';
-  gameScreen.style.display='none';
-  winScreen.style.display='none';
+let sequence = ['toys','refrigerator','tree','fan','chair','clock'];
+let currentIndex = 0;
+
+// Start Game
+function startGame() {
+  logoScreen.style.display = 'flex';
+  gameScreen.style.display = 'none';
+  winScreen.style.display = 'none';
   setTimeout(()=>{
-    logoScreen.style.display='none';
-    gameScreen.style.display='flex';
+    logoScreen.style.display = 'none';
+    gameScreen.style.display = 'flex';
     randomizeObjects();
-    currentIndex=0;
+    currentIndex = 0;
     playNextAudio();
-  },5000);
+  }, 5000);
 }
 
-function playNextAudio(){
-  if(currentIndex>=sequence.length){
-    setTimeout(showWinScreen,500);
+// Play next audio in sequence
+function playNextAudio() {
+  if(currentIndex >= sequence.length) {
+    setTimeout(showWinScreen, 500);
     return;
   }
   audioMap[sequence[currentIndex]].play();
 }
 
+// Object Clicks
 objects.forEach(obj=>{
   obj.addEventListener('click',()=>{
-    const name=obj.getAttribute('data-name');
-    if(name===sequence[currentIndex]){
+    const name = obj.getAttribute('data-name');
+    const expectedName = sequence[currentIndex];
+    if(name === expectedName){
       obj.classList.add('correct');
-      correctSound.currentTime=0;
+      correctSound.currentTime = 0;
       correctSound.play();
       currentIndex++;
       setTimeout(playNextAudio,500);
-    }else{
+    } else {
       obj.classList.add('incorrect');
-      wrongSound.currentTime=0;
+      wrongSound.currentTime = 0;
       wrongSound.play();
       setTimeout(()=>obj.classList.remove('incorrect'),500);
     }
   });
 });
 
-function randomizeObjects(){
-  const parent=gameScreen;
-  const shuffled=objects.sort(()=>0.5-Math.random());
+// Randomize objects for Play Again
+function randomizeObjects() {
+  const parent = gameScreen;
+  const shuffled = objects.sort(()=>0.5-Math.random());
   shuffled.forEach(o=>parent.appendChild(o));
 }
 
+// Show Win Screen
 function showWinScreen(){
   gameScreen.style.display='none';
   winScreen.style.display='flex';
   createConfetti();
 }
 
+// Confetti
 function createConfetti(){
   const colors=["#ff595e","#ffca3a","#8ac926","#1982c4","#6a4c93","#ff85a1","#00c2ff"];
   for(let i=0;i<100;i++){
     const c=document.createElement('div');
     c.classList.add('confetti');
-    c.style.background=colors[Math.floor(Math.random()*colors.length)];
-    c.style.left=Math.random()*100+'vw';
-    c.style.top=Math.random()*80+'vh';
-    c.style.animationDuration=(2+Math.random()*3)+'s';
+    c.style.background = colors[Math.floor(Math.random()*colors.length)];
+    c.style.left = Math.random()*100+'vw';
+    c.style.top = Math.random()*80+'vh';
+    c.style.animationDuration = (2 + Math.random()*3)+'s';
     winScreen.appendChild(c);
     setTimeout(()=>c.remove(),5500);
   }
 }
 
+// Play Again button
 playAgainBtn.addEventListener('click',()=>{
   winScreen.style.display='none';
   objects.forEach(o=>o.classList.remove('correct'));
