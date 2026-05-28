@@ -8,47 +8,54 @@
   body {
     font-family: 'Comic Sans MS', sans-serif;
     background-color: #d9ecf2;
+    margin: 0;
+    min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
-    margin: 0;
   }
 
   #logoScreen, #gameScreen, #winScreen {
     display: none;
     flex-direction: column;
     align-items: center;
+    width: 90vw;
+    max-width: 1200px;
   }
 
   #logoScreen img {
-    width: 300px;
+    width: 50vw;
+    max-width: 300px;
     height: auto;
   }
 
   #gameScreen {
     background-color: #f9f3e9;
-    padding: 30px;
-    border-radius: 20px;
+    padding: 2vw;
+    border-radius: 2vw;
     text-align: center;
+    box-sizing: border-box;
   }
 
   .outline-container {
     display: flex;
     justify-content: center;
-    gap: 50px;
-    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 5vw;
+    margin-bottom: 4vh;
   }
 
   .outline-box {
-    width: 120px;
-    height: 120px;
+    width: 20vw;
+    max-width: 150px;
+    aspect-ratio: 1 / 1;
     border: 4px dashed #555;
     display: flex;
     justify-content: center;
     align-items: center;
-    border-radius: 15px;
+    border-radius: 1vw;
     position: relative;
+    transition: transform 0.2s;
   }
 
   .outline-box img {
@@ -57,24 +64,31 @@
     pointer-events: none;
   }
 
+  .outline-box.highlight {
+    transform: scale(1.1);
+    border-color: #4CAF50;
+  }
+
   .shapes-row {
     display: flex;
     justify-content: center;
-    gap: 30px;
     flex-wrap: wrap;
+    gap: 4vw;
   }
 
   .draggable-shape {
-    width: 100px;
-    height: 100px;
+    width: 18vw;
+    max-width: 120px;
+    aspect-ratio: 1 / 1;
     background-color: white;
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: grab;
-    border-radius: 10px;
-    touch-action: none; /* important for touch */
+    border-radius: 1vw;
+    touch-action: none;
     position: relative;
+    transition: transform 0.1s;
   }
 
   .draggable-shape img {
@@ -89,10 +103,10 @@
   }
 
   #winScreen button {
-    padding: 10px 30px;
-    font-size: 18px;
+    padding: 1vh 2vw;
+    font-size: 2vw;
     border: none;
-    border-radius: 10px;
+    border-radius: 1vw;
     background-color: #4CAF50;
     color: white;
     cursor: pointer;
@@ -111,7 +125,7 @@
 
 <div id="gameScreen">
   <h2>Count the shapes and drag to the correct outline</h2>
-  <p>Tap on the shapes</p>
+  <p>Tap or drag the shapes to match the outline</p>
   <div class="outline-container">
     <div class="outline-box" data-shape="triangle">
       <img src="assets/triangle-outline.png" alt="Triangle Outline">
@@ -166,6 +180,7 @@ let draggedShape = null;
 let totalShapes = document.querySelectorAll('.draggable-shape').length;
 let correctDrops = 0;
 
+// Start game
 function startGame() {
   logoScreen.style.display = 'flex';
   gameScreen.style.display = 'none';
@@ -173,7 +188,7 @@ function startGame() {
   setTimeout(() => {
     logoScreen.style.display = 'none';
     gameScreen.style.display = 'flex';
-  }, 5000);
+  }, 3000);
 }
 
 // Desktop Drag & Drop
@@ -214,6 +229,7 @@ document.querySelectorAll('.draggable-shape').forEach(shape => {
       ) {
         drop = box;
       }
+      box.classList.remove('highlight');
     });
     if (drop) handleDrop(drop);
     shape.style.position = 'relative';
@@ -221,6 +237,12 @@ document.querySelectorAll('.draggable-shape').forEach(shape => {
     shape.style.top = '0px';
     draggedShape = null;
   });
+});
+
+// Highlight outlines while dragging
+document.querySelectorAll('.outline-box').forEach(box => {
+  box.addEventListener('dragenter', () => box.classList.add('highlight'));
+  box.addEventListener('dragleave', () => box.classList.remove('highlight'));
 });
 
 function handleDrop(box) {
@@ -253,6 +275,5 @@ playAgainBtn.addEventListener('click', () => {
 
 startGame();
 </script>
-
 </body>
 </html>
