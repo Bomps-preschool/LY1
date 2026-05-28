@@ -3,207 +3,225 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shapes Drag and Drop Game</title>
+<title>Shapes Drag and Drop</title>
 <style>
-    body {
-        margin: 0;
-        font-family: 'Comic Sans MS', sans-serif;
-        background-color: #e0f0f8;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        overflow: hidden;
-    }
-    #logoSlide, #gameSlide, #endSlide {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        display: none;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-    }
-    #logoSlide img {
-        width: 250px;
-    }
-    #gameSlide {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-    #instructions {
-        font-size: 1.5em;
-        margin-bottom: 20px;
-        text-align: center;
-    }
-    #dropArea {
-        display: flex;
-        justify-content: center;
-        gap: 100px;
-        margin-bottom: 50px;
-    }
-    .outline {
-        width: 120px;
-        height: 120px;
-        border: 3px dashed #555;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background-size: contain;
-        background-repeat: no-repeat;
-        background-position: center;
-    }
-    #shapes {
-        display: flex;
-        gap: 20px;
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-    .shape {
-        width: 100px;
-        height: 100px;
-        cursor: grab;
-    }
-    #endSlide {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-        font-size: 2em;
-    }
-    #playAgain {
-        padding: 10px 25px;
-        font-size: 1em;
-        margin-top: 20px;
-        background-color: #4caf50;
-        border: none;
-        color: white;
-        cursor: pointer;
-        border-radius: 5px;
-    }
-    .confetti {
-        position: absolute;
-        width: 10px;
-        height: 10px;
-        background-color: red;
-        top: 0;
-        animation: fall linear;
-    }
-    @keyframes fall {
-        0% { top: -20px; transform: rotate(0deg); }
-        100% { top: 100vh; transform: rotate(360deg); }
-    }
+  body {
+    font-family: 'Comic Sans MS', sans-serif;
+    background-color: #d9ecf2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+  }
+
+  #logoScreen, #gameScreen, #winScreen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  #logoScreen img {
+    width: 300px;
+    height: auto;
+  }
+
+  #gameScreen {
+    background-color: #f9f3e9;
+    padding: 30px;
+    border-radius: 20px;
+    text-align: center;
+  }
+
+  .outline-container {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+    margin-bottom: 30px;
+  }
+
+  .outline-box {
+    width: 120px;
+    height: 120px;
+    border: 4px dashed #555;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 15px;
+    position: relative;
+  }
+
+  .outline-box img {
+    width: 80%;
+    height: 80%;
+    pointer-events: none; /* allow drop */
+  }
+
+  .shapes-row {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+  }
+
+  .draggable-shape {
+    width: 100px;
+    height: 100px;
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: grab;
+    border-radius: 10px;
+  }
+
+  .draggable-shape img {
+    width: 90%;
+    height: 90%;
+    user-select: none;
+    pointer-events: none;
+  }
+
+  #winScreen {
+    text-align: center;
+  }
+
+  #winScreen button {
+    padding: 10px 30px;
+    font-size: 18px;
+    border: none;
+    border-radius: 10px;
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+  }
+
+  #winScreen button:hover {
+    background-color: #45a049;
+  }
 </style>
 </head>
 <body>
 
-<!-- Logo Slide -->
-<div id="logoSlide">
-    <img src="assets/innovine-logo.png" alt="Innovine Logo">
+<!-- Innovine Logo Screen -->
+<div id="logoScreen">
+  <img src="assets/innovine-logo.png" alt="Innovine Logo">
 </div>
 
-<!-- Game Slide -->
-<div id="gameSlide">
-    <div id="instructions">
-        Count the shapes and drag to the correct outline<br>Tap on the shapes
+<!-- Game Screen -->
+<div id="gameScreen">
+  <h2>Count the shapes and drag to the correct outline</h2>
+  <p>Tap on the shapes</p>
+  <div class="outline-container">
+    <div class="outline-box" data-shape="triangle">
+      <img src="assets/triangle-outline.png" alt="Triangle Outline">
     </div>
-    <div id="dropArea">
-        <div class="outline" id="triangleOutline" style="background-image: url('assets/triangle-outline.png');"></div>
-        <div class="outline" id="squareOutline" style="background-image: url('assets/square-outline.png');"></div>
-        <div class="outline" id="circleOutline" style="background-image: url('assets/circle-outline.png');"></div>
+    <div class="outline-box" data-shape="square">
+      <img src="assets/square-outline.png" alt="Square Outline">
     </div>
-    <div id="shapes">
-        <img src="assets/triangle.png" draggable="true" class="shape" data-shape="triangle">
-        <img src="assets/triangle.png" draggable="true" class="shape" data-shape="triangle">
-        <img src="assets/square.png" draggable="true" class="shape" data-shape="square">
-        <img src="assets/square.png" draggable="true" class="shape" data-shape="square">
-        <img src="assets/circle.png" draggable="true" class="shape" data-shape="circle">
-        <img src="assets/circle.png" draggable="true" class="shape" data-shape="circle">
+    <div class="outline-box" data-shape="circle">
+      <img src="assets/circle-outline.png" alt="Circle Outline">
     </div>
+  </div>
+  <div class="shapes-row">
+    <div class="draggable-shape" draggable="true" data-shape="triangle">
+      <img src="assets/triangle.png" alt="Triangle">
+    </div>
+    <div class="draggable-shape" draggable="true" data-shape="triangle">
+      <img src="assets/triangle.png" alt="Triangle">
+    </div>
+    <div class="draggable-shape" draggable="true" data-shape="square">
+      <img src="assets/square.png" alt="Square">
+    </div>
+    <div class="draggable-shape" draggable="true" data-shape="square">
+      <img src="assets/square.png" alt="Square">
+    </div>
+    <div class="draggable-shape" draggable="true" data-shape="circle">
+      <img src="assets/circle.png" alt="Circle">
+    </div>
+    <div class="draggable-shape" draggable="true" data-shape="circle">
+      <img src="assets/circle.png" alt="Circle">
+    </div>
+  </div>
 </div>
 
-<!-- End Slide -->
-<div id="endSlide">
-    Well Done!
-    <button id="playAgain">Play Again</button>
+<!-- Win Screen -->
+<div id="winScreen">
+  <h1>Well Done!</h1>
+  <button id="playAgainBtn">Play Again</button>
+  <img src="assets/confetti.gif" alt="Celebration" id="confetti" style="width:100%; max-width:400px; margin-top:20px;">
 </div>
 
 <audio id="correctSound" src="assets/correct.mp3"></audio>
 <audio id="wrongSound" src="assets/wrong.mp3"></audio>
+<audio id="clapSound" src="assets/claps.mp3"></audio>
 
 <script>
-    const logoSlide = document.getElementById('logoSlide');
-    const gameSlide = document.getElementById('gameSlide');
-    const endSlide = document.getElementById('endSlide');
-    const playAgain = document.getElementById('playAgain');
+const logoScreen = document.getElementById('logoScreen');
+const gameScreen = document.getElementById('gameScreen');
+const winScreen = document.getElementById('winScreen');
+const playAgainBtn = document.getElementById('playAgainBtn');
+const confetti = document.getElementById('confetti');
+const correctSound = document.getElementById('correctSound');
+const wrongSound = document.getElementById('wrongSound');
 
-    // Show logo first for 5 seconds
-    logoSlide.style.display = 'flex';
-    setTimeout(() => {
-        logoSlide.style.display = 'none';
-        gameSlide.style.display = 'flex';
-    }, 5000);
+let draggedShape = null;
+let totalShapes = document.querySelectorAll('.draggable-shape').length;
+let correctDrops = 0;
 
-    const shapes = document.querySelectorAll('.shape');
-    const outlines = document.querySelectorAll('.outline');
-    const correctSound = document.getElementById('correctSound');
-    const wrongSound = document.getElementById('wrongSound');
+function startGame() {
+  logoScreen.style.display = 'flex';
+  gameScreen.style.display = 'none';
+  winScreen.style.display = 'none';
+  setTimeout(() => {
+    logoScreen.style.display = 'none';
+    gameScreen.style.display = 'flex';
+  }, 5000);
+}
 
-    shapes.forEach(shape => {
-        shape.addEventListener('dragstart', dragStart);
-    });
+// Drag & Drop
+document.querySelectorAll('.draggable-shape').forEach(shape => {
+  shape.addEventListener('dragstart', e => {
+    draggedShape = shape;
+  });
+});
 
-    outlines.forEach(outline => {
-        outline.addEventListener('dragover', dragOver);
-        outline.addEventListener('drop', dropShape);
-    });
-
-    let draggedShape = null;
-
-    function dragStart(e) {
-        draggedShape = e.target;
+document.querySelectorAll('.outline-box').forEach(box => {
+  box.addEventListener('dragover', e => e.preventDefault());
+  box.addEventListener('drop', e => {
+    const shapeType = draggedShape.dataset.shape;
+    const boxType = box.dataset.shape;
+    if (shapeType === boxType) {
+      draggedShape.style.display = 'none'; // disappear when correctly placed
+      correctSound.play();
+      correctDrops++;
+      if (correctDrops === totalShapes) {
+        setTimeout(() => showWinScreen(), 500);
+      }
+    } else {
+      wrongSound.play();
     }
+    draggedShape = null;
+  });
+});
 
-    function dragOver(e) {
-        e.preventDefault();
-    }
+function showWinScreen() {
+  gameScreen.style.display = 'none';
+  winScreen.style.display = 'flex';
+  confetti.style.display = 'block';
+}
 
-    function dropShape(e) {
-        const outlineType = e.target.id.replace('Outline','').toLowerCase();
-        if(draggedShape.dataset.shape === outlineType){
-            // Correct
-            correctSound.play();
-            draggedShape.style.display = 'none'; // disappear when dropped
-            checkAllPlaced();
-        } else {
-            wrongSound.play();
-        }
-    }
+playAgainBtn.addEventListener('click', () => {
+  // Reset game
+  document.querySelectorAll('.draggable-shape').forEach(s => s.style.display = 'flex');
+  correctDrops = 0;
+  confetti.style.display = 'none';
+  startGame();
+});
 
-    function checkAllPlaced() {
-        const remaining = Array.from(shapes).some(s => s.style.display !== 'none');
-        if(!remaining) {
-            showConfetti();
-            gameSlide.style.display = 'none';
-            endSlide.style.display = 'flex';
-        }
-    }
-
-    playAgain.addEventListener('click', () => {
-        location.reload();
-    });
-
-    function showConfetti() {
-        for(let i=0;i<50;i++){
-            const confetti = document.createElement('div');
-            confetti.classList.add('confetti');
-            confetti.style.left = Math.random()*window.innerWidth+'px';
-            confetti.style.backgroundColor = `hsl(${Math.random()*360}, 100%, 50%)`;
-            confetti.style.animationDuration = (2+Math.random()*3)+'s';
-            document.body.appendChild(confetti);
-        }
-    }
+// Initialize
+startGame();
 </script>
+
 </body>
 </html>
