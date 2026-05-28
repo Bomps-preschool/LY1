@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Peek-a-Boo Marine Life</title>
+<style>
+  body {
+    margin: 0;
+    font-family: 'Comic Sans MS', sans-serif;
+    background-color: #d9ecf2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  #logoScreen, #gameScreen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  #logoScreen img {
+    width: 300px;
+    height: auto;
+  }
+
+  #gameScreen {
+    position: relative;
+    width: 100%;
+    max-width: 800px;
+    height: 600px;
+    background-image: url('assets/background-ocean.png');
+    background-size: cover;
+    border-radius: 20px;
+    overflow: hidden;
+  }
+
+  .hiding-spot {
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    cursor: pointer;
+  }
+
+  .animal {
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    display: none;
+    transition: transform 0.3s;
+  }
+
+  .animal.pop {
+    display: block;
+    transform: translateY(-20px);
+  }
+
+  #playAgainBtn {
+    margin-top: 20px;
+    padding: 10px 30px;
+    font-size: 18px;
+    border: none;
+    border-radius: 10px;
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+  }
+
+  #playAgainBtn:hover {
+    background-color: #45a049;
+  }
+</style>
+</head>
+<body>
+
+<!-- Logo Screen -->
+<div id="logoScreen">
+  <img src="assets/innovine-logo.png" alt="Innovine Logo">
+</div>
+
+<!-- Game Screen -->
+<div id="gameScreen">
+  <!-- Hiding spots -->
+  <div class="hiding-spot" id="spot1" style="top: 50px; left: 50px;"></div>
+  <div class="hiding-spot" id="spot2" style="top: 50px; right: 50px;"></div>
+  <div class="hiding-spot" id="spot3" style="bottom: 50px; left: 50px;"></div>
+  <div class="hiding-spot" id="spot4" style="bottom: 50px; right: 50px;"></div>
+
+  <!-- Animals -->
+  <img src="assets/fish.png" class="animal" id="fish" style="top:50px; left:50px;">
+  <img src="assets/dolphin.png" class="animal" id="dolphin" style="top:50px; right:50px;">
+  <img src="assets/crab.png" class="animal" id="crab" style="bottom:50px; left:50px;">
+  <img src="assets/octopus.png" class="animal" id="octopus" style="bottom:50px; right:50px;">
+</div>
+
+<button id="playAgainBtn">Play Again</button>
+
+<script>
+const logoScreen = document.getElementById('logoScreen');
+const gameScreen = document.getElementById('gameScreen');
+const playAgainBtn = document.getElementById('playAgainBtn');
+
+const spotAnimalMap = {
+  'spot1': 'fish',
+  'spot2': 'dolphin',
+  'spot3': 'crab',
+  'spot4': 'octopus'
+};
+
+function startGame() {
+  logoScreen.style.display = 'flex';
+  gameScreen.style.display = 'none';
+  playAgainBtn.style.display = 'none';
+  
+  setTimeout(() => {
+    logoScreen.style.display = 'none';
+    gameScreen.style.display = 'block';
+    resetAnimals();
+  }, 5000);
+}
+
+// Reset animals
+function resetAnimals() {
+  Object.values(spotAnimalMap).forEach(id => {
+    const el = document.getElementById(id);
+    el.classList.remove('pop');
+  });
+}
+
+// Add click handlers
+Object.keys(spotAnimalMap).forEach(spotId => {
+  const spot = document.getElementById(spotId);
+  const animalId = spotAnimalMap[spotId];
+  const animal = document.getElementById(animalId);
+  
+  spot.addEventListener('click', () => {
+    animal.classList.add('pop');
+  });
+});
+
+// Play Again button
+playAgainBtn.addEventListener('click', () => {
+  resetAnimals();
+  startGame();
+});
+
+// Start game
+startGame();
+</script>
+
+</body>
+</html>
