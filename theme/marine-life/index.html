@@ -8,11 +8,7 @@
   body {
     margin: 0;
     font-family: 'Comic Sans MS', sans-serif;
-    background-color: #d9ecf2;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
+    overflow: hidden;
   }
 
   #logoScreen, #gameScreen {
@@ -37,16 +33,23 @@
     text-shadow: 1px 1px 2px #fff;
     z-index: 10;
   }
-  
+
   #gameScreen {
     position: relative;
-    width: 100%;
-    max-width: 800px;
-    height: 600px;
+    width: 100vw;
+    height: 100vh;
     background-image: url('assets/background-ocean.png');
     background-size: cover;
-    border-radius: 20px;
+    background-position: center;
     overflow: hidden;
+  }
+
+  /* Coral images */
+  .coral {
+    position: absolute;
+    width: 150px;
+    height: auto;
+    z-index: 1;
   }
 
   .hiding-spot {
@@ -54,6 +57,20 @@
     width: 120px;
     height: 120px;
     cursor: pointer;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 5;
+    border: 2px dashed rgba(255,255,255,0.7);
+  }
+
+  .hiding-spot span {
+    font-size: 16px;
+    color: #fff;
+    background-color: rgba(0,0,0,0.5);
+    padding: 2px 6px;
+    border-radius: 6px;
   }
 
   .animal {
@@ -62,6 +79,7 @@
     height: 120px;
     display: none;
     transition: transform 0.3s;
+    z-index: 6;
   }
 
   .animal.pop {
@@ -70,7 +88,10 @@
   }
 
   #playAgainBtn {
-    margin-top: 20px;
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
     padding: 10px 30px;
     font-size: 18px;
     border: none;
@@ -78,10 +99,26 @@
     background-color: #4CAF50;
     color: white;
     cursor: pointer;
+    z-index: 10;
   }
 
   #playAgainBtn:hover {
     background-color: #45a049;
+  }
+
+  .bubble {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background: url('assets/bubble.png') no-repeat center/contain;
+    opacity: 0.7;
+    animation: rise 5s linear infinite;
+  }
+
+  @keyframes rise {
+    0% { transform: translateY(100vh) scale(0.5); opacity:0.7; }
+    50% { opacity:1; }
+    100% { transform: translateY(-50px) scale(1); opacity:0; }
   }
 </style>
 </head>
@@ -94,17 +131,25 @@
 
 <!-- Game Screen -->
 <div id="gameScreen">
+  <div id="instruction">Tap the spot to reveal the ocean friend!</div>
+
+  <!-- Corals -->
+  <img src="assets/coral-1.png" class="coral" style="bottom:10%; left:5%;">
+  <img src="assets/coral-2.png" class="coral" style="bottom:15%; right:10%;">
+  <img src="assets/coral-3.png" class="coral" style="bottom:5%; left:50%;">
+  <img src="assets/coral-4.png" class="coral" style="bottom:12%; right:40%;">
+
   <!-- Hiding spots -->
-  <div class="hiding-spot" id="spot1" style="top: 50px; left: 50px;"></div>
-  <div class="hiding-spot" id="spot2" style="top: 50px; right: 50px;"></div>
-  <div class="hiding-spot" id="spot3" style="bottom: 50px; left: 50px;"></div>
-  <div class="hiding-spot" id="spot4" style="bottom: 50px; right: 50px;"></div>
+  <div class="hiding-spot" id="spot1" style="top: 20%; left: 10%;"><span>Tap Here</span></div>
+  <div class="hiding-spot" id="spot2" style="top: 20%; right: 10%;"><span>Tap Here</span></div>
+  <div class="hiding-spot" id="spot3" style="bottom: 20%; left: 10%;"><span>Tap Here</span></div>
+  <div class="hiding-spot" id="spot4" style="bottom: 20%; right: 10%;"><span>Tap Here</span></div>
 
   <!-- Animals -->
-  <img src="assets/fish.png" class="animal" id="fish" style="top:50px; left:50px;">
-  <img src="assets/dolphin.png" class="animal" id="dolphin" style="top:50px; right:50px;">
-  <img src="assets/crab.png" class="animal" id="crab" style="bottom:50px; left:50px;">
-  <img src="assets/octopus.png" class="animal" id="octopus" style="bottom:50px; right:50px;">
+  <img src="assets/fish.png" class="animal" id="fish" style="top:20%; left:10%;">
+  <img src="assets/dolphin.png" class="animal" id="dolphin" style="top:20%; right:10%;">
+  <img src="assets/crab.png" class="animal" id="crab" style="bottom:20%; left:10%;">
+  <img src="assets/octopus.png" class="animal" id="octopus" style="bottom:20%; right:10%;">
 </div>
 
 <button id="playAgainBtn">Play Again</button>
@@ -123,13 +168,14 @@ const spotAnimalMap = {
 
 function startGame() {
   logoScreen.style.display = 'flex';
-  gameScreen.style.display = 'background';
+  gameScreen.style.display = 'none';
   playAgainBtn.style.display = 'none';
-  
+
   setTimeout(() => {
     logoScreen.style.display = 'none';
     gameScreen.style.display = 'block';
     resetAnimals();
+    generateBubbles();
   }, 5000);
 }
 
@@ -146,7 +192,7 @@ Object.keys(spotAnimalMap).forEach(spotId => {
   const spot = document.getElementById(spotId);
   const animalId = spotAnimalMap[spotId];
   const animal = document.getElementById(animalId);
-  
+
   spot.addEventListener('click', () => {
     animal.classList.add('pop');
   });
@@ -158,7 +204,19 @@ playAgainBtn.addEventListener('click', () => {
   startGame();
 });
 
-// Start game
+// Bubble generation
+function generateBubbles() {
+  document.querySelectorAll('.bubble').forEach(b => b.remove());
+
+  for(let i=0;i<10;i++){
+    const bubble = document.createElement('div');
+    bubble.classList.add('bubble');
+    bubble.style.left = Math.random()*90 + 'vw';
+    bubble.style.animationDuration = (3 + Math.random()*3) + 's';
+    gameScreen.appendChild(bubble);
+  }
+}
+
 startGame();
 </script>
 
