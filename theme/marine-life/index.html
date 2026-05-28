@@ -75,16 +75,25 @@
 
   .animal {
     position: absolute;
-    width: 120px;
-    height: 120px;
+    width: 150px;
+    height: 150px;
     display: none;
     transition: transform 0.3s;
     z-index: 6;
   }
 
+  /* Bounce animation */
+  @keyframes bounce {
+    0% { transform: translateY(0); }
+    30% { transform: translateY(-25px); }
+    50% { transform: translateY(-15px); }
+    70% { transform: translateY(-5px); }
+    100% { transform: translateY(0); }
+  }
+
   .animal.pop {
     display: block;
-    transform: translateY(-20px);
+    animation: bounce 0.5s ease;
   }
 
   #playAgainBtn {
@@ -154,10 +163,14 @@
 
 <button id="playAgainBtn">Play Again</button>
 
+<!-- Pop sound -->
+<audio id="popSound" src="assets/pop.mp3"></audio>
+
 <script>
 const logoScreen = document.getElementById('logoScreen');
 const gameScreen = document.getElementById('gameScreen');
 const playAgainBtn = document.getElementById('playAgainBtn');
+const popSound = document.getElementById('popSound');
 
 const spotAnimalMap = {
   'spot1': 'fish',
@@ -187,14 +200,20 @@ function resetAnimals() {
   });
 }
 
-// Add click handlers
+// Add click handlers with pop sound and bounce animation
 Object.keys(spotAnimalMap).forEach(spotId => {
   const spot = document.getElementById(spotId);
   const animalId = spotAnimalMap[spotId];
   const animal = document.getElementById(animalId);
 
   spot.addEventListener('click', () => {
+    // Trigger bounce animation by reflow
+    animal.classList.remove('pop');
+    void animal.offsetWidth; // reset animation
     animal.classList.add('pop');
+
+    popSound.currentTime = 0;
+    popSound.play();
   });
 });
 
