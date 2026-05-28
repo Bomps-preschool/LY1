@@ -15,6 +15,7 @@ body {
   display: none;
   flex-direction: column;
   align-items: center;
+  justify-content: center; /* center contents vertically */
 }
 
 #logoScreen img {
@@ -157,10 +158,9 @@ body {
   position: absolute;
   width: 20px;
   height: 20px;
-  background-image: url('assets/confetti.png');
   background-size: contain;
   z-index: 25;
-  animation: fall 3s linear infinite;
+  animation: fall linear infinite;
 }
 
 @keyframes fall {
@@ -223,9 +223,11 @@ const spotAnimalMap = {
 };
 
 function startGame() {
+  // Centered logo
   logoScreen.style.display = 'flex';
   gameScreen.style.display = 'none';
   winScreen.style.display = 'none';
+  playAgainBtn.style.display = 'none';
 
   setTimeout(() => {
     logoScreen.style.display = 'none';
@@ -237,52 +239,47 @@ function startGame() {
 
 function resetAnimals() {
   Object.values(spotAnimalMap).forEach(id => {
-    const el = document.getElementById(id);
-    el.classList.remove('pop');
+    document.getElementById(id).classList.remove('pop');
   });
 }
 
-// Click handlers with pop sound
+// Click handlers
 Object.keys(spotAnimalMap).forEach(spotId => {
   const spot = document.getElementById(spotId);
-  const animalId = spotAnimalMap[spotId];
-  const animal = document.getElementById(animalId);
+  const animal = document.getElementById(spotAnimalMap[spotId]);
 
   spot.addEventListener('click', () => {
     animal.classList.remove('pop');
     void animal.offsetWidth;
     animal.classList.add('pop');
-
     popSound.currentTime = 0;
     popSound.play();
-
     checkAllAnimals();
   });
 });
 
 function checkAllAnimals() {
-  const allAnimals = Object.values(spotAnimalMap).map(id => document.getElementById(id));
-  const allVisible = allAnimals.every(a => a.classList.contains('pop'));
+  const allVisible = Object.values(spotAnimalMap).every(id => document.getElementById(id).classList.contains('pop'));
   if (allVisible) {
+    // Delay Good Job slide by 10 seconds
     setTimeout(() => {
       gameScreen.style.display = 'none';
       winScreen.style.display = 'flex';
-      addConfetti(); // confetti on third slide
-    }, 500);
+      addConfetti();
+    }, 10000);
   }
 }
 
-// Play Again button
 playAgainBtn.addEventListener('click', () => {
   removeConfetti();
   winScreen.style.display = 'none';
   startGame();
 });
 
-// Bubble generation for second slide
+// Bubbles on second slide
 function generateBubbles() {
   document.querySelectorAll('.bubble').forEach(b => b.remove());
-  for(let i=0;i<10;i++){
+  for (let i = 0; i < 10; i++) {
     const bubble = document.createElement('div');
     bubble.classList.add('bubble');
     bubble.style.left = Math.random()*90 + 'vw';
@@ -291,13 +288,15 @@ function generateBubbles() {
   }
 }
 
-// Confetti for Good Job slide
+// Confetti in multiple directions
 function addConfetti() {
-  for (let i=0;i<20;i++){
+  for (let i=0;i<30;i++){
     const confetti = document.createElement('div');
     confetti.classList.add('confetti');
-    confetti.style.left = Math.random()*90 + 'vw';
-    confetti.style.backgroundImage = "url('assets/confetti.png')";
+    confetti.style.left = Math.random()*100 + 'vw';
+    confetti.style.top = Math.random()*10 + 'vh'; // start at random height top
+    confetti.style.animationDuration = (2 + Math.random()*3) + 's';
+    confetti.style.transform = `rotate(${Math.random()*360}deg)`;
     document.body.appendChild(confetti);
   }
 }
@@ -308,6 +307,5 @@ function removeConfetti() {
 
 startGame();
 </script>
-
 </body>
 </html>
