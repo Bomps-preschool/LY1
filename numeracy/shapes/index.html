@@ -3,218 +3,220 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shapes Drag & Drop Game</title>
+<title>Shapes Drag and Drop Game</title>
 <style>
-    body {
-        font-family: 'Comic Sans MS', cursive, sans-serif;
-        background-color: #F9F3E3;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        overflow: hidden;
-    }
-    #game-container {
-        width: 95%;
-        max-width: 600px;
-        height: 95%;
-        max-height: 700px;
-        border-radius: 20px;
-        background-color: #fff;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        position: relative;
-        overflow: hidden;
-    }
-    #slide {
-        width: 100%;
-        height: 100%;
-        position: absolute;
-        top: 0;
-        left: 0;
-    }
-    #innovine-logo {
-        width: 150px;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-    }
-    #shapes-container {
-        position: absolute;
-        bottom: 20px;
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        gap: 30px;
-    }
-    .outline {
-        width: 80px;
-        height: 80px;
-    }
-    #draggable-container {
-        position: absolute;
-        top: 40%;
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        gap: 30px;
-    }
-    .draggable {
-        width: 70px;
-        height: 70px;
-        cursor: grab;
-    }
-    #well-done {
-        display: none;
-        width: 100%;
-        height: 100%;
-        font-size: 2em;
-        font-weight: bold;
-        text-align: center;
-        padding-top: 40%;
-    }
-    #play-again {
-        display: block;
-        margin: 20px auto;
-        padding: 10px 30px;
-        font-size: 1.2em;
-        background-color: #7AC774;
-        border: none;
-        border-radius: 10px;
-        cursor: pointer;
-    }
+  body {
+    margin: 0;
+    font-family: 'Comic Sans MS', sans-serif;
+    background-color: #E8F0F2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+  }
+  #logoSlide, #gameSlide, #finalSlide {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+  }
+  #logoSlide img {
+    width: 250px;
+    height: auto;
+  }
+  #gameSlide {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .drop-container {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 50px;
+    width: 80%;
+  }
+  .outline {
+    width: 120px;
+    height: 120px;
+    border: 4px dashed #555;
+    border-radius: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 20px;
+  }
+  .draggable-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 50px;
+    flex-wrap: wrap;
+    width: 80%;
+  }
+  .draggable {
+    width: 100px;
+    height: 100px;
+    margin: 15px;
+    cursor: grab;
+    touch-action: none;
+  }
+  #finalSlide {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  #finalSlide button {
+    padding: 10px 20px;
+    font-size: 18px;
+    margin-top: 30px;
+    cursor: pointer;
+  }
+  canvas {
+    position: absolute;
+    top:0;
+    left:0;
+    pointer-events: none;
+  }
 </style>
 </head>
 <body>
 
-<div id="game-container">
-    <div id="slide">
-        <img id="innovine-logo" src="assets/innovine-logo.png" alt="Innovine Logo">
-    </div>
-    <div id="shapes-container">
-        <img id="triangle-outline" class="outline" src="assets/triangle-outline.png">
-        <img id="square-outline" class="outline" src="assets/square-outline.png">
-        <img id="circle-outline" class="outline" src="assets/circle-outline.png">
-    </div>
-    <div id="draggable-container">
-        <img class="draggable" src="assets/triangle.png" data-shape="triangle">
-        <img class="draggable" src="assets/triangle.png" data-shape="triangle">
-        <img class="draggable" src="assets/square.png" data-shape="square">
-        <img class="draggable" src="assets/square.png" data-shape="square">
-        <img class="draggable" src="assets/circle.png" data-shape="circle">
-        <img class="draggable" src="assets/circle.png" data-shape="circle">
-    </div>
-    <div id="well-done">
-        Well Done!<br>
-        <button id="play-again">Play Again</button>
-    </div>
+<!-- Innovine Logo Slide -->
+<div id="logoSlide">
+  <img src="assets/innovine-logo.png" alt="Innovine Logo">
 </div>
 
-<audio id="correct-sound" src="assets/correct.mp3"></audio>
-<audio id="wrong-sound" src="assets/wrong.mp3"></audio>
+<!-- Game Slide -->
+<div id="gameSlide">
+  <h2 style="text-align:center;">Count the shapes and drag to the correct outline<br><small>Tap on the shapes</small></h2>
+  <div class="drop-container">
+    <div class="outline" data-shape="triangle"><img src="assets/triangle-outline.png" style="width:100%; height:100%;"></div>
+    <div class="outline" data-shape="square"><img src="assets/square-outline.png" style="width:100%; height:100%;"></div>
+    <div class="outline" data-shape="circle"><img src="assets/circle-outline.png" style="width:100%; height:100%;"></div>
+  </div>
+  <div class="draggable-container" id="draggables"></div>
+</div>
+
+<!-- Final Slide -->
+<div id="finalSlide">
+  <h1>Well Done!</h1>
+  <canvas id="confettiCanvas"></canvas>
+  <button onclick="restartGame()">Play Again</button>
+</div>
+
+<!-- Audio -->
+<audio id="correctSound" src="assets/correct.mp3"></audio>
+<audio id="wrongSound" src="assets/wrong.mp3"></audio>
+<audio id="clapSound" src="assets/claps.mp3"></audio>
 
 <script>
-const logo = document.getElementById('innovine-logo');
-const slide = document.getElementById('slide');
-const draggables = document.querySelectorAll('.draggable');
-const outlines = {
-    triangle: document.getElementById('triangle-outline'),
-    square: document.getElementById('square-outline'),
-    circle: document.getElementById('circle-outline')
-};
-const wellDone = document.getElementById('well-done');
-const playAgain = document.getElementById('play-again');
-const correctSound = document.getElementById('correct-sound');
-const wrongSound = document.getElementById('wrong-sound');
+const shapes = ["triangle","triangle","square","square","circle","circle"];
+let logoSlide = document.getElementById("logoSlide");
+let gameSlide = document.getElementById("gameSlide");
+let finalSlide = document.getElementById("finalSlide");
+let draggablesContainer = document.getElementById("draggables");
+let correctSound = document.getElementById("correctSound");
+let wrongSound = document.getElementById("wrongSound");
+let clapSound = document.getElementById("clapSound");
 
-let placedCount = 0;
-
-// Show Innovine logo for 5 sec
-setTimeout(() => {
-    logo.style.display = 'none';
-}, 5000);
-
-// Drag and Drop Logic
-draggables.forEach(draggable => {
-    draggable.addEventListener('dragstart', e => {
-        e.dataTransfer.setData('text', e.target.dataset.shape);
-        e.dataTransfer.setData('id', e.target.src);
+// Confetti
+let canvas = document.getElementById("confettiCanvas");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+let ctx = canvas.getContext("2d");
+let confettiPieces = [];
+function createConfetti() {
+  for(let i=0;i<150;i++){
+    confettiPieces.push({
+      x: Math.random()*canvas.width,
+      y: Math.random()*canvas.height,
+      r: Math.random()*6+2,
+      d: Math.random()*150+10,
+      color: `hsl(${Math.random()*360}, 70%, 60%)`,
+      tilt: Math.random()*10-10
     });
-    draggable.addEventListener('touchstart', e => {
-        e.preventDefault();
-    });
-});
+  }
+}
+function drawConfetti(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  confettiPieces.forEach(p=>{
+    ctx.beginPath();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = p.color;
+    ctx.moveTo(p.x+p.tilt,p.y);
+    ctx.lineTo(p.x+p.tilt+5,p.y+p.r);
+    ctx.stroke();
+    p.y += 2 + Math.sin(p.d)*0.5;
+    if(p.y > canvas.height){ p.y = -10; p.x = Math.random()*canvas.width; }
+  });
+  requestAnimationFrame(drawConfetti);
+}
 
-Object.values(outlines).forEach(outline => {
-    outline.addEventListener('dragover', e => e.preventDefault());
-    outline.addEventListener('drop', e => {
-        e.preventDefault();
-        const shape = e.dataTransfer.getData('text');
-        const src = e.dataTransfer.getData('id');
-        if(shape === outline.id.split('-')[0]){
-            e.target.src = src;
-            placedCount++;
-            correctSound.play();
-            checkCompletion();
-        } else {
-            wrongSound.play();
-        }
+// Start Game after logo
+logoSlide.style.display = "flex";
+setTimeout(()=>{
+  logoSlide.style.display = "none";
+  startGame();
+},5000);
+
+function startGame(){
+  gameSlide.style.display = "flex";
+  loadDraggables();
+}
+
+function loadDraggables(){
+  draggablesContainer.innerHTML = "";
+  let shuffled = shapes.sort(()=>Math.random()-0.5);
+  shuffled.forEach(shape=>{
+    let img = document.createElement("img");
+    img.src = `assets/${shape}.png`;
+    img.draggable = true;
+    img.className = "draggable";
+    img.dataset.shape = shape;
+    draggablesContainer.appendChild(img);
+  });
+  setupDragAndDrop();
+}
+
+function setupDragAndDrop(){
+  let dragged;
+  document.querySelectorAll(".draggable").forEach(drag=>{
+    drag.addEventListener("dragstart",(e)=>{ dragged = e.target; });
+  });
+  document.querySelectorAll(".outline").forEach(out=>{
+    out.addEventListener("dragover",(e)=>{ e.preventDefault(); });
+    out.addEventListener("drop",(e)=>{
+      if(dragged.dataset.shape === out.dataset.shape){
+        out.appendChild(dragged);
+        correctSound.play();
+        checkCompletion();
+      } else { wrongSound.play(); }
     });
-});
+  });
+}
 
 function checkCompletion(){
-    if(placedCount === 6){ // 2 of each shape
-        slide.style.display = 'none';
-        wellDone.style.display = 'block';
-        startConfetti();
-    }
+  let allCorrect = true;
+  document.querySelectorAll(".draggable").forEach(d=>{
+    if(d.parentNode.dataset.shape !== d.dataset.shape) allCorrect=false;
+  });
+  if(allCorrect){
+    clapSound.play();
+    gameSlide.style.display="none";
+    finalSlide.style.display="flex";
+    createConfetti();
+    drawConfetti();
+  }
 }
 
-// Play again button
-playAgain.addEventListener('click', () => {
-    wellDone.style.display = 'none';
-    slide.style.display = 'block';
-    draggables.forEach(d => d.parentNode.appendChild(d)); // Reset draggables
-    Object.values(outlines).forEach(o => o.src = `assets/${o.id}.png`);
-    placedCount = 0;
-    randomizeDraggables();
-});
-
-function randomizeDraggables(){
-    const container = document.getElementById('draggable-container');
-    for (let i = container.children.length; i >= 0; i--) {
-        container.appendChild(container.children[Math.random() * i | 0]);
-    }
-}
-
-// Confetti effect
-function startConfetti(){
-    for(let i=0;i<200;i++){
-        let confetti = document.createElement('div');
-        confetti.style.position = 'absolute';
-        confetti.style.width = '8px';
-        confetti.style.height = '8px';
-        confetti.style.background = `hsl(${Math.random()*360},70%,60%)`;
-        confetti.style.top = '0px';
-        confetti.style.left = `${Math.random()*window.innerWidth}px`;
-        confetti.style.borderRadius = '50%';
-        confetti.style.opacity = 0.8;
-        confetti.style.zIndex = 9999;
-        document.body.appendChild(confetti);
-        let fall = setInterval(()=>{
-            let top = parseInt(confetti.style.top);
-            if(top>window.innerHeight){
-                clearInterval(fall);
-                confetti.remove();
-            } else {
-                confetti.style.top = top + 5 + 'px';
-            }
-        }, 16);
-    }
+function restartGame(){
+  confettiPieces = [];
+  finalSlide.style.display = "none";
+  startGame();
 }
 </script>
-
 </body>
 </html>
