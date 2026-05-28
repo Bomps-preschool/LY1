@@ -30,6 +30,7 @@ body {
   height:auto;
 }
 
+/* Game Screen */
 #gameScreen {
   display:flex;
   flex-wrap:wrap;
@@ -44,19 +45,33 @@ body {
   position: relative;
 }
 
-#instruction {
+/* Instruction + voice icon */
+#instructionContainer {
   position: absolute;
   top: 1vh;
   width: 100%;
-  text-align: center;
-  font-size: 2.2vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5vw;
+  z-index: 10;
+}
+
+#instruction {
+  font-size: 2vw;
   max-font-size: 15px;
   font-weight: bold;
   color: #003366;
   text-shadow: 1px 1px 2px #fff;
-  z-index: 10;
 }
 
+#voiceBtn {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+}
+
+/* Object Cards 3 per row */
 .object-card {
   position: relative;
   width: 28%;
@@ -147,7 +162,11 @@ body {
 
 <!-- Slide 2: Game -->
 <div id="gameScreen">
-  <div id="instruction">Listen to the sound and tap on the object that matches. Try to find all the objects around you!</div>
+  <div id="instructionContainer">
+    <div id="instruction">Listen to the sound and tap on the object that matches. Try to find all the objects around you!</div>
+    <img id="voiceBtn" src="assets/voice-icon.png" alt="Replay Audio">
+  </div>
+
   <div class="object-card" data-name="chair"><img src="assets/chair.png"><span>Chair</span></div>
   <div class="object-card" data-name="tree"><img src="assets/tree.png"><span>Tree</span></div>
   <div class="object-card" data-name="toys"><img src="assets/toys.png"><span>Toys</span></div>
@@ -177,6 +196,7 @@ const logoScreen = document.getElementById('logoScreen');
 const gameScreen = document.getElementById('gameScreen');
 const winScreen = document.getElementById('winScreen');
 const playAgainBtn = document.getElementById('playAgainBtn');
+const voiceBtn = document.getElementById('voiceBtn');
 
 const objects = Array.from(document.querySelectorAll('.object-card'));
 const audioMap = {
@@ -216,6 +236,14 @@ function playNextAudio() {
   }
 }
 
+// Voice replay button
+voiceBtn.addEventListener('click', ()=>{
+  if(currentIndex < sequence.length) {
+    audioMap[sequence[currentIndex]].currentTime = 0;
+    audioMap[sequence[currentIndex]].play();
+  }
+});
+
 // Object click handling
 objects.forEach(obj => {
   obj.addEventListener('click', () => {
@@ -226,7 +254,7 @@ objects.forEach(obj => {
       correctSound.currentTime = 0;
       correctSound.play();
 
-      // Wait for correct clap to finish before next audio
+      // Wait for clap to finish before next audio
       correctSound.onended = () => {
         currentIndex++;
         if (currentIndex < sequence.length) {
@@ -239,7 +267,7 @@ objects.forEach(obj => {
       obj.classList.add('incorrect');
       wrongSound.currentTime = 0;
       wrongSound.play();
-      setTimeout(() => obj.classList.remove('incorrect'), 500);
+      setTimeout(()=>obj.classList.remove('incorrect'),500);
     }
   });
 });
