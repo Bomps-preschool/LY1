@@ -54,7 +54,7 @@
   .outline-box img {
     width: 80%;
     height: 80%;
-    pointer-events: none;
+    pointer-events: none; /* allow drop */
   }
 
   .shapes-row {
@@ -149,6 +149,7 @@
 <div id="winScreen">
   <h1>Well Done!</h1>
   <button id="playAgainBtn">Play Again</button>
+  <img src="assets/confetti.gif" id="confetti" style="width:100%; max-width:400px; margin-top:20px;">
 </div>
 
 <audio id="correctSound" src="assets/correct.mp3"></audio>
@@ -160,6 +161,7 @@ const logoScreen = document.getElementById('logoScreen');
 const gameScreen = document.getElementById('gameScreen');
 const winScreen = document.getElementById('winScreen');
 const playAgainBtn = document.getElementById('playAgainBtn');
+const confetti = document.getElementById('confetti');
 const correctSound = document.getElementById('correctSound');
 const wrongSound = document.getElementById('wrongSound');
 
@@ -206,12 +208,14 @@ document.querySelectorAll('.outline-box').forEach(box => {
 function showWinScreen() {
   gameScreen.style.display = 'none';
   winScreen.style.display = 'flex';
+  confetti.style.display = 'block';
 }
 
 playAgainBtn.addEventListener('click', () => {
   // Reset game
   document.querySelectorAll('.draggable-shape').forEach(s => s.style.display = 'flex');
   correctDrops = 0;
+  confetti.style.display = 'none';
   startGame();
 });
 
