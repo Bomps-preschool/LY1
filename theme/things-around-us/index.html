@@ -45,30 +45,29 @@ body {
   position: relative;
 }
 
-/* Instruction + voice icon */
-#instructionContainer {
+/* Instruction */
+#instruction {
   position: absolute;
   top: 1vh;
   width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 0.5vw;
-  z-index: 10;
-}
-
-#instruction {
+  text-align: center;
   font-size: 2vw;
   max-font-size: 15px;
   font-weight: bold;
   color: #003366;
   text-shadow: 1px 1px 2px #fff;
+  z-index: 10;
 }
 
+/* Voice button */
 #voiceBtn {
-  width: 24px;
-  height: 24px;
+  position: absolute;
+  bottom: 1vh;
+  left: 1vw;
+  width: 40px;
+  height: 40px;
   cursor: pointer;
+  z-index: 20;
 }
 
 /* Object Cards 3 per row */
@@ -162,10 +161,8 @@ body {
 
 <!-- Slide 2: Game -->
 <div id="gameScreen">
-  <div id="instructionContainer">
-    <div id="instruction">Listen to the sound and tap on the object that matches. Try to find all the objects around you!</div>
-    <img id="voiceBtn" src="assets/voice-icon.png" alt="Replay Audio">
-  </div>
+  <div id="instruction">Listen to the sound and tap on the object that matches. Try to find all the objects around you!</div>
+  <img id="voiceBtn" src="assets/voice-icon.png" alt="Replay Audio">
 
   <div class="object-card" data-name="chair"><img src="assets/chair.png"><span>Chair</span></div>
   <div class="object-card" data-name="tree"><img src="assets/tree.png"><span>Tree</span></div>
