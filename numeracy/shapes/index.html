@@ -31,30 +31,41 @@
 
   #game-screen, #congrats-screen { display:none; }
 
-  h2 {
-    margin-bottom: 10px;
+  #instruction {
     text-align: center;
+    margin-bottom: 30px;
+    font-size: 24px;
   }
 
-  .drop-target {
-    width: 150px;
-    height: 150px;
+  .outline-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 40px;
+  }
+
+  .outline {
+    width: 160px;
+    height: 160px;
     border: 4px dashed #555;
     border-radius: 12px;
-    display: inline-block;
-    margin: 20px;
-    vertical-align: top;
+    margin: 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .draggable {
-    width: 120px;
-    height: 120px;
+    width: 140px;
+    height: 140px;
     margin: 10px;
     cursor: grab;
   }
 
-  #draggable-container {
-    margin-top: 40px;
+  #shapes-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    width: 90%;
   }
 
   #congrats-screen button {
@@ -64,7 +75,6 @@
     cursor: pointer;
   }
 
-  /* Confetti styling */
   .confetti {
     position: fixed;
     width: 10px;
@@ -84,25 +94,24 @@
 </div>
 
 <!-- Game Slide -->
-<div id="game-slide" class="slide">
+<div id="game-screen">
   <div id="instruction">Count the shapes and drag to the correct outline<br>Tap on the shapes</div>
   
   <div class="outline-container">
-    <div class="outline" data-shape="triangle-outline"><img src="assets/triangle-outline.png" alt="Triangle Outline"></div>
-    <div class="outline" data-shape="square-outline"><img src="assets/square-outline.png" alt="Square Outline"></div>
-    <div class="outline" data-shape="circle-outline"><img src="assets/circle-outline.png" alt="Circle Outline"></div>
+    <div class="outline drop-target" data-shape="triangle"><img src="assets/triangle-outline.png"></div>
+    <div class="outline drop-target" data-shape="square"><img src="assets/square-outline.png"></div>
+    <div class="outline drop-target" data-shape="circle"><img src="assets/circle-outline.png"></div>
   </div>
 
-  <div class="draggables" id="shapes-container">
-    <img src="assets/triangle.png" alt="Triangle" class="draggable" data-shape="triangle-outline">
-    <img src="assets/triangle.png" alt="Triangle" class="draggable" data-shape="triangle-outline">
-    <img src="assets/square.png" alt="Square" class="draggable" data-shape="square-outline">
-    <img src="assets/square.png" alt="Square" class="draggable" data-shape="square-outline">
-    <img src="assets/circle.png" alt="Circle" class="draggable" data-shape="circle-outline">
-    <img src="assets/circle.png" alt="Circle" class="draggable" data-shape="circle-outline">
+  <div id="shapes-container">
+    <img src="assets/triangle.png" class="draggable" draggable="true" data-shape="triangle">
+    <img src="assets/triangle.png" class="draggable" draggable="true" data-shape="triangle">
+    <img src="assets/square.png" class="draggable" draggable="true" data-shape="square">
+    <img src="assets/square.png" class="draggable" draggable="true" data-shape="square">
+    <img src="assets/circle.png" class="draggable" draggable="true" data-shape="circle">
+    <img src="assets/circle.png" class="draggable" draggable="true" data-shape="circle">
   </div>
 </div>
-
 
 <!-- Congratulations Screen -->
 <div id="congrats-screen">
@@ -130,7 +139,16 @@ let placedCount = 0;
 setTimeout(() => {
   logoScreen.style.display = 'none';
   gameScreen.style.display = 'flex';
+  shuffleDraggables();
 }, 5000);
+
+// Randomize initial positions
+function shuffleDraggables() {
+  const container = document.getElementById('shapes-container');
+  for (let i = container.children.length; i >= 0; i--) {
+    container.appendChild(container.children[Math.random() * i | 0]);
+  }
+}
 
 // Drag and Drop
 draggables.forEach(draggable => {
@@ -173,20 +191,13 @@ playAgainBtn.addEventListener('click', () => {
   congratsScreen.style.display = 'none';
   gameScreen.style.display = 'flex';
   placedCount = 0;
-
-  // Reset draggable positions
-  draggables.forEach(d => document.getElementById('draggable-container').appendChild(d));
-
-  // Shuffle draggable positions
-  const container = document.getElementById('draggable-container');
-  for(let i = container.children.length; i>=0; i--){
-    container.appendChild(container.children[Math.random() * i | 0]);
-  }
+  draggables.forEach(d => document.getElementById('shapes-container').appendChild(d));
+  shuffleDraggables();
 });
 
 // Confetti animation
 function createConfetti(){
-  for(let i=0;i<100;i++){
+  for(let i=0;i<150;i++){
     let confetti = document.createElement('div');
     confetti.classList.add('confetti');
     confetti.style.backgroundColor = `hsl(${Math.random()*360},70%,60%)`;
