@@ -83,24 +83,26 @@
   <img src="assets/innovine-logo.png" style="width:250px;">
 </div>
 
-<!-- Game Screen -->
-<div id="game-screen">
-  <h2>Count the shapes and drag to the correct outline</h2>
-  <h4>Tap on the shapes</h4>
-  <div id="drop-container">
-    <div class="drop-target" data-shape="triangle"></div>
-    <div class="drop-target" data-shape="square"></div>
-    <div class="drop-target" data-shape="circle"></div>
+<!-- Game Slide -->
+<div id="game-slide" class="slide">
+  <div id="instruction">Count the shapes and drag to the correct outline<br>Tap on the shapes</div>
+  
+  <div class="outline-container">
+    <div class="outline" data-shape="triangle-outline"><img src="assets/triangle-outline.png" alt="Triangle Outline"></div>
+    <div class="outline" data-shape="square-outline"><img src="assets/square-outline.png" alt="Square Outline"></div>
+    <div class="outline" data-shape="circle-outline"><img src="assets/circle-outline.png" alt="Circle Outline"></div>
   </div>
-  <div id="draggable-container">
-    <img src="assets/triangle.png" class="draggable" draggable="true" data-shape="triangle">
-    <img src="assets/triangle.png" class="draggable" draggable="true" data-shape="triangle">
-    <img src="assets/square.png" class="draggable" draggable="true" data-shape="square">
-    <img src="assets/square.png" class="draggable" draggable="true" data-shape="square">
-    <img src="assets/circle.png" class="draggable" draggable="true" data-shape="circle">
-    <img src="assets/circle.png" class="draggable" draggable="true" data-shape="circle">
+
+  <div class="draggables" id="shapes-container">
+    <img src="assets/triangle.png" alt="Triangle" class="draggable" data-shape="triangle-outline">
+    <img src="assets/triangle.png" alt="Triangle" class="draggable" data-shape="triangle-outline">
+    <img src="assets/square.png" alt="Square" class="draggable" data-shape="square-outline">
+    <img src="assets/square.png" alt="Square" class="draggable" data-shape="square-outline">
+    <img src="assets/circle.png" alt="Circle" class="draggable" data-shape="circle-outline">
+    <img src="assets/circle.png" alt="Circle" class="draggable" data-shape="circle-outline">
   </div>
 </div>
+
 
 <!-- Congratulations Screen -->
 <div id="congrats-screen">
