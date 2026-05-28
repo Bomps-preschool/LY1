@@ -54,7 +54,7 @@
   .outline-box img {
     width: 80%;
     height: 80%;
-    pointer-events: none; /* allow drop */
+    pointer-events: none;
   }
 
   .shapes-row {
@@ -73,6 +73,8 @@
     align-items: center;
     cursor: grab;
     border-radius: 10px;
+    touch-action: none; /* important for touch */
+    position: relative;
   }
 
   .draggable-shape img {
@@ -103,12 +105,10 @@
 </head>
 <body>
 
-<!-- Innovine Logo Screen -->
 <div id="logoScreen">
   <img src="assets/innovine-logo.png" alt="Innovine Logo">
 </div>
 
-<!-- Game Screen -->
 <div id="gameScreen">
   <h2>Count the shapes and drag to the correct outline</h2>
   <p>Tap on the shapes</p>
@@ -145,7 +145,6 @@
   </div>
 </div>
 
-<!-- Win Screen -->
 <div id="winScreen">
   <h1>Well Done!</h1>
   <button id="playAgainBtn">Play Again</button>
@@ -160,7 +159,6 @@ const logoScreen = document.getElementById('logoScreen');
 const gameScreen = document.getElementById('gameScreen');
 const winScreen = document.getElementById('winScreen');
 const playAgainBtn = document.getElementById('playAgainBtn');
-const confetti = document.getElementById('confetti');
 const correctSound = document.getElementById('correctSound');
 const wrongSound = document.getElementById('wrongSound');
 
@@ -178,47 +176,81 @@ function startGame() {
   }, 5000);
 }
 
-// Drag & Drop
+// Desktop Drag & Drop
 document.querySelectorAll('.draggable-shape').forEach(shape => {
-  shape.addEventListener('dragstart', e => {
-    draggedShape = shape;
-  });
+  shape.addEventListener('dragstart', e => { draggedShape = shape; });
 });
 
 document.querySelectorAll('.outline-box').forEach(box => {
   box.addEventListener('dragover', e => e.preventDefault());
-  box.addEventListener('drop', e => {
-    const shapeType = draggedShape.dataset.shape;
-    const boxType = box.dataset.shape;
-    if (shapeType === boxType) {
-      draggedShape.style.display = 'none'; // disappear when correctly placed
-      correctSound.play();
-      correctDrops++;
-      if (correctDrops === totalShapes) {
-        setTimeout(() => showWinScreen(), 500);
+  box.addEventListener('drop', e => handleDrop(box));
+});
+
+// Mobile Touch Support
+document.querySelectorAll('.draggable-shape').forEach(shape => {
+  shape.addEventListener('touchstart', e => {
+    draggedShape = shape;
+    shape.style.position = 'absolute';
+    shape.style.zIndex = 1000;
+  });
+
+  shape.addEventListener('touchmove', e => {
+    e.preventDefault();
+    let touch = e.touches[0];
+    shape.style.left = touch.clientX - shape.offsetWidth/2 + 'px';
+    shape.style.top = touch.clientY - shape.offsetHeight/2 + 'px';
+  });
+
+  shape.addEventListener('touchend', e => {
+    let touch = e.changedTouches[0];
+    let drop = null;
+    document.querySelectorAll('.outline-box').forEach(box => {
+      let rect = box.getBoundingClientRect();
+      if (
+        touch.clientX >= rect.left &&
+        touch.clientX <= rect.right &&
+        touch.clientY >= rect.top &&
+        touch.clientY <= rect.bottom
+      ) {
+        drop = box;
       }
-    } else {
-      wrongSound.play();
-    }
+    });
+    if (drop) handleDrop(drop);
+    shape.style.position = 'relative';
+    shape.style.left = '0px';
+    shape.style.top = '0px';
     draggedShape = null;
   });
 });
 
+function handleDrop(box) {
+  if (!draggedShape) return;
+  const shapeType = draggedShape.dataset.shape;
+  const boxType = box.dataset.shape;
+  if (shapeType === boxType) {
+    draggedShape.style.display = 'none';
+    correctSound.play();
+    correctDrops++;
+    if (correctDrops === totalShapes) {
+      setTimeout(showWinScreen, 500);
+    }
+  } else {
+    wrongSound.play();
+  }
+}
+
+// Win Screen
 function showWinScreen() {
   gameScreen.style.display = 'none';
   winScreen.style.display = 'flex';
-  confetti.style.display = 'block';
 }
 
 playAgainBtn.addEventListener('click', () => {
-  // Reset game
   document.querySelectorAll('.draggable-shape').forEach(s => s.style.display = 'flex');
   correctDrops = 0;
-  confetti.style.display = 'none';
   startGame();
 });
 
-// Initialize
 startGame();
 </script>
 
