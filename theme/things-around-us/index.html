@@ -6,54 +6,53 @@
 <title>Things Around Us - Spot and Tap</title>
 <style>
 body {
-  margin: 0;
+  margin:0;
   font-family: 'Comic Sans MS', sans-serif;
-  overflow: hidden;
+  overflow:hidden;
 }
 
-/* Screens */
 #logoScreen, #gameScreen, #winScreen {
-  display: none;
-  width: 100vw;
-  height: 100vh;
-  position: absolute;
-  top: 0;
-  left: 0;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
+  display:none;
+  width:100vw;
+  height:100vh;
+  position:absolute;
+  top:0;
+  left:0;
+  justify-content:center;
+  align-items:center;
+  flex-direction:column;
 }
 
 #logoScreen img {
-  width: 40vw;
-  max-width: 300px;
-  height: auto;
+  width:40vw;
+  max-width:300px;
+  height:auto;
 }
 
 #gameScreen {
-  background-image: url('assets/background-room.png');
-  background-size: cover;
-  background-position: center;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-around;
-  align-items: center;
-  padding: 2vw;
-  box-sizing: border-box;
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:space-around;
+  align-items:center;
+  padding:2vw;
+  box-sizing:border-box;
+  background-image: url('assets/a_bright_colorful_3_panel_children_s_educational.png');
+  background-size:cover;
+  background-position:center;
 }
 
 .object-card {
-  position: relative;
-  width: 25vw;
-  max-width: 180px;
-  text-align: center;
-  margin: 1vw;
-  cursor: pointer;
+  position:relative;
+  width: 15vw;
+  max-width:180px;
+  text-align:center;
+  margin:1vw;
+  cursor:pointer;
 }
 
 .object-card img {
-  width: 100%;
-  height: auto;
+  width:100%;
+  height:auto;
   transition: transform 0.3s;
 }
 
@@ -66,50 +65,54 @@ body {
 }
 
 .object-card span {
-  display: block;
-  margin-top: 0.5vw;
-  font-size: 4vw;
-  max-font-size: 20px;
-  color: #000;
-  font-weight: bold;
+  display:block;
+  margin-top:0.5vw;
+  font-size:4vw;
+  max-font-size:20px;
+  color:#000;
+  font-weight:bold;
 }
 
 /* Win Screen */
 #winScreen {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background: rgba(255,255,255,0.9);
-  z-index: 10;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  background:rgba(255,255,255,0.9);
+  z-index:10;
 }
 
 #winScreen h1 {
-  font-size: 8vw;
-  color: #28a745;
-  margin-bottom: 2vh;
+  font-size:8vw;
+  max-font-size:48px;
+  color:#28a745;
+  margin-bottom:2vh;
 }
 
 #playAgainBtn {
-  padding: 2vh 4vw;
-  font-size: 4vw;
-  max-font-size: 20px;
-  border: none;
-  border-radius: 10px;
-  background-color: #4CAF50;
-  color: white;
-  cursor: pointer;
+  padding:2vh 4vw;
+  font-size:4vw;
+  max-font-size:20px;
+  border:none;
+  border-radius:10px;
+  background-color:#4CAF50;
+  color:white;
+  cursor:pointer;
+  z-index:26;
 }
+
+#playAgainBtn:hover {background-color:#45a049;}
 
 /* Confetti */
 .confetti {
-  position: absolute;
-  width: 3vw;
-  height: 3vw;
-  max-width: 20px;
-  max-height: 20px;
-  background-size: contain;
-  z-index: 20;
+  position:absolute;
+  width:3vw;
+  height:3vw;
+  max-width:20px;
+  max-height:20px;
+  background-size:contain;
+  z-index:20;
   animation: fall linear infinite;
 }
 
@@ -121,40 +124,22 @@ body {
 </head>
 <body>
 
-<!-- Slide 1: Logo -->
+<!-- Slide 1 -->
 <div id="logoScreen">
   <img src="assets/innovine-logo.png" alt="Innovine Logo">
 </div>
 
-<!-- Slide 2: Game -->
+<!-- Slide 2 -->
 <div id="gameScreen">
-  <div class="object-card" data-name="chair">
-    <img src="assets/chair.png">
-    <span>Chair</span>
-  </div>
-  <div class="object-card" data-name="tree">
-    <img src="assets/tree.png">
-    <span>Tree</span>
-  </div>
-  <div class="object-card" data-name="toys">
-    <img src="assets/toys.png">
-    <span>Toys</span>
-  </div>
-  <div class="object-card" data-name="refrigerator">
-    <img src="assets/refrigerator.png">
-    <span>Refrigerator</span>
-  </div>
-  <div class="object-card" data-name="clock">
-    <img src="assets/clock.png">
-    <span>Clock</span>
-  </div>
-  <div class="object-card" data-name="fan">
-    <img src="assets/fan.png">
-    <span>Fan</span>
-  </div>
+  <div class="object-card" data-name="chair"><img src="assets/chair.png"><span>Chair</span></div>
+  <div class="object-card" data-name="tree"><img src="assets/tree.png"><span>Tree</span></div>
+  <div class="object-card" data-name="toys"><img src="assets/toys.png"><span>Toys</span></div>
+  <div class="object-card" data-name="refrigerator"><img src="assets/refrigerator.png"><span>Refrigerator</span></div>
+  <div class="object-card" data-name="clock"><img src="assets/clock.png"><span>Clock</span></div>
+  <div class="object-card" data-name="fan"><img src="assets/fan.png"><span>Fan</span></div>
 </div>
 
-<!-- Slide 3: Win -->
+<!-- Slide 3 -->
 <div id="winScreen">
   <h1>Well Done!</h1>
   <button id="playAgainBtn">Play Again</button>
@@ -171,35 +156,30 @@ body {
 <audio id="wrongSound" src="assets/wrong.mp3"></audio>
 
 <script>
-const logoScreen = document.getElementById('logoScreen');
-const gameScreen = document.getElementById('gameScreen');
-const winScreen = document.getElementById('winScreen');
-const playAgainBtn = document.getElementById('playAgainBtn');
+const logoScreen=document.getElementById('logoScreen');
+const gameScreen=document.getElementById('gameScreen');
+const winScreen=document.getElementById('winScreen');
+const playAgainBtn=document.getElementById('playAgainBtn');
 
-const objects = Array.from(document.querySelectorAll('.object-card'));
-
-// Audio mapping
-const audioMap = {
-  chair: document.getElementById('chairAudio'),
-  tree: document.getElementById('treeAudio'),
-  toys: document.getElementById('toysAudio'),
-  refrigerator: document.getElementById('refrigeratorAudio'),
-  clock: document.getElementById('clockAudio'),
-  fan: document.getElementById('fanAudio')
+const objects=Array.from(document.querySelectorAll('.object-card'));
+const audioMap={
+  chair:document.getElementById('chairAudio'),
+  tree:document.getElementById('treeAudio'),
+  toys:document.getElementById('toysAudio'),
+  refrigerator:document.getElementById('refrigeratorAudio'),
+  clock:document.getElementById('clockAudio'),
+  fan:document.getElementById('fanAudio')
 };
+const correctSound=document.getElementById('correctSound');
+const wrongSound=document.getElementById('wrongSound');
 
-const correctSound = document.getElementById('correctSound');
-const wrongSound = document.getElementById('wrongSound');
+let sequence=['toys','refrigerator','tree','fan','chair','clock'];
+let currentIndex=0;
 
-// Sequence of audio cues
-const sequence = ['toys','refrigerator','tree','fan','chair','clock'];
-let currentIndex = 0;
-
-function startGame() {
-  // Show logo for 5 seconds
-  logoScreen.style.display = 'flex';
-  gameScreen.style.display = 'none';
-  winScreen.style.display = 'none';
+function startGame(){
+  logoScreen.style.display='flex';
+  gameScreen.style.display='none';
+  winScreen.style.display='none';
   setTimeout(()=>{
     logoScreen.style.display='none';
     gameScreen.style.display='flex';
@@ -209,28 +189,24 @@ function startGame() {
   },5000);
 }
 
-// Play next audio in sequence
 function playNextAudio(){
   if(currentIndex>=sequence.length){
-    setTimeout(showWinScreen,500); 
+    setTimeout(showWinScreen,500);
     return;
   }
-  const name = sequence[currentIndex];
-  audioMap[name].play();
+  audioMap[sequence[currentIndex]].play();
 }
 
-// Handle object clicks
 objects.forEach(obj=>{
   obj.addEventListener('click',()=>{
-    const objName = obj.getAttribute('data-name');
-    const expectedName = sequence[currentIndex];
-    if(objName===expectedName){
+    const name=obj.getAttribute('data-name');
+    if(name===sequence[currentIndex]){
       obj.classList.add('correct');
       correctSound.currentTime=0;
       correctSound.play();
       currentIndex++;
       setTimeout(playNextAudio,500);
-    } else{
+    }else{
       obj.classList.add('incorrect');
       wrongSound.currentTime=0;
       wrongSound.play();
@@ -239,21 +215,18 @@ objects.forEach(obj=>{
   });
 });
 
-// Randomize object positions on Play Again
 function randomizeObjects(){
-  const parent = gameScreen;
-  const shuffled = objects.sort(()=>0.5-Math.random());
+  const parent=gameScreen;
+  const shuffled=objects.sort(()=>0.5-Math.random());
   shuffled.forEach(o=>parent.appendChild(o));
 }
 
-// Win screen
 function showWinScreen(){
   gameScreen.style.display='none';
   winScreen.style.display='flex';
   createConfetti();
 }
 
-// Confetti effect
 function createConfetti(){
   const colors=["#ff595e","#ffca3a","#8ac926","#1982c4","#6a4c93","#ff85a1","#00c2ff"];
   for(let i=0;i<100;i++){
@@ -268,7 +241,6 @@ function createConfetti(){
   }
 }
 
-// Play again button
 playAgainBtn.addEventListener('click',()=>{
   winScreen.style.display='none';
   objects.forEach(o=>o.classList.remove('correct'));
