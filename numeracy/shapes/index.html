@@ -84,6 +84,7 @@
 
   #winScreen {
     text-align: center;
+    position: relative;
   }
 
   #winScreen button {
@@ -94,10 +95,26 @@
     background-color: #4CAF50;
     color: white;
     cursor: pointer;
+    margin-top: 20px;
   }
 
   #winScreen button:hover {
     background-color: #45a049;
+  }
+
+  /* Confetti styles */
+  .confetti-piece {
+    width: 10px;
+    height: 10px;
+    position: absolute;
+    background-color: red;
+    animation: fall 3s linear forwards;
+    opacity: 0.8;
+  }
+
+  @keyframes fall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1;}
+    100% { transform: translateY(600px) rotate(360deg); opacity: 0;}
   }
 </style>
 </head>
@@ -160,7 +177,6 @@ const logoScreen = document.getElementById('logoScreen');
 const gameScreen = document.getElementById('gameScreen');
 const winScreen = document.getElementById('winScreen');
 const playAgainBtn = document.getElementById('playAgainBtn');
-const confetti = document.getElementById('confetti');
 const correctSound = document.getElementById('correctSound');
 const wrongSound = document.getElementById('wrongSound');
 
@@ -207,14 +223,28 @@ document.querySelectorAll('.outline-box').forEach(box => {
 function showWinScreen() {
   gameScreen.style.display = 'none';
   winScreen.style.display = 'flex';
-  confetti.style.display = 'block';
+  launchConfetti();
+}
+
+// Confetti generation
+function launchConfetti() {
+  for (let i = 0; i < 100; i++) {
+    const confettiPiece = document.createElement('div');
+    confettiPiece.classList.add('confetti-piece');
+    confettiPiece.style.backgroundColor = `hsl(${Math.random()*360}, 100%, 50%)`;
+    confettiPiece.style.left = Math.random() * window.innerWidth + 'px';
+    confettiPiece.style.top = '-20px';
+    document.body.appendChild(confettiPiece);
+    setTimeout(() => {
+      confettiPiece.remove();
+    }, 3000);
+  }
 }
 
 playAgainBtn.addEventListener('click', () => {
   // Reset game
   document.querySelectorAll('.draggable-shape').forEach(s => s.style.display = 'flex');
   correctDrops = 0;
-  confetti.style.display = 'none';
   startGame();
 });
 
