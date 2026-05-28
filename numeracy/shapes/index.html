@@ -3,166 +3,220 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shapes Drag and Drop Game</title>
+<title>Shapes Drag and Drop</title>
 <style>
   body {
     font-family: 'Comic Sans MS', sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #e1f0f6;
+    background-color: #d9ecf2;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
+    margin: 0;
   }
-  #logoSlide, #gameSlide, #wellDoneSlide {
-    position: absolute;
-    width: 100%;
-    height: 100%;
+
+  #logoScreen, #gameScreen, #winScreen {
     display: none;
-    justify-content: center;
-    align-items: center;
     flex-direction: column;
+    align-items: center;
   }
-  #logoSlide img {
-    width: 200px;
+
+  #logoScreen img {
+    width: 300px;
+    height: auto;
   }
-  #gameContainer {
-    background: #f9f5e8;
+
+  #gameScreen {
+    background-color: #f9f3e9;
     padding: 30px;
     border-radius: 20px;
     text-align: center;
   }
-  .outlineBox {
-    display: inline-block;
+
+  .outline-container {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+    margin-bottom: 30px;
+  }
+
+  .outline-box {
     width: 120px;
     height: 120px;
-    border: 3px dashed #555;
-    margin: 20px;
-    vertical-align: top;
+    border: 4px dashed #555;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 15px;
     position: relative;
   }
-  .shape {
+
+  .outline-box img {
+    width: 80%;
+    height: 80%;
+    pointer-events: none;
+  }
+
+  .shapes-row {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap;
+  }
+
+  .draggable-shape {
     width: 100px;
     height: 100px;
-    margin: 10px;
-    display: inline-block;
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     cursor: grab;
-    border-radius: 8px;
+    border-radius: 10px;
   }
-  #shapesContainer {
-    margin-top: 30px;
+
+  .draggable-shape img {
+    width: 90%;
+    height: 90%;
+    user-select: none;
+    pointer-events: none;
   }
-  button {
-    padding: 10px 20px;
+
+  #winScreen {
+    text-align: center;
+  }
+
+  #winScreen button {
+    padding: 10px 30px;
     font-size: 18px;
-    margin-top: 20px;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
+    background-color: #4CAF50;
+    color: white;
     cursor: pointer;
   }
-  #playAgainBtn {
-    background-color: #4caf50;
-    color: white;
+
+  #winScreen button:hover {
+    background-color: #45a049;
   }
 </style>
 </head>
 <body>
 
-<!-- Logo Slide -->
-<div id="logoSlide">
+<!-- Innovine Logo Screen -->
+<div id="logoScreen">
   <img src="assets/innovine-logo.png" alt="Innovine Logo">
 </div>
 
-<!-- Game Slide -->
-<div id="gameSlide">
-  <div id="gameContainer">
-    <h2>Count the shapes and drag to the correct outline</h2>
-    <h3>Tap on the shapes</h3>
-    <div id="outlineContainer">
-      <div class="outlineBox" data-shape="triangle">
-        <img src="assets/triangle-outline.png" style="width:100%; height:100%;">
-      </div>
-      <div class="outlineBox" data-shape="square">
-        <img src="assets/square-outline.png" style="width:100%; height:100%;">
-      </div>
-      <div class="outlineBox" data-shape="circle">
-        <img src="assets/circle-outline.png" style="width:100%; height:100%;">
-      </div>
+<!-- Game Screen -->
+<div id="gameScreen">
+  <h2>Count the shapes and drag to the correct outline</h2>
+  <p>Tap on the shapes</p>
+  <div class="outline-container">
+    <div class="outline-box" data-shape="triangle">
+      <img src="assets/triangle-outline.png" alt="Triangle Outline">
     </div>
-    <div id="shapesContainer">
-      <div class="shape" draggable="true" data-shape="triangle" style="background-image:url('assets/triangle.png'); background-size:cover;"></div>
-      <div class="shape" draggable="true" data-shape="triangle" style="background-image:url('assets/triangle.png'); background-size:cover;"></div>
-      <div class="shape" draggable="true" data-shape="square" style="background-image:url('assets/square.png'); background-size:cover;"></div>
-      <div class="shape" draggable="true" data-shape="square" style="background-image:url('assets/square.png'); background-size:cover;"></div>
-      <div class="shape" draggable="true" data-shape="circle" style="background-image:url('assets/circle.png'); background-size:cover;"></div>
-      <div class="shape" draggable="true" data-shape="circle" style="background-image:url('assets/circle.png'); background-size:cover;"></div>
+    <div class="outline-box" data-shape="square">
+      <img src="assets/square-outline.png" alt="Square Outline">
+    </div>
+    <div class="outline-box" data-shape="circle">
+      <img src="assets/circle-outline.png" alt="Circle Outline">
+    </div>
+  </div>
+  <div class="shapes-row">
+    <div class="draggable-shape" draggable="true" data-shape="triangle">
+      <img src="assets/triangle.png" alt="Triangle">
+    </div>
+    <div class="draggable-shape" draggable="true" data-shape="triangle">
+      <img src="assets/triangle.png" alt="Triangle">
+    </div>
+    <div class="draggable-shape" draggable="true" data-shape="square">
+      <img src="assets/square.png" alt="Square">
+    </div>
+    <div class="draggable-shape" draggable="true" data-shape="square">
+      <img src="assets/square.png" alt="Square">
+    </div>
+    <div class="draggable-shape" draggable="true" data-shape="circle">
+      <img src="assets/circle.png" alt="Circle">
+    </div>
+    <div class="draggable-shape" draggable="true" data-shape="circle">
+      <img src="assets/circle.png" alt="Circle">
     </div>
   </div>
 </div>
 
-<!-- Well Done Slide -->
-<div id="wellDoneSlide">
+<!-- Win Screen -->
+<div id="winScreen">
   <h1>Well Done!</h1>
   <button id="playAgainBtn">Play Again</button>
 </div>
 
 <audio id="correctSound" src="assets/correct.mp3"></audio>
 <audio id="wrongSound" src="assets/wrong.mp3"></audio>
+<audio id="clapSound" src="assets/claps.mp3"></audio>
 
 <script>
-const logoSlide = document.getElementById('logoSlide');
-const gameSlide = document.getElementById('gameSlide');
-const wellDoneSlide = document.getElementById('wellDoneSlide');
-const shapes = document.querySelectorAll('.shape');
-const outlineBoxes = document.querySelectorAll('.outlineBox');
+const logoScreen = document.getElementById('logoScreen');
+const gameScreen = document.getElementById('gameScreen');
+const winScreen = document.getElementById('winScreen');
+const playAgainBtn = document.getElementById('playAgainBtn');
 const correctSound = document.getElementById('correctSound');
 const wrongSound = document.getElementById('wrongSound');
-const playAgainBtn = document.getElementById('playAgainBtn');
 
-let correctCount = 0;
+let draggedShape = null;
+let totalShapes = document.querySelectorAll('.draggable-shape').length;
+let correctDrops = 0;
 
-// Show logo first
-logoSlide.style.display = 'flex';
-setTimeout(() => {
-  logoSlide.style.display = 'none';
-  gameSlide.style.display = 'flex';
-}, 5000);
+function startGame() {
+  logoScreen.style.display = 'flex';
+  gameScreen.style.display = 'none';
+  winScreen.style.display = 'none';
+  setTimeout(() => {
+    logoScreen.style.display = 'none';
+    gameScreen.style.display = 'flex';
+  }, 5000);
+}
 
-// Drag and drop
-shapes.forEach(shape => {
+// Drag & Drop
+document.querySelectorAll('.draggable-shape').forEach(shape => {
   shape.addEventListener('dragstart', e => {
-    e.dataTransfer.setData('text/plain', shape.dataset.shape);
-    e.dataTransfer.setData('text/id', shape.style.backgroundImage);
+    draggedShape = shape;
   });
 });
 
-outlineBoxes.forEach(box => {
+document.querySelectorAll('.outline-box').forEach(box => {
   box.addEventListener('dragover', e => e.preventDefault());
   box.addEventListener('drop', e => {
-    e.preventDefault();
-    const draggedShape = e.dataTransfer.getData('text/plain');
-    const draggedImage = e.dataTransfer.getData('text/id');
-    if (draggedShape === box.dataset.shape) {
+    const shapeType = draggedShape.dataset.shape;
+    const boxType = box.dataset.shape;
+    if (shapeType === boxType) {
+      draggedShape.style.display = 'none'; // disappear when correctly placed
       correctSound.play();
-      correctCount++;
-      // Hide dragged shape
-      shapes.forEach(s => {
-        if(s.style.backgroundImage === draggedImage) s.style.display = 'none';
-      });
-      if (correctCount === shapes.length / 2) {
-        gameSlide.style.display = 'none';
-        wellDoneSlide.style.display = 'flex';
+      correctDrops++;
+      if (correctDrops === totalShapes) {
+        setTimeout(() => showWinScreen(), 500);
       }
     } else {
       wrongSound.play();
     }
+    draggedShape = null;
   });
 });
 
+function showWinScreen() {
+  gameScreen.style.display = 'none';
+  winScreen.style.display = 'flex';
+}
+
 playAgainBtn.addEventListener('click', () => {
-  location.reload();
+  // Reset game
+  document.querySelectorAll('.draggable-shape').forEach(s => s.style.display = 'flex');
+  correctDrops = 0;
+  startGame();
 });
+
+// Initialize
+startGame();
 </script>
 
 </body>
