@@ -38,7 +38,7 @@
     position: relative;
     width: 100vw;
     height: 100vh;
-    background-image: url('assets/de3dfaef-4b50-48bc-82d2-39d3a37332e5.png');
+    background-image: url('assets/background-ocean.png');
     background-size: cover;
     background-position: center;
     overflow: hidden;
@@ -49,12 +49,12 @@
     width: 120px;
     height: 120px;
     cursor: pointer;
-    border: 2px dashed rgba(255,255,255,0.7);
     border-radius: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 5;
+    border: 2px dashed rgba(255,255,255,0.7);
   }
 
   .hiding-spot span {
@@ -96,21 +96,6 @@
 
   #playAgainBtn:hover {
     background-color: #45a049;
-  }
-
-  .bubble {
-    position: absolute;
-    width: 40px;
-    height: 40px;
-    background: url('assets/bubble.png') no-repeat center/contain;
-    opacity: 0.7;
-    animation: rise 5s linear infinite;
-  }
-
-  @keyframes rise {
-    0% { transform: translateY(100vh) scale(0.5); opacity:0.7; }
-    50% { opacity:1; }
-    100% { transform: translateY(-50px) scale(1); opacity:0; }
   }
 </style>
 </head>
@@ -161,7 +146,6 @@ function startGame() {
     logoScreen.style.display = 'none';
     gameScreen.style.display = 'block';
     resetAnimals();
-    generateBubbles();
   }, 5000);
 }
 
@@ -190,21 +174,7 @@ playAgainBtn.addEventListener('click', () => {
   startGame();
 });
 
-// Bubble generation
-function generateBubbles() {
-  // Remove existing bubbles
-  document.querySelectorAll('.bubble').forEach(b => b.remove());
-
-  for(let i=0;i<10;i++){
-    const bubble = document.createElement('div');
-    bubble.classList.add('bubble');
-    bubble.style.left = Math.random()*90 + 'vw';
-    bubble.style.animationDuration = (3 + Math.random()*3) + 's';
-    gameScreen.appendChild(bubble);
-  }
-}
-
-// Start game
+// Initialize
 startGame();
 </script>
 
