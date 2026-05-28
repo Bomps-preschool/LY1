@@ -120,12 +120,8 @@ body {
   margin-bottom: 20px;
 }
 
-/* Buttons */
+/* Play Again */
 #playAgainBtn {
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
   padding: 10px 30px;
   font-size: 18px;
   border: none;
@@ -140,7 +136,23 @@ body {
   background-color: #45a049;
 }
 
-/* Confetti for Good Job */
+/* Bubbles */
+.bubble {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  background: url('assets/bubble.png') no-repeat center/contain;
+  opacity: 0.7;
+  animation: rise 5s linear infinite;
+}
+
+@keyframes rise {
+  0% { transform: translateY(100vh) scale(0.5); opacity:0.7; }
+  50% { opacity:1; }
+  100% { transform: translateY(-50px) scale(1); opacity:0; }
+}
+
+/* Confetti */
 .confetti {
   position: absolute;
   width: 20px;
@@ -190,9 +202,8 @@ body {
 <!-- Win Screen -->
 <div id="winScreen">
   <h1>Good Job!</h1>
+  <button id="playAgainBtn">Play Again</button>
 </div>
-
-<button id="playAgainBtn">Play Again</button>
 
 <!-- Pop sound -->
 <audio id="popSound" src="assets/pop.mp3"></audio>
@@ -215,12 +226,12 @@ function startGame() {
   logoScreen.style.display = 'flex';
   gameScreen.style.display = 'none';
   winScreen.style.display = 'none';
-  playAgainBtn.style.display = 'none';
 
   setTimeout(() => {
     logoScreen.style.display = 'none';
     gameScreen.style.display = 'block';
     resetAnimals();
+    generateBubbles(); // bubbles on second slide
   }, 5000);
 }
 
@@ -231,7 +242,7 @@ function resetAnimals() {
   });
 }
 
-// Click handlers with pop sound and bounce
+// Click handlers with pop sound
 Object.keys(spotAnimalMap).forEach(spotId => {
   const spot = document.getElementById(spotId);
   const animalId = spotAnimalMap[spotId];
@@ -249,7 +260,6 @@ Object.keys(spotAnimalMap).forEach(spotId => {
   });
 });
 
-// Check if all animals are revealed
 function checkAllAnimals() {
   const allAnimals = Object.values(spotAnimalMap).map(id => document.getElementById(id));
   const allVisible = allAnimals.every(a => a.classList.contains('pop'));
@@ -257,20 +267,31 @@ function checkAllAnimals() {
     setTimeout(() => {
       gameScreen.style.display = 'none';
       winScreen.style.display = 'flex';
-      addConfetti();
-      playAgainBtn.style.display = 'block';
+      addConfetti(); // confetti on third slide
     }, 500);
   }
 }
 
 // Play Again button
 playAgainBtn.addEventListener('click', () => {
-  winScreen.style.display = 'none';
   removeConfetti();
+  winScreen.style.display = 'none';
   startGame();
 });
 
-// Confetti
+// Bubble generation for second slide
+function generateBubbles() {
+  document.querySelectorAll('.bubble').forEach(b => b.remove());
+  for(let i=0;i<10;i++){
+    const bubble = document.createElement('div');
+    bubble.classList.add('bubble');
+    bubble.style.left = Math.random()*90 + 'vw';
+    bubble.style.animationDuration = (3 + Math.random()*3) + 's';
+    gameScreen.appendChild(bubble);
+  }
+}
+
+// Confetti for Good Job slide
 function addConfetti() {
   for (let i=0;i<20;i++){
     const confetti = document.createElement('div');
