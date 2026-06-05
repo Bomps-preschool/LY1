@@ -5,17 +5,79 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Number Circle Game 6-10</title>
 <style>
-  body { margin:0; font-family: 'Arial', sans-serif; background:#ffeccf; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; }
-  #logoScreen, #gameScreen, #scoreScreen { width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; position:absolute; top:0; left:0; }
+  body { 
+    margin:0; 
+    font-family: 'Arial', sans-serif; 
+    background:#ffeccf; 
+    display:flex; 
+    flex-direction:column; 
+    align-items:center; 
+    justify-content:center; 
+    height:100vh; 
+  }
+  #logoScreen, #gameScreen, #scoreScreen { 
+    width:100%; 
+    height:100%; 
+    display:flex; 
+    flex-direction:column; 
+    align-items:center; 
+    justify-content:center; 
+    position:absolute; 
+    top:0; 
+    left:0; 
+  }
   #logoScreen img { width:200px; }
-  #instruction { background: #fffca0; padding:10px 20px; border-radius:8px; font-size:28px; margin-bottom:20px; text-align:center; position:absolute; top:20px; } /* Increased font size */
-  #numbers { display:flex; flex-direction:column; gap:15px; justify-content:center; margin-top:100px; }
+  #gameScreen {
+    background: url('assets/game-background.png') no-repeat center center;
+    background-size: cover;
+  }
+  #instruction { 
+    background: #fffca0; 
+    padding:10px 20px; 
+    border-radius:8px; 
+    font-size:24px; /* slightly larger for better visibility */
+    margin-bottom:20px; 
+    text-align:center; 
+    position:absolute; 
+    top:20px;
+  }
+  #numbers { 
+    display:flex; 
+    flex-direction:column; 
+    gap:20px; 
+    justify-content:center; 
+    margin-top:100px; 
+  }
   .number-row { display:flex; gap:20px; justify-content:center; flex-wrap: wrap; }
-  .number { padding:18px 25px; font-size:38px; border-radius:10px; border:2px solid #000; background:white; cursor: pointer; user-select:none; } /* Increased font size */
+  .number { 
+    padding:18px 22px; /* slightly bigger */
+    font-size:36px; /* slightly bigger */
+    border-radius:10px; 
+    border:2px solid #000; 
+    background:white; 
+    cursor: pointer; 
+    user-select:none; 
+  }
   .number.correct { background:#a0ffaf; }
   .number.wrong { background:#ff9a9a; }
-  #scoreScreen { background:#fff7e0; flex-direction:column; font-size:24px; display:none; align-items:center; justify-content:center; height:100%; }
-  #scoreScreen button { padding:10px 20px; font-size:20px; background:#ffdd57; border:none; border-radius:8px; cursor:pointer; margin-top:20px; }
+  #scoreScreen { 
+    background:#fff7e0; 
+    flex-direction:column; 
+    font-size:24px; 
+    display:none; 
+    align-items:center; 
+    justify-content:center; 
+    height:100%; 
+  }
+  #scoreScreen button { 
+    padding:10px 20px; 
+    font-size:20px; 
+    background:#ffdd57; 
+    border:none; 
+    border-radius:8px; 
+    cursor:pointer; 
+    margin-top:20px;
+  }
   #confetti-canvas { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; }
 </style>
 </head>
@@ -75,7 +137,7 @@ function loadSlide(index){
   slideAudio.play();
 
   // instruction
-  document.getElementById("instruction").textContent = `Tap on the number ${slide.number}`;
+  document.getElementById("instruction").textContent = `Tap on the correct number ${slide.number}`;
 
   // render numbers in rows
   slide.numbers.forEach(row=>{
@@ -98,14 +160,10 @@ function selectNumber(el, correctNumber){
     el.classList.add("correct");
     correctSound.play();
     circledCount++;
-
-    // launch confetti on every correct
-    launchConfetti(800);
-
-    // check if all required numbers in slide are circled
     let correctNeeded = Array.from(document.querySelectorAll(".number")).filter(d=>parseInt(d.textContent)===correctNumber).length;
     if(circledCount===correctNeeded){
-      setTimeout(nextSlide,1000);
+      setTimeout(nextSlide,800);
+      launchConfetti(); // Confetti after every correct slide
     }
   } else if(n!==correctNumber){
     el.classList.add("wrong");
@@ -119,11 +177,10 @@ function nextSlide(){
     currentSlide++;
     loadSlide(currentSlide);
   } else {
-    // show score screen
     document.getElementById("gameScreen").style.display="none";
     document.getElementById("scoreText").textContent=`Well Done! You circled all numbers correctly`;
     document.getElementById("scoreScreen").style.display="flex";
-    launchConfetti(1500);
+    launchConfetti();
   }
 }
 
@@ -134,14 +191,14 @@ document.getElementById("playAgain").onclick = () => {
   loadSlide(currentSlide);
 };
 
-// Confetti effect function
-function launchConfetti(duration=1200){
+// Simple confetti animation
+function launchConfetti(){
   const canvas = document.getElementById('confetti-canvas');
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
   const ctx = canvas.getContext('2d');
   const confettis = [];
-  for(let i=0;i<150;i++){
+  for(let i=0;i<200;i++){
     confettis.push({x:Math.random()*canvas.width, y:Math.random()*canvas.height, r:Math.random()*6+4, d:Math.random()*20+10, color:`hsl(${Math.random()*360},100%,50%)`});
   }
   let angle = 0;
@@ -159,7 +216,6 @@ function launchConfetti(duration=1200){
     requestAnimationFrame(draw);
   }
   draw();
-  setTimeout(()=>{ctx.clearRect(0,0,canvas.width,canvas.height);}, duration);
 }
 </script>
 </body>
