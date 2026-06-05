@@ -3,20 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Number Circle Game 6-10</title>
+<title>Circle the Number Game</title>
 <style>
-  body { margin:0; font-family: 'Arial', sans-serif; background:#ffeccf; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; }
+  body { margin:0; font-family: 'Arial', sans-serif; background:#ffeccf; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh;}
   #logoScreen, #gameScreen, #scoreScreen { width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; position:absolute; top:0; left:0; }
   #logoScreen img { width:200px; }
-  #instruction { background: #fffca0; padding:10px 20px; border-radius:8px; font-size:20px; margin-bottom:20px; text-align:center; position:absolute; top:20px; }
-  #numbers { display:flex; flex-direction:column; gap:15px; justify-content:center; margin-top:100px; }
-  .number-row { display:flex; gap:20px; justify-content:center; flex-wrap: wrap; }
-  .number { padding:15px 20px; font-size:32px; border-radius:10px; border:2px solid #000; background:white; cursor: pointer; user-select:none; }
+  #instruction { background: #fffca0; padding:15px 25px; border-radius:8px; font-size:24px; margin-bottom:20px; text-align:center; position:absolute; top:20px;}
+  #objects { display:flex; gap:20px; margin:20px 0; flex-wrap: wrap; justify-content:center;}
+  #objects img { width:80px; height:80px; border-radius:10px; background:white; padding:5px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2);}
+  #numbers { display:flex; gap:20px; margin-top:30px; flex-wrap: wrap; justify-content:center;}
+  .number { padding:15px 25px; font-size:32px; border-radius:10px; border:2px solid #000; background:white; user-select:none; cursor: pointer;}
   .number.correct { background:#a0ffaf; }
   .number.wrong { background:#ff9a9a; }
   #scoreScreen { background:#fff7e0; flex-direction:column; font-size:24px; display:none; align-items:center; justify-content:center; height:100%; }
-  #scoreScreen button { padding:10px 20px; font-size:20px; background:#ffdd57; border:none; border-radius:8px; cursor:pointer; margin-top:20px; }
-  #confetti-canvas { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; }
+  #scoreScreen button { padding:10px 20px; font-size:20px; background:#ffdd57; border:none; border-radius:8px; cursor:pointer; margin-top:20px;}
+  canvas { position:absolute; top:0; left:0; pointer-events:none; }
 </style>
 </head>
 <body>
@@ -28,32 +29,79 @@
 
 <!-- Game Screen -->
 <div id="gameScreen" style="display:none;">
-  <div id="instruction">Tap on the correct number</div>
+  <div id="instruction">Count and tap the correct numbers</div>
+  <div id="objects"></div>
   <div id="numbers"></div>
 </div>
 
 <!-- Score Screen -->
 <div id="scoreScreen">
   <div id="scoreText"></div>
-  <canvas id="confetti-canvas"></canvas>
   <button id="playAgain">Play Again</button>
 </div>
 
+<canvas id="confettiCanvas"></canvas>
+
 <script>
 const slides = [
-  {number:10, numbers:[[6,8,10,9,10],[8,10,9,10]], audio:"assets/number-10.mp3"},
-  {number:8, numbers:[[7,8,9,6,8],[8,6,10,8]], audio:"assets/number-8.mp3"},
-  {number:6, numbers:[[6,7,6,8],[9,6,7,6]], audio:"assets/number-6.mp3"},
-  {number:9, numbers:[[9,6,7,9],[8,9,10,9]], audio:"assets/number-9.mp3"},
-  {number:7, numbers:[[7,8,6,7],[9,7,6,8]], audio:"assets/number-7.mp3"}
+  { object:"popsicle.png", count:4, numbers:[[3,5,4,8],[4,1,4,9]], correctNumber:4 },
+  { object:"drum.png", count:1, numbers:[[1,3,2,5],[1,4,1,6]], correctNumber:1 },
+  { object:"cupcake.png", count:3, numbers:[[2,3,5,6],[3,1,3,2]], correctNumber:3 },
+  { object:"ball.png", count:5, numbers:[[4,5,2,7],[5,8,5,1]], correctNumber:5 },
+  { object:"lollipop.png", count:2, numbers:[[1,2,3,4],[2,5,2,6]], correctNumber:2 }
 ];
 
 let currentSlide = 0;
-let circledCount = 0;
+let circledCorrectNumbers = new Set();
 
 // Audio
 const correctSound = new Audio("assets/correct.mp3");
 const wrongSound = new Audio("assets/wrong.mp3");
+
+// Canvas for confetti
+const canvas = document.getElementById("confettiCanvas");
+const ctx = canvas.getContext("2d");
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+let confettiPieces = [];
+
+function createConfetti() {
+  confettiPieces = [];
+  for(let i=0;i<150;i++){
+    confettiPieces.push({
+      x: Math.random()*canvas.width,
+      y: Math.random()*canvas.height,
+      r: Math.random()*6+4,
+      d: Math.random()*20+10,
+      color:`hsl(${Math.random()*360},100%,50%)`,
+      tilt: Math.random()*10-10
+    });
+  }
+}
+function drawConfetti(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  confettiPieces.forEach(p=>{
+    ctx.beginPath();
+    ctx.moveTo(p.x+ p.tilt,p.y);
+    ctx.lineTo(p.x+ p.tilt + p.r, p.y+ p.r);
+    ctx.lineTo(p.x+ p.tilt - p.r, p.y+ p.r);
+    ctx.closePath();
+    ctx.fillStyle = p.color;
+    ctx.fill();
+  });
+}
+function updateConfetti(){
+  confettiPieces.forEach(p=>{
+    p.y += Math.random()*3+2;
+    p.x += Math.sin(p.y/10);
+    if(p.y>canvas.height) p.y=-10;
+  });
+}
+function startConfetti(duration=1500){
+  createConfetti();
+  const interval = setInterval(()=>{ drawConfetti(); updateConfetti(); },16);
+  setTimeout(()=>{ clearInterval(interval); ctx.clearRect(0,0,canvas.width,canvas.height); },duration);
+}
 
 // Show logo for 5s
 window.onload = () => {
@@ -66,48 +114,56 @@ window.onload = () => {
 
 function loadSlide(index){
   const slide = slides[index];
-  circledCount = 0;
+  circledCorrectNumbers.clear();
+  const objectsDiv = document.getElementById("objects");
   const numbersDiv = document.getElementById("numbers");
+  objectsDiv.innerHTML="";
   numbersDiv.innerHTML="";
 
-  // play slide audio
-  const slideAudio = new Audio(slide.audio);
-  slideAudio.play();
+  // Show objects
+  for(let i=0;i<slide.count;i++){
+    const obj = document.createElement("img");
+    obj.src=`assets/${slide.object}`;
+    objectsDiv.appendChild(obj);
+  }
 
-  // instruction
-  document.getElementById("instruction").textContent = `Tap on the number ${slide.number}`;
-
-  // render numbers in rows
-  slide.numbers.forEach(row=>{
+  // Show numbers scattered in 2 rows
+  slide.numbers.forEach(row => {
     const rowDiv = document.createElement("div");
-    rowDiv.className="number-row";
-    row.forEach(n=>{
-      const div = document.createElement("div");
-      div.className="number";
-      div.textContent=n;
-      div.addEventListener("click",()=> selectNumber(div, slide.number));
-      rowDiv.appendChild(div);
+    rowDiv.style.display="flex";
+    rowDiv.style.gap="20px";
+    rowDiv.style.margin="10px 0";
+    row.forEach(n => {
+      const span = document.createElement("div");
+      span.classList.add("number");
+      span.style.fontSize="36px";
+      span.textContent=n;
+      span.addEventListener("click", () => checkNumber(span, slide.correctNumber));
+      rowDiv.appendChild(span);
     });
     numbersDiv.appendChild(rowDiv);
   });
 }
 
-function selectNumber(el, correctNumber){
-  const n = parseInt(el.textContent);
-  if(n===correctNumber && !el.classList.contains("correct")){
-    el.classList.add("correct");
-    correctSound.play();
-    circledCount++;
-    // check if all required numbers are circled
-    let totalRequired = document.querySelectorAll(".number").length;
-    let correctNeeded = Array.from(document.querySelectorAll(".number")).filter(d=>parseInt(d.textContent)===correctNumber).length;
-    if(circledCount===correctNeeded){
-      setTimeout(nextSlide,800);
+function checkNumber(element, correctNumber){
+  const n = parseInt(element.textContent);
+  if(n === correctNumber){
+    if(!element.classList.contains("correct")){
+      element.classList.add("correct");
+      correctSound.play();
+      circledCorrectNumbers.add(element);
+      startConfetti(1200); // show confetti on correct
+      // check if all correct numbers in slide are circled
+      let totalCorrect = 0;
+      document.querySelectorAll(".number").forEach(nDiv=>{ if(parseInt(nDiv.textContent)===correctNumber) totalCorrect++; });
+      if(circledCorrectNumbers.size === totalCorrect){
+        setTimeout(()=> nextSlide(), 1000);
+      }
     }
-  } else if(n!==correctNumber){
-    el.classList.add("wrong");
+  } else {
+    element.classList.add("wrong");
     wrongSound.play();
-    setTimeout(()=>el.classList.remove("wrong"),600);
+    setTimeout(()=> element.classList.remove("wrong"),600);
   }
 }
 
@@ -116,47 +172,18 @@ function nextSlide(){
     currentSlide++;
     loadSlide(currentSlide);
   } else {
-    // show score screen
     document.getElementById("gameScreen").style.display="none";
-    document.getElementById("scoreText").textContent=`Well Done! You circled all numbers correctly`;
+    document.getElementById("scoreText").textContent=`Well Done! You tapped all numbers correctly`;
     document.getElementById("scoreScreen").style.display="flex";
-    launchConfetti();
   }
 }
 
-document.getElementById("playAgain").onclick = () => {
+document.getElementById("playAgain").onclick = ()=> {
   currentSlide=0;
   document.getElementById("scoreScreen").style.display="none";
   document.getElementById("gameScreen").style.display="flex";
   loadSlide(currentSlide);
 };
-
-// Simple confetti animation
-function launchConfetti(){
-  const canvas = document.getElementById('confetti-canvas');
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  const ctx = canvas.getContext('2d');
-  const confettis = [];
-  for(let i=0;i<200;i++){
-    confettis.push({x:Math.random()*canvas.width, y:Math.random()*canvas.height, r:Math.random()*6+4, d:Math.random()*20+10, color:`hsl(${Math.random()*360},100%,50%)`});
-  }
-  let angle = 0;
-  function draw(){
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    confettis.forEach(c=>{
-      ctx.fillStyle = c.color;
-      ctx.beginPath();
-      ctx.arc(c.x, c.y, c.r, 0, 2*Math.PI);
-      ctx.fill();
-      c.y += 1+Math.sin(angle)*2;
-      if(c.y>canvas.height){c.y=-10; c.x=Math.random()*canvas.width;}
-    });
-    angle += 0.01;
-    requestAnimationFrame(draw);
-  }
-  draw();
-}
 </script>
 </body>
 </html>
