@@ -116,6 +116,7 @@ const slides = [
 
 let currentSlide = 0;
 let circledCount = 0;
+let instructionAudio = null;
 
 // Audio
 const correctSound = new Audio("assets/correct.mp3");
@@ -136,11 +137,14 @@ function loadSlide(index){
   const numbersDiv = document.getElementById("numbers");
   numbersDiv.innerHTML="";
 
-  // play slide audio
-  const slideAudio = new Audio(slide.audio);
-  slideAudio.play();
+  // stop previous instruction audio if playing
+  if(instructionAudio) { instructionAudio.pause(); instructionAudio.currentTime=0; }
 
-  // instruction
+  // play slide instruction audio
+  instructionAudio = new Audio(slide.audio);
+  instructionAudio.play();
+
+  // instruction text
   document.getElementById("instruction").textContent = `Tap on the correct number ${slide.number}`;
 
   // render numbers in rows
@@ -151,36 +155,29 @@ function loadSlide(index){
       const div = document.createElement("div");
       div.className="number";
       div.textContent=n;
-      div.addEventListener("click", () => selectNumber(div, slide.number, slide.audio));
+      div.addEventListener("click", () => selectNumber(div, slide.number));
       rowDiv.appendChild(div);
     });
     numbersDiv.appendChild(rowDiv);
   });
 }
 
-function selectNumber(el, correctNumber, instructionAudioSrc){
+function selectNumber(el, correctNumber){
   const n = parseInt(el.textContent);
   if(n===correctNumber && !el.classList.contains("correct")){
     el.classList.add("correct");
-    circledCount++;
-    
-    // Stop instruction audio if currently playing
-    let slideAudio = new Audio(instructionAudioSrc);
-    slideAudio.pause();
-    slideAudio.currentTime = 0;
-
-    // Play correct clap first
     correctSound.play();
-    correctSound.onended = () => {
-      // After clap finishes, play instruction audio
-      slideAudio.play();
-      // check if all required numbers are circled
-      const correctNeeded = Array.from(document.querySelectorAll(".number"))
-        .filter(d=>parseInt(d.textContent)===correctNumber).length;
-      if(circledCount===correctNeeded){
-        setTimeout(nextSlide, 800);
-      }
-    };
+    circledCount++;
+
+    // check if all correct numbers circled
+    const correctNeeded = Array.from(document.querySelectorAll(".number"))
+      .filter(d=>parseInt(d.textContent)===correctNumber).length;
+
+    if(circledCount===correctNeeded){
+      // Wait until clap finishes
+      correctSound.onended = () => nextSlide();
+      launchConfetti();
+    }
   } else if(n!==correctNumber){
     el.classList.add("wrong");
     wrongSound.play();
