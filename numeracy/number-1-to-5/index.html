@@ -5,54 +5,93 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Circle the Number Game</title>
 <style>
-body {
-  margin:0;
-  font-family: 'Arial', sans-serif;
-  background:#ffeccf;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  height:100vh;
-}
-#logoScreen, #gameScreen, #scoreScreen { 
-  width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; position:absolute; top:0; left:0; 
-}
-#logoScreen img { width:200px; }
+  body {
+    margin:0;
+    font-family: 'Arial', sans-serif;
+    background:#ffeccf;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    height:100vh;
+  }
 
-#instruction { 
-  background: #fffca0; padding:10px 20px; border-radius:8px; font-size:20px; margin-bottom:20px; text-align:center; 
-}
+  #logoScreen, #gameScreen, #scoreScreen {
+    width:100%;
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    position:absolute;
+    top:0; left:0;
+  }
 
-#objects { 
-  display:flex; gap:20px; margin:20px 0; flex-wrap: wrap; justify-content:center;
-}
-#objects img { 
-  width:80px; height:80px; cursor:pointer; border-radius:10px; background:white; padding:5px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
-}
+  #logoScreen img {
+    width:200px;
+  }
 
-#numbersBox {
-  width: 80%; max-width: 400px;
-  height: 180px; background: #fff9e0; border-radius:12px;
-  display:flex; flex-wrap:wrap; justify-content:center; align-items:center; padding:20px; gap:15px; 
-  position:relative;
-}
+  #instruction {
+    background: #fffca0;
+    padding:10px 20px;
+    border-radius:8px;
+    font-size:22px;
+    margin-bottom:20px;
+    text-align:center;
+  }
 
-.number { 
-  padding:15px 25px; font-size:28px; border-radius:10px; border:2px solid #000; cursor:pointer; background:white; user-select:none;
-  position:absolute;
-}
+  #numbersBox {
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+    background:#fff9e5;
+    padding:20px;
+    border-radius:15px;
+  }
 
-.number.correct { background:#a0ffaf; }
-.number.wrong { background:#ff9a9a; }
+  .numberRow {
+    display:flex;
+    justify-content:center;
+    gap:20px;
+  }
 
-#scoreScreen { 
-  background:#fff7e0; flex-direction:column; font-size:24px; display:none; 
-  align-items:center; justify-content:center;
-}
-#scoreScreen button { 
-  padding:10px 20px; font-size:20px; background:#ffdd57; border:none; border-radius:8px; cursor:pointer; margin-top:20px;
-}
+  .number {
+    width:70px;
+    height:70px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:30px;
+    font-weight:bold;
+    border:3px solid #000;
+    border-radius:12px;
+    background:white;
+    cursor:pointer;
+    user-select:none;
+  }
+
+  .number.correct { background:#a0ffaf; }
+  .number.wrong { background:#ff9a9a; }
+
+  #scoreScreen {
+    background:#fff7e0;
+    flex-direction:column;
+    font-size:24px;
+    display:none;
+    align-items:center;
+    justify-content:center;
+  }
+
+  #scoreScreen button {
+    padding:10px 20px;
+    font-size:20px;
+    background:#ffdd57;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    margin-top:20px;
+  }
+
 </style>
 </head>
 <body>
@@ -65,8 +104,10 @@ body {
 <!-- Game Screen -->
 <div id="gameScreen" style="display:none;">
   <div id="instruction">Count and circle the correct number</div>
-  <div id="objects"></div>
-  <div id="numbersBox"></div>
+  <div id="numbersBox">
+    <div class="numberRow" id="row1"></div>
+    <div class="numberRow" id="row2"></div>
+  </div>
 </div>
 
 <!-- Score Screen -->
@@ -77,23 +118,23 @@ body {
 
 <script>
 const slides = [
-  { object:"popsicle.png", count:4, numberToCircle:4 },
-  { object:"drum.png", count:1, numberToCircle:1 },
-  { object:"cupcake.png", count:3, numberToCircle:3 },
-  { object:"ball.png", count:5, numberToCircle:5 },
-  { object:"lollipop.png", count:2, numberToCircle:2 }
+  { row1:[3,5,4,8], row2:[4,1,4,9], correct:[4,4,4] },
+  { row1:[2,1,3,5], row2:[1,2,2,4], correct:[2,2,2] },
+  { row1:[1,3,2,4], row2:[4,3,1,5], correct:[1,1,1] },
+  { row1:[5,2,3,1], row2:[2,5,5,3], correct:[5,5,5] },
+  { row1:[1,2,3,4], row2:[4,4,2,1], correct:[4,4,4] }
 ];
 
-let currentSlide = 0;
-let correctClicks = 0;
+let currentSlide=0;
+let correctClicks=0;
 
 // Audio
 const correctSound = new Audio("assets/correct.mp3");
 const wrongSound = new Audio("assets/wrong.mp3");
 
 // Show logo for 5s
-window.onload = () => {
-  setTimeout(()=> {
+window.onload = ()=>{
+  setTimeout(()=>{
     document.getElementById("logoScreen").style.display="none";
     document.getElementById("gameScreen").style.display="flex";
     loadSlide(currentSlide);
@@ -102,60 +143,54 @@ window.onload = () => {
 
 function loadSlide(index){
   const slide = slides[index];
-  correctClicks = 0;
-  const objectsDiv = document.getElementById("objects");
-  const numbersDiv = document.getElementById("numbersBox");
-  objectsDiv.innerHTML="";
-  numbersDiv.innerHTML="";
+  correctClicks=0;
 
-  for(let i=0;i<slide.count;i++){
-    const obj = document.createElement("img");
-    obj.src=`assets/${slide.object}`;
-    objectsDiv.appendChild(obj);
-  }
+  const row1Div = document.getElementById("row1");
+  const row2Div = document.getElementById("row2");
+  row1Div.innerHTML="";
+  row2Div.innerHTML="";
 
-  // Generate numbers randomly scattered in numbersBox
-  let nums = [];
-  for(let i=1;i<=slide.count+5;i++) nums.push(i);
-  nums.sort(()=>Math.random()-0.5);
+  slide.row1.forEach(n=>{
+    const num = document.createElement("div");
+    num.classList.add("number");
+    num.textContent=n;
+    num.addEventListener("click",()=>checkNumber(num, n, slide.correct));
+    row1Div.appendChild(num);
+  });
 
-  nums.forEach((n,index)=>{
-    const span = document.createElement("div");
-    span.classList.add("number");
-    span.textContent = n;
-    // Random positions inside numbersBox
-    span.style.left = `${Math.random()*70+10}%`;
-    span.style.top = `${Math.random()*70+10}%`;
-    span.style.position="absolute";
-
-    span.addEventListener("pointerdown",()=>{
-      if(n==slide.numberToCircle){
-        span.classList.add("correct");
-        correctSound.play();
-        correctClicks++;
-        if(correctClicks==slide.count){
-          setTimeout(()=>{
-            if(currentSlide<slides.length-1){
-              currentSlide++;
-              loadSlide(currentSlide);
-            } else {
-              document.getElementById("gameScreen").style.display="none";
-              document.getElementById("scoreText").textContent="Well Done! You circled all numbers correctly";
-              document.getElementById("scoreScreen").style.display="flex";
-            }
-          },800);
-        }
-      } else {
-        span.classList.add("wrong");
-        wrongSound.play();
-        setTimeout(()=>span.classList.remove("wrong"),600);
-      }
-    });
-    numbersDiv.appendChild(span);
+  slide.row2.forEach(n=>{
+    const num = document.createElement("div");
+    num.classList.add("number");
+    num.textContent=n;
+    num.addEventListener("click",()=>checkNumber(num, n, slide.correct));
+    row2Div.appendChild(num);
   });
 }
 
-document.getElementById("playAgain").onclick = ()=> {
+function checkNumber(element, number, correctArray){
+  if(correctArray.includes(number)){
+    element.classList.add("correct");
+    correctSound.play();
+    correctClicks++;
+    // check if all correct numbers are circled
+    if(correctClicks==correctArray.length){
+      if(currentSlide<slides.length-1){
+        currentSlide++;
+        setTimeout(()=>loadSlide(currentSlide),600);
+      }else{
+        document.getElementById("gameScreen").style.display="none";
+        document.getElementById("scoreText").textContent=`Well Done! You circled all numbers correctly`;
+        document.getElementById("scoreScreen").style.display="flex";
+      }
+    }
+  }else{
+    element.classList.add("wrong");
+    wrongSound.play();
+    setTimeout(()=>element.classList.remove("wrong"),600);
+  }
+}
+
+document.getElementById("playAgain").onclick = ()=>{
   currentSlide=0;
   document.getElementById("scoreScreen").style.display="none";
   document.getElementById("gameScreen").style.display="flex";
