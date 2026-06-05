@@ -3,44 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Circle the Number - 2 Year Old</title>
+<title>Circle the Number Game</title>
 <style>
-  body {
-    margin:0; font-family: 'Arial', sans-serif;
-    background:#ffeccf; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh;
-  }
-  #logoScreen, #gameScreen, #scoreScreen {
-    width:100%; height:100%;
-    display:flex; flex-direction:column; align-items:center; justify-content:center;
-    position:absolute; top:0; left:0;
-  }
+  body { margin:0; font-family: 'Arial', sans-serif; background:#ffeccf; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh;}
+  #logoScreen, #gameScreen, #scoreScreen { width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; position:absolute; top:0; left:0; }
   #logoScreen img { width:200px; }
-  #instruction {
-    background: #fffca0;
-    padding:10px 20px; border-radius:8px;
-    font-size:20px; margin-bottom:20px;
-    text-align:center;
-  }
-  #objects {
-    display:flex; gap:20px; margin:20px 0; flex-wrap: wrap; justify-content:center;
-  }
-  #objects img {
-    width:100px; height:100px; border-radius:10px;
-    background:white; padding:5px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
-  }
-  #numbersBox {
-    width: 90%; background:#fff9d6; border-radius:8px;
-    padding:20px; display:flex; flex-wrap: wrap; gap:20px; justify-content:center;
-    user-select:none;
-  }
-  .number {
-    width:60px; height:60px; display:flex; align-items:center; justify-content:center;
-    font-size:28px; border:2px solid #000; border-radius:10px;
-    cursor:pointer; background:white; touch-action: none;
-  }
+  #instruction { background: #fffca0; padding:10px 20px; border-radius:8px; font-size:20px; margin-bottom:20px; text-align:center; position:absolute; top:20px;}
+  #objects { display:flex; gap:20px; margin:20px 0; flex-wrap: wrap; justify-content:center;}
+  #objects img { width:80px; height:80px; border-radius:10px; background:white; padding:5px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2);}
+  #numbers { display:flex; gap:20px; margin-top:30px; flex-wrap: wrap; justify-content:center;}
+  .number { padding:10px 20px; font-size:28px; border-radius:10px; border:2px solid #000; background:white; user-select:none; cursor: pointer;}
   .number.correct { background:#a0ffaf; }
   .number.wrong { background:#ff9a9a; }
-  #scoreScreen { background:#fff7e0; flex-direction:column; font-size:24px; display:none; }
+  #scoreScreen { background:#fff7e0; flex-direction:column; font-size:24px; display:none; align-items:center; justify-content:center; height:100%; }
   #scoreScreen button { padding:10px 20px; font-size:20px; background:#ffdd57; border:none; border-radius:8px; cursor:pointer; margin-top:20px;}
 </style>
 </head>
@@ -55,7 +30,7 @@
 <div id="gameScreen" style="display:none;">
   <div id="instruction">Count and circle the correct number</div>
   <div id="objects"></div>
-  <div id="numbersBox"></div>
+  <div id="numbers"></div>
 </div>
 
 <!-- Score Screen -->
@@ -65,17 +40,16 @@
 </div>
 
 <script>
-// Slides config
 const slides = [
-  { object:"popsicle.png", count:4, numbers:[3,5,4,8,4,1,4,9] },
-  { object:"drum.png", count:1, numbers:[1,2,3,5] },
-  { object:"cupcake.png", count:3, numbers:[2,3,3,1] },
-  { object:"ball.png", count:5, numbers:[5,2,5,1,3] },
-  { object:"lollipop.png", count:2, numbers:[2,1,2,3] }
+  { object:"popsicle.png", count:4, numbers:[[3,5,4,8],[4,1,4,9]], correctNumber:4 },
+  { object:"drum.png", count:1, numbers:[[1,3,2,5],[1,4,1,6]], correctNumber:1 },
+  { object:"cupcake.png", count:3, numbers:[[2,3,5,6],[3,1,3,2]], correctNumber:3 },
+  { object:"ball.png", count:5, numbers:[[4,5,2,7],[5,8,5,1]], correctNumber:5 },
+  { object:"lollipop.png", count:2, numbers:[[1,2,3,4],[2,5,2,6]], correctNumber:2 }
 ];
 
 let currentSlide = 0;
-let correctClicks = 0;
+let circledCorrectNumbers = new Set();
 
 // Audio
 const correctSound = new Audio("assets/correct.mp3");
@@ -92,49 +66,62 @@ window.onload = () => {
 
 function loadSlide(index){
   const slide = slides[index];
-  correctClicks = 0;
+  circledCorrectNumbers.clear();
   const objectsDiv = document.getElementById("objects");
-  const numbersBox = document.getElementById("numbersBox");
+  const numbersDiv = document.getElementById("numbers");
   objectsDiv.innerHTML="";
-  numbersBox.innerHTML="";
+  numbersDiv.innerHTML="";
 
+  // Show objects
   for(let i=0;i<slide.count;i++){
     const obj = document.createElement("img");
     obj.src=`assets/${slide.object}`;
     objectsDiv.appendChild(obj);
   }
 
-  slide.numbers.forEach(n=>{
-    const span = document.createElement("div");
-    span.classList.add("number");
-    span.textContent = n;
-    span.addEventListener("pointerdown",()=> checkNumber(n, slide.count, span));
-    numbersBox.appendChild(span);
+  // Show numbers scattered in 2 rows
+  slide.numbers.forEach(row => {
+    const rowDiv = document.createElement("div");
+    rowDiv.style.display="flex";
+    rowDiv.style.gap="20px";
+    rowDiv.style.margin="10px 0";
+    row.forEach(n => {
+      const span = document.createElement("div");
+      span.classList.add("number");
+      span.textContent=n;
+      span.addEventListener("click", () => checkNumber(span, slide.correctNumber));
+      rowDiv.appendChild(span);
+    });
+    numbersDiv.appendChild(rowDiv);
   });
 }
 
-function checkNumber(number, correctNumber, element){
-  if(number==correctNumber){
-    element.classList.add("correct");
-    correctSound.play();
-    correctClicks++;
-    if(correctClicks==slides[currentSlide].count){
-      setTimeout(()=>{
-        if(currentSlide<slides.length-1){
-          currentSlide++;
-          loadSlide(currentSlide);
-        }else{
-          // show score
-          document.getElementById("gameScreen").style.display="none";
-          document.getElementById("scoreText").textContent=`Well Done! You circled all numbers correctly`;
-          document.getElementById("scoreScreen").style.display="flex";
-        }
-      },600);
+function checkNumber(element, correctNumber){
+  const n = parseInt(element.textContent);
+  if(n === correctNumber){
+    if(!element.classList.contains("correct")){
+      element.classList.add("correct");
+      correctSound.play();
+      circledCorrectNumbers.add(n);
+      if(circledCorrectNumbers.size === 1){ // only one correct number per slide
+        setTimeout(()=> nextSlide(), 800);
+      }
     }
-  }else{
+  } else {
     element.classList.add("wrong");
     wrongSound.play();
-    setTimeout(()=>element.classList.remove("wrong"),600);
+    setTimeout(()=> element.classList.remove("wrong"),600);
+  }
+}
+
+function nextSlide(){
+  if(currentSlide<slides.length-1){
+    currentSlide++;
+    loadSlide(currentSlide);
+  } else {
+    document.getElementById("gameScreen").style.display="none";
+    document.getElementById("scoreText").textContent=`Well Done! You circled all numbers correctly`;
+    document.getElementById("scoreScreen").style.display="flex";
   }
 }
 
