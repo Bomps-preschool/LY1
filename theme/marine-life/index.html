@@ -203,7 +203,12 @@ body {
   <button id="playAgainBtn">Play Again</button>
 </div>
 
+<!-- Sounds -->
 <audio id="popSound" src="assets/pop.mp3"></audio>
+<audio id="fishSound" src="assets/fish.mp3"></audio>
+<audio id="dolphinSound" src="assets/dolphin.mp3"></audio>
+<audio id="crabSound" src="assets/crab.mp3"></audio>
+<audio id="octopusSound" src="assets/octopus.mp3"></audio>
 
 <script>
 const logoScreen = document.getElementById('logoScreen');
@@ -212,7 +217,18 @@ const winScreen = document.getElementById('winScreen');
 const playAgainBtn = document.getElementById('playAgainBtn');
 const popSound = document.getElementById('popSound');
 
+const fishSound = document.getElementById('fishSound');
+const dolphinSound = document.getElementById('dolphinSound');
+const crabSound = document.getElementById('crabSound');
+const octopusSound = document.getElementById('octopusSound');
+
 const spotAnimalMap = {'spot1':'fish','spot2':'dolphin','spot3':'crab','spot4':'octopus'};
+const animalAudioMap = {
+  'fish': fishSound,
+  'dolphin': dolphinSound,
+  'crab': crabSound,
+  'octopus': octopusSound
+};
 
 function startGame(){
   logoScreen.style.display='flex';
@@ -227,7 +243,9 @@ function startGame(){
 }
 
 function resetAnimals(){
-  Object.values(spotAnimalMap).forEach(id=>document.getElementById(id).classList.remove('pop'));
+  Object.values(spotAnimalMap).forEach(id=>{
+    document.getElementById(id).classList.remove('pop');
+  });
 }
 
 Object.keys(spotAnimalMap).forEach(spotId=>{
@@ -237,8 +255,17 @@ Object.keys(spotAnimalMap).forEach(spotId=>{
     animal.classList.remove('pop');
     void animal.offsetWidth;
     animal.classList.add('pop');
+
     popSound.currentTime=0;
     popSound.play();
+
+    const sound = animalAudioMap[spotAnimalMap[spotId]];
+    if(sound){
+      sound.currentTime = 0;
+      sound.volume = 1;
+      sound.play();
+    }
+
     checkAllAnimals();
   });
 });
@@ -249,8 +276,8 @@ function checkAllAnimals(){
     setTimeout(()=>{
       gameScreen.style.display='none';
       winScreen.style.display='flex';
-      createConfetti(); // fixed confetti
-    },10000); // Good Job after 10 sec
+      createConfetti();
+    },10000);
   }
 }
 
@@ -260,7 +287,6 @@ playAgainBtn.addEventListener('click',()=>{
   startGame();
 });
 
-// bubbles
 function generateBubbles(){
   document.querySelectorAll('.bubble').forEach(b=>b.remove());
   for(let i=0;i<10;i++){
@@ -272,7 +298,6 @@ function generateBubbles(){
   }
 }
 
-// CONFETTI FUNCTION (fixed to append to winScreen)
 function createConfetti(){
   const colors=["#ff595e","#ffca3a","#8ac926","#1982c4","#6a4c93","#ff85a1","#00c2ff"];
   for(let i=0;i<400;i++){
