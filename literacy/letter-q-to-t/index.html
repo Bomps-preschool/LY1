@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Letter Balloon Pop</title>
+<style>
+body {
+  margin:0;
+  font-family: 'Arial', sans-serif;
+  background: #a0d8f1;
+  overflow: hidden;
+}
+#logoScreen, #gameScreen, #scoreScreen {
+  position:absolute; top:0; left:0; width:100%; height:100%;
+  display:flex; flex-direction:column; justify-content:center; align-items:center;
+}
+#logoScreen img { width:200px; }
+#instruction { position:absolute; top:20px; font-size:24px; background:#fff9b0; padding:10px 20px; border-radius:8px; text-align:center; }
+.balloon {
+  position:absolute;
+  width:120px; height:160px;
+  cursor:pointer;
+  transition: transform 0.3s ease;
+}
+#scoreScreen { display:none; background:#fff7e0; justify-content:center; align-items:center; flex-direction:column; font-size:24px; }
+#scoreScreen button { padding:10px 20px; font-size:20px; margin-top:20px; background:#ffdd57; border:none; border-radius:8px; cursor:pointer; }
+#confetti-canvas { position:absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; }
+</style>
+</head>
+<body>
+
+<!-- Innovine Logo -->
+<div id="logoScreen">
+  <img src="assets/innovine-logo.png" alt="Innovine Logo">
+</div>
+
+<!-- Game Screen -->
+<div id="gameScreen" style="display:none;">
+  <div id="instruction">Tap the correct balloon</div>
+</div>
+
+<!-- Score Screen -->
+<div id="scoreScreen">
+  <div>Well Done!</div>
+  <canvas id="confetti-canvas"></canvas>
+  <button id="playAgain">Play Again</button>
+</div>
+
+<script>
+// List of letters
+const letters = ["Q","R","S","T"];
+let currentLetterIndex = 0;
+
+// Audio
+const correctSound = new Audio("assets/correct.mp3");
+const wrongSound = new Audio("assets/wrong.mp3");
+
+// Show logo for 5s
+window.onload = ()=>{
+  setTimeout(()=>{
+    document.getElementById("logoScreen").style.display="none";
+    document.getElementById("gameScreen").style.display="flex";
+    startGame();
+  },5000);
+};
+
+function startGame(){
+  spawnBalloons(letters[currentLetterIndex]);
+}
+
+// Function to spawn balloons
+function spawnBalloons(letter){
+  const gameScreen = document.getElementById("gameScreen");
+  // Remove previous balloons
+  document.querySelectorAll(".balloon").forEach(b=>b.remove());
+
+  const totalBalloons = 6;
+  for(let i=0;i<totalBalloons;i++){
+    const balloon = document.createElement("img");
+    // 50% chance correct balloon
+    const isCorrect = (i<2);
+    balloon.src = isCorrect ? `assets/balloon-${letter}.png` : `assets/balloon-${letters[Math.floor(Math.random()*letters.length)]}.png`;
+    balloon.className="balloon";
+    balloon.style.left = Math.random()*(window.innerWidth-120) + "px";
+    balloon.style.top = window.innerHeight + Math.random()*200 + "px";
+    balloon.addEventListener("click", ()=>{
+      if(isCorrect){
+        balloon.style.transform="scale(0)";
+        correctSound.play();
+        setTimeout(()=>{
+          currentLetterIndex++;
+          if(currentLetterIndex<letters.length) spawnBalloons(letters[currentLetterIndex]);
+          else showScore();
+        }, 600);
+      } else {
+        wrongSound.play();
+      }
+    });
+    gameScreen.appendChild(balloon);
+    animateBalloon(balloon);
+  }
+}
+
+// Animate balloons floating up
+function animateBalloon(balloon){
+  let top = parseInt(balloon.style.top);
+  const id = setInterval(()=>{
+    top -= 1;
+    balloon.style.top = top+"px";
+    if(top < -200) {
+      clearInterval(id);
+      balloon.remove();
+    }
+  }, 10);
+}
+
+function showScore(){
+  document.getElementById("gameScreen").style.display="none";
+  document.getElementById("scoreScreen").style.display="flex";
+  launchConfetti();
+}
+
+document.getElementById("playAgain").onclick = ()=>{
+  currentLetterIndex=0;
+  document.getElementById("scoreScreen").style.display="none";
+  document.getElementById("gameScreen").style.display="flex";
+  startGame();
+}
+
+// Simple confetti
+function launchConfetti(){
+  const canvas = document.getElementById('confetti-canvas');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const ctx = canvas.getContext('2d');
+  const confettis = [];
+  for(let i=0;i<200;i++){
+    confettis.push({x:Math.random()*canvas.width, y:Math.random()*canvas.height, r:Math.random()*6+4, d:Math.random()*20+10, color:`hsl(${Math.random()*360},100%,50%)`});
+  }
+  let angle = 0;
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    confettis.forEach(c=>{
+      ctx.fillStyle = c.color;
+      ctx.beginPath();
+      ctx.arc(c.x, c.y, c.r, 0, 2*Math.PI);
+      ctx.fill();
+      c.y += 1+Math.sin(angle)*2;
+      if(c.y>canvas.height){c.y=-10; c.x=Math.random()*canvas.width;}
+    });
+    angle+=0.01;
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
+</script>
+</body>
+</html>
