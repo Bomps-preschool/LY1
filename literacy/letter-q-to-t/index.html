@@ -37,18 +37,14 @@ body{
 }
 
 .balloon-container{
-  width:80%;
-  height:70%;
-  display:grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 1fr;
-  place-items:center;
+  width:100%;
+  height:100%;
   position:absolute;
-  top:18%;
 }
 
 .balloon{
   width:150px;
+  position:absolute;
   cursor:pointer;
   animation: float 3s ease-in-out infinite;
 }
@@ -59,17 +55,16 @@ body{
   100%{ transform: translateY(0px); }
 }
 
-/* FRIEND POPUP */
-#friendPopup{
-  position:absolute;
-  width:250px;
-  display:none;
-  z-index:999;
-}
-
 .pop{
   transform: scale(0);
   opacity:0;
+}
+
+#friendPopup{
+  position:absolute;
+  width:220px;
+  display:none;
+  z-index:999;
 }
 
 #scoreScreen{
@@ -97,7 +92,7 @@ button{
 
 <div id="gameScreen" style="display:none;"></div>
 
-<img id="friendPopup" src="">
+<img id="friendPopup">
 
 <div id="scoreScreen">
   <div>🎉 Well Done!</div>
@@ -112,21 +107,21 @@ let currentIndex = 0;
 const correctSound = new Audio("assets/correct.mp3");
 const wrongSound = new Audio("assets/wrong.mp3");
 
-/* NEW: letter audio mapping */
-const audioMap = {
-  Q: "assets/letter-q.mp3",
-  R: "assets/letter-r.mp3",
-  S: "assets/letter-s.mp3",
-  T: "assets/letter-t.mp3"
-};
-
-/* NEW: friend mapping */
+/* FRIENDS */
 const friendMap = {
   Q: "assets/queen.png",
-  R: "assets/rabbit.png",
-  S: "assets/sun.png",
-  T: "assets/train.png"
+  R: "assets/rainbow.png",
+  S: "assets/strawberry.png",
+  T: "assets/tent.png"
 };
+
+/* RESTORED ORIGINAL STYLE AUDIO */
+function speak(text){
+  const msg = new SpeechSynthesisUtterance(text);
+  msg.rate = 0.9;
+  msg.pitch = 1;
+  window.speechSynthesis.speak(msg);
+}
 
 window.onload = () => {
   setTimeout(()=>{
@@ -143,18 +138,27 @@ function loadRound(){
 
   const target = letters[currentIndex];
 
+  /* instruction */
   const title = document.createElement("div");
   title.id = "instruction";
   title.innerText = `Pop the letter ${target} balloon!`;
   game.appendChild(title);
 
-  /* FIX 1: proper audio for each letter */
-  const instrAudio = new Audio(audioMap[target]);
-  instrAudio.play();
+  /* RESTORED AUDIO EXACT BEHAVIOR */
+  speak(`Pop the letter ${target} balloon`);
 
   const container = document.createElement("div");
   container.className = "balloon-container";
   game.appendChild(container);
+
+  let positions = [];
+
+  function randomPos(){
+    return {
+      x: Math.random() * (window.innerWidth - 160),
+      y: Math.random() * (window.innerHeight - 220)
+    };
+  }
 
   letters.forEach((ltr)=>{
 
@@ -162,37 +166,40 @@ function loadRound(){
     b.className="balloon";
     b.src = `assets/balloon-${ltr.toLowerCase()}.png`;
 
+    let pos = randomPos();
+    b.style.left = pos.x + "px";
+    b.style.top = pos.y + "px";
+
     b.onclick = () => {
 
       if(ltr === target){
 
         correctSound.play();
+        b.classList.add("pop");
 
-        b.style.transform="scale(0)";
-        b.style.opacity="0";
+        correctSound.onended = () => {
 
-        /* FIX 2: show FRIEND */
-        setTimeout(()=>{
-          const popup = document.getElementById("friendPopup");
-          popup.src = friendMap[target];
-          popup.style.display="block";
-          popup.style.left="40%";
-          popup.style.top="40%";
+          /* SHOW FRIEND */
+          const friend = document.getElementById("friendPopup");
+          friend.src = friendMap[target];
+          friend.style.display="block";
+          friend.style.left="40%";
+          friend.style.top="35%";
 
+          /* FIX: SHOW FOR 5 SECONDS */
           setTimeout(()=>{
-            popup.style.display="none";
 
+            friend.style.display="none";
             currentIndex++;
 
             if(currentIndex < letters.length){
-              loadRound();
+              loadRound();   // NEW RANDOM POSITIONS EACH ROUND
             } else {
               showScore();
             }
 
-          },1500);
-
-        },600);
+          },5000);
+        };
 
       } else {
         wrongSound.play();
