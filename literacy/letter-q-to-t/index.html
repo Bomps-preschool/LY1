@@ -11,12 +11,15 @@ body{
   font-family:Arial;
   overflow:hidden;
 
-  background: url("/mnt/data/a_dreamy_pastel_fantasy_background_scene_a_seamle.png") 
+  background: url("/mnt/data/a_dreamy_pastel_fantasy_background_scene_a_seamle.png")
   no-repeat center center fixed;
 
   background-size: cover;
+  -webkit-text-size-adjust: 100%;
+  touch-action: manipulation;
 }
 
+/* SCREENS */
 #logoScreen,#gameScreen,#scoreScreen{
   position:absolute;
   width:100%;
@@ -27,8 +30,10 @@ body{
   flex-direction:column;
 }
 
+/* LOGO */
 #logoScreen img{ width:220px; }
 
+/* INSTRUCTION */
 #instruction{
   position:absolute;
   top:20px;
@@ -40,6 +45,7 @@ body{
   color:#ff4d6d;
 }
 
+/* GRID LAYOUT */
 .balloon-container{
   width:80%;
   height:70%;
@@ -51,6 +57,7 @@ body{
   top:18%;
 }
 
+/* BALLOON */
 .balloon{
   width:150px;
   cursor:pointer;
@@ -63,11 +70,13 @@ body{
   100%{ transform: translateY(0px); }
 }
 
+/* POP */
 .pop{
   transform: scale(0);
   opacity:0;
 }
 
+/* FRIEND */
 #friendPopup{
   position:absolute;
   width:220px;
@@ -75,6 +84,7 @@ body{
   z-index:999;
 }
 
+/* SCORE */
 #scoreScreen{
   display:none;
   background:#fff7e6;
@@ -89,19 +99,39 @@ button{
   background:#ffd166;
   border-radius:12px;
 }
+
+/* RESPONSIVE FIX */
+@media (max-width: 1024px){
+  #instruction{ font-size:28px; }
+  .balloon{ width:120px; }
+}
+
+@media (max-width: 768px){
+  #instruction{ font-size:24px; }
+  .balloon{ width:105px; }
+}
+
+@media (max-width: 480px){
+  #instruction{ font-size:20px; }
+  .balloon{ width:90px; }
+}
 </style>
 </head>
 
 <body>
 
+<!-- LOGO -->
 <div id="logoScreen">
   <img src="assets/innovine-logo.png">
 </div>
 
+<!-- GAME -->
 <div id="gameScreen" style="display:none;"></div>
 
+<!-- FRIEND -->
 <img id="friendPopup">
 
+<!-- SCORE -->
 <div id="scoreScreen">
   <div>🎉 Well Done!</div>
   <button onclick="restart()">Play Again</button>
@@ -115,7 +145,7 @@ let currentIndex = 0;
 const correctSound = new Audio("assets/correct.mp3");
 const wrongSound = new Audio("assets/wrong.mp3");
 
-/* FRIEND IMAGE MAP */
+/* FRIEND IMAGES */
 const friendMap = {
   Q: "assets/queen.png",
   R: "assets/rainbow.png",
@@ -123,7 +153,7 @@ const friendMap = {
   T: "assets/tent.png"
 };
 
-/* NEW: FRIEND AUDIO MAP */
+/* FRIEND AUDIO */
 const friendAudioMap = {
   Q: "assets/queen.mp3",
   R: "assets/rainbow.mp3",
@@ -131,7 +161,7 @@ const friendAudioMap = {
   T: "assets/tent.mp3"
 };
 
-/* SPEECH INSTRUCTION */
+/* SPEECH */
 function speak(text){
   const msg = new SpeechSynthesisUtterance(text);
   msg.rate = 0.9;
@@ -144,6 +174,7 @@ function shuffle(arr){
   return arr.sort(()=>Math.random()-0.5);
 }
 
+/* GRID */
 const slots = [
   {x:0,y:0},
   {x:1,y:0},
@@ -151,6 +182,7 @@ const slots = [
   {x:1,y:1}
 ];
 
+/* START */
 window.onload = () => {
   setTimeout(()=>{
     document.getElementById("logoScreen").style.display="none";
@@ -177,9 +209,9 @@ function loadRound(){
   container.className = "balloon-container";
   game.appendChild(container);
 
-  const shuffledLetters = shuffle([...letters]);
+  const shuffled = shuffle([...letters]);
 
-  shuffledLetters.forEach((ltr,i)=>{
+  shuffled.forEach((ltr,i)=>{
 
     const b = document.createElement("img");
     b.className="balloon";
@@ -198,17 +230,15 @@ function loadRound(){
 
         correctSound.onended = () => {
 
-          /* REMOVE BALLOONS */
           container.innerHTML = "";
 
-          /* SHOW FRIEND */
           const friend = document.getElementById("friendPopup");
           friend.src = friendMap[target];
           friend.style.display="block";
           friend.style.left="40%";
           friend.style.top="35%";
 
-          /* 🔊 NEW: PLAY FRIEND AUDIO */
+          /* FRIEND AUDIO */
           const audio = new Audio(friendAudioMap[target]);
           audio.play();
 
@@ -224,7 +254,6 @@ function loadRound(){
             }
 
           },5000);
-
         };
 
       } else {
@@ -251,4 +280,4 @@ function restart(){
 </script>
 
 </body>
-</html>
+</html> 
