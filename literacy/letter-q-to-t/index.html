@@ -36,15 +36,20 @@ body{
   color:#ff4d6d;
 }
 
+/* GRID FIXED LAYOUT */
 .balloon-container{
-  width:100%;
-  height:100%;
+  width:80%;
+  height:70%;
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  place-items:center;
   position:absolute;
+  top:18%;
 }
 
 .balloon{
   width:150px;
-  position:absolute;
   cursor:pointer;
   animation: float 3s ease-in-out infinite;
 }
@@ -107,7 +112,7 @@ let currentIndex = 0;
 const correctSound = new Audio("assets/correct.mp3");
 const wrongSound = new Audio("assets/wrong.mp3");
 
-/* FRIENDS */
+/* FRIEND MAP */
 const friendMap = {
   Q: "assets/queen.png",
   R: "assets/rainbow.png",
@@ -115,13 +120,26 @@ const friendMap = {
   T: "assets/tent.png"
 };
 
-/* RESTORED ORIGINAL STYLE AUDIO */
+/* SPEECH */
 function speak(text){
   const msg = new SpeechSynthesisUtterance(text);
   msg.rate = 0.9;
   msg.pitch = 1;
   window.speechSynthesis.speak(msg);
 }
+
+/* SHUFFLE FUNCTION */
+function shuffle(arr){
+  return arr.sort(()=>Math.random()-0.5);
+}
+
+/* GRID SLOTS */
+const slots = [
+  {x:0,y:0},
+  {x:1,y:0},
+  {x:0,y:1},
+  {x:1,y:1}
+];
 
 window.onload = () => {
   setTimeout(()=>{
@@ -138,37 +156,30 @@ function loadRound(){
 
   const target = letters[currentIndex];
 
-  /* instruction */
   const title = document.createElement("div");
   title.id = "instruction";
   title.innerText = `Pop the letter ${target} balloon!`;
   game.appendChild(title);
 
-  /* RESTORED AUDIO EXACT BEHAVIOR */
   speak(`Pop the letter ${target} balloon`);
 
   const container = document.createElement("div");
   container.className = "balloon-container";
   game.appendChild(container);
 
-  let positions = [];
+  /* SHUFFLED LETTER ORDER (IMPORTANT FIX) */
+  const shuffledLetters = shuffle([...letters]);
 
-  function randomPos(){
-    return {
-      x: Math.random() * (window.innerWidth - 160),
-      y: Math.random() * (window.innerHeight - 220)
-    };
-  }
-
-  letters.forEach((ltr)=>{
+  shuffledLetters.forEach((ltr, i)=>{
 
     const b = document.createElement("img");
     b.className="balloon";
     b.src = `assets/balloon-${ltr.toLowerCase()}.png`;
 
-    let pos = randomPos();
-    b.style.left = pos.x + "px";
-    b.style.top = pos.y + "px";
+    // FIXED GRID POSITION (NOT RANDOM SCATTER)
+    const pos = slots[i];
+    b.style.gridColumn = pos.x + 1;
+    b.style.gridRow = pos.y + 1;
 
     b.onclick = () => {
 
@@ -179,21 +190,22 @@ function loadRound(){
 
         correctSound.onended = () => {
 
-          /* SHOW FRIEND */
+          /* REMOVE ALL BALLOONS BEFORE FRIEND */
+          container.innerHTML = "";
+
           const friend = document.getElementById("friendPopup");
           friend.src = friendMap[target];
           friend.style.display="block";
           friend.style.left="40%";
           friend.style.top="35%";
 
-          /* FIX: SHOW FOR 5 SECONDS */
           setTimeout(()=>{
 
             friend.style.display="none";
             currentIndex++;
 
             if(currentIndex < letters.length){
-              loadRound();   // NEW RANDOM POSITIONS EACH ROUND
+              loadRound();
             } else {
               showScore();
             }
