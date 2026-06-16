@@ -42,29 +42,40 @@ body{
   box-shadow:0 4px 12px rgba(0,0,0,0.15);
 }
 
-/* Balloon */
-.balloon{
-  width:150px;   /* BIGGER */
+/* GRID CONTAINER (FIXED LAYOUT) */
+.balloon-container{
+  width:80%;
+  height:70%;
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  place-items:center;
   position:absolute;
+  top:18%;
+}
+
+/* BALLOON */
+.balloon{
+  width:150px;
   cursor:pointer;
   animation: float 3s ease-in-out infinite;
   transition: transform 0.2s ease, opacity 0.3s ease;
 }
 
-/* floating animation */
+/* FLOAT */
 @keyframes float{
   0%{ transform: translateY(0px); }
-  50%{ transform: translateY(-15px); }
+  50%{ transform: translateY(-12px); }
   100%{ transform: translateY(0px); }
 }
 
-/* Pop animation */
+/* POP EFFECT */
 .pop{
-  transform: scale(1.5);
+  transform: scale(0);
   opacity:0;
 }
 
-/* Score */
+/* SCORE */
 #scoreScreen{
   display:none;
   background:#fff7e6;
@@ -84,15 +95,13 @@ button{
 
 <body>
 
-<!-- LOGO -->
+<!-- SPLASH -->
 <div id="logoScreen">
   <img src="assets/innovine-logo.png">
 </div>
 
 <!-- GAME -->
-<div id="gameScreen" style="display:none;">
-  <div id="instruction">Loading...</div>
-</div>
+<div id="gameScreen" style="display:none;"></div>
 
 <!-- SCORE -->
 <div id="scoreScreen">
@@ -108,15 +117,7 @@ let currentIndex = 0;
 const correctSound = new Audio("assets/correct.mp3");
 const wrongSound = new Audio("assets/wrong.mp3");
 
-// 🎤 Voice instruction
-function speak(text){
-  const msg = new SpeechSynthesisUtterance(text);
-  msg.rate = 0.9;
-  msg.pitch = 1.1;
-  window.speechSynthesis.speak(msg);
-}
-
-/* START */
+/* SPLASH SCREEN */
 window.onload = () => {
   setTimeout(()=>{
     document.getElementById("logoScreen").style.display="none";
@@ -128,24 +129,27 @@ window.onload = () => {
 function loadRound(){
 
   const game = document.getElementById("gameScreen");
-  game.innerHTML = `<div id="instruction">Pop the letter ${letters[currentIndex]} balloon!</div>`;
-
-  speak(`Pop the letter ${letters[currentIndex]} balloon`);
+  game.innerHTML = "";
 
   const target = letters[currentIndex];
 
+  // instruction
+  const title = document.createElement("div");
+  title.id = "instruction";
+  title.innerText = `Pop the letter ${target} balloon!`;
+  game.appendChild(title);
+
+  // container
+  const container = document.createElement("div");
+  container.className = "balloon-container";
+  game.appendChild(container);
+
+  // create 4 balloons (FIXED GRID)
   letters.forEach((ltr)=>{
 
     const b = document.createElement("img");
     b.className="balloon";
     b.src = `assets/balloon-${ltr.toLowerCase()}.png`;
-
-    // KEEP INSIDE SCREEN
-    const x = Math.random() * (window.innerWidth - 160);
-    const y = Math.random() * (window.innerHeight - 200);
-
-    b.style.left = x + "px";
-    b.style.top = y + "px";
 
     b.onclick = () => {
 
@@ -153,11 +157,11 @@ function loadRound(){
 
         correctSound.play();
 
-        // POP EFFECT 💥
         b.classList.add("pop");
 
         correctSound.onended = () => {
           currentIndex++;
+
           if(currentIndex < letters.length){
             loadRound();
           } else {
@@ -170,7 +174,7 @@ function loadRound(){
       }
     };
 
-    game.appendChild(b);
+    container.appendChild(b);
   });
 }
 
