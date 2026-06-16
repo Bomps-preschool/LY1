@@ -13,7 +13,6 @@ body{
   background: linear-gradient(135deg, #ffe6f0, #d6f7ff, #fff3cd);
 }
 
-/* Screens */
 #logoScreen,#gameScreen,#scoreScreen{
   position:absolute;
   width:100%;
@@ -24,12 +23,8 @@ body{
   flex-direction:column;
 }
 
-/* Logo */
-#logoScreen img{
-  width:220px;
-}
+#logoScreen img{ width:220px; }
 
-/* Instruction */
 #instruction{
   position:absolute;
   top:20px;
@@ -39,10 +34,8 @@ body{
   font-size:34px;
   font-weight:bold;
   color:#ff4d6d;
-  box-shadow:0 4px 12px rgba(0,0,0,0.15);
 }
 
-/* GRID CONTAINER (FIXED LAYOUT) */
 .balloon-container{
   width:80%;
   height:70%;
@@ -54,28 +47,31 @@ body{
   top:18%;
 }
 
-/* BALLOON */
 .balloon{
   width:150px;
   cursor:pointer;
   animation: float 3s ease-in-out infinite;
-  transition: transform 0.2s ease, opacity 0.3s ease;
 }
 
-/* FLOAT */
 @keyframes float{
   0%{ transform: translateY(0px); }
   50%{ transform: translateY(-12px); }
   100%{ transform: translateY(0px); }
 }
 
-/* POP EFFECT */
+/* FRIEND POPUP */
+#friendPopup{
+  position:absolute;
+  width:250px;
+  display:none;
+  z-index:999;
+}
+
 .pop{
   transform: scale(0);
   opacity:0;
 }
 
-/* SCORE */
 #scoreScreen{
   display:none;
   background:#fff7e6;
@@ -95,15 +91,14 @@ button{
 
 <body>
 
-<!-- SPLASH -->
 <div id="logoScreen">
   <img src="assets/innovine-logo.png">
 </div>
 
-<!-- GAME -->
 <div id="gameScreen" style="display:none;"></div>
 
-<!-- SCORE -->
+<img id="friendPopup" src="">
+
 <div id="scoreScreen">
   <div>🎉 Well Done!</div>
   <button onclick="restart()">Play Again</button>
@@ -117,7 +112,22 @@ let currentIndex = 0;
 const correctSound = new Audio("assets/correct.mp3");
 const wrongSound = new Audio("assets/wrong.mp3");
 
-/* SPLASH SCREEN */
+/* NEW: letter audio mapping */
+const audioMap = {
+  Q: "assets/letter-q.mp3",
+  R: "assets/letter-r.mp3",
+  S: "assets/letter-s.mp3",
+  T: "assets/letter-t.mp3"
+};
+
+/* NEW: friend mapping */
+const friendMap = {
+  Q: "assets/queen.png",
+  R: "assets/rabbit.png",
+  S: "assets/sun.png",
+  T: "assets/train.png"
+};
+
 window.onload = () => {
   setTimeout(()=>{
     document.getElementById("logoScreen").style.display="none";
@@ -133,18 +143,19 @@ function loadRound(){
 
   const target = letters[currentIndex];
 
-  // instruction
   const title = document.createElement("div");
   title.id = "instruction";
   title.innerText = `Pop the letter ${target} balloon!`;
   game.appendChild(title);
 
-  // container
+  /* FIX 1: proper audio for each letter */
+  const instrAudio = new Audio(audioMap[target]);
+  instrAudio.play();
+
   const container = document.createElement("div");
   container.className = "balloon-container";
   game.appendChild(container);
 
-  // create 4 balloons (FIXED GRID)
   letters.forEach((ltr)=>{
 
     const b = document.createElement("img");
@@ -157,17 +168,31 @@ function loadRound(){
 
         correctSound.play();
 
-        b.classList.add("pop");
+        b.style.transform="scale(0)";
+        b.style.opacity="0";
 
-        correctSound.onended = () => {
-          currentIndex++;
+        /* FIX 2: show FRIEND */
+        setTimeout(()=>{
+          const popup = document.getElementById("friendPopup");
+          popup.src = friendMap[target];
+          popup.style.display="block";
+          popup.style.left="40%";
+          popup.style.top="40%";
 
-          if(currentIndex < letters.length){
-            loadRound();
-          } else {
-            showScore();
-          }
-        };
+          setTimeout(()=>{
+            popup.style.display="none";
+
+            currentIndex++;
+
+            if(currentIndex < letters.length){
+              loadRound();
+            } else {
+              showScore();
+            }
+
+          },1500);
+
+        },600);
 
       } else {
         wrongSound.play();
