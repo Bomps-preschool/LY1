@@ -44,7 +44,7 @@ body{
   color:#ff4d6d;
 }
 
-/* GRID LAYOUT */
+/* GRID */
 .balloon-container{
   width:80%;
   height:70%;
@@ -56,11 +56,18 @@ body{
   top:18%;
 }
 
-/* BALLOON */
+/* 🎈 FIXED BALLOON CARD */
 .balloon{
   width:150px;
   cursor:pointer;
   animation: float 3s ease-in-out infinite;
+
+  /* WHITE CARD FIX */
+  background:white;
+  padding:12px;
+  border-radius:18px;
+  box-shadow:0 6px 14px rgba(0,0,0,0.18);
+  border:3px solid rgba(255,255,255,0.7);
 }
 
 @keyframes float{
@@ -98,22 +105,6 @@ button{
   background:#ffd166;
   border-radius:12px;
 }
-
-/* RESPONSIVE FIX */
-@media (max-width: 1024px){
-  #instruction{ font-size:28px; }
-  .balloon{ width:120px; }
-}
-
-@media (max-width: 768px){
-  #instruction{ font-size:24px; }
-  .balloon{ width:105px; }
-}
-
-@media (max-width: 480px){
-  #instruction{ font-size:20px; }
-  .balloon{ width:90px; }
-}
 </style>
 </head>
 
@@ -144,7 +135,7 @@ let currentIndex = 0;
 const correctSound = new Audio("assets/correct.mp3");
 const wrongSound = new Audio("assets/wrong.mp3");
 
-/* FRIEND IMAGES */
+/* FRIEND IMAGE */
 const friendMap = {
   Q: "assets/queen.png",
   R: "assets/rainbow.png",
@@ -173,7 +164,6 @@ function shuffle(arr){
   return arr.sort(()=>Math.random()-0.5);
 }
 
-/* GRID */
 const slots = [
   {x:0,y:0},
   {x:1,y:0},
@@ -237,7 +227,6 @@ function loadRound(){
           friend.style.left="40%";
           friend.style.top="35%";
 
-          /* FRIEND AUDIO */
           const audio = new Audio(friendAudioMap[target]);
           audio.play();
 
@@ -279,4 +268,4 @@ function restart(){
 </script>
 
 </body>
-</html> 
+</html>
