@@ -36,7 +36,6 @@ body{
   color:#ff4d6d;
 }
 
-/* GRID FIXED LAYOUT */
 .balloon-container{
   width:80%;
   height:70%;
@@ -112,7 +111,7 @@ let currentIndex = 0;
 const correctSound = new Audio("assets/correct.mp3");
 const wrongSound = new Audio("assets/wrong.mp3");
 
-/* FRIEND MAP */
+/* FRIEND IMAGE MAP */
 const friendMap = {
   Q: "assets/queen.png",
   R: "assets/rainbow.png",
@@ -120,7 +119,15 @@ const friendMap = {
   T: "assets/tent.png"
 };
 
-/* SPEECH */
+/* NEW: FRIEND AUDIO MAP */
+const friendAudioMap = {
+  Q: "assets/queen.mp3",
+  R: "assets/rainbow.mp3",
+  S: "assets/strawberry.mp3",
+  T: "assets/tent.mp3"
+};
+
+/* SPEECH INSTRUCTION */
 function speak(text){
   const msg = new SpeechSynthesisUtterance(text);
   msg.rate = 0.9;
@@ -128,12 +135,11 @@ function speak(text){
   window.speechSynthesis.speak(msg);
 }
 
-/* SHUFFLE FUNCTION */
+/* SHUFFLE */
 function shuffle(arr){
   return arr.sort(()=>Math.random()-0.5);
 }
 
-/* GRID SLOTS */
 const slots = [
   {x:0,y:0},
   {x:1,y:0},
@@ -167,16 +173,14 @@ function loadRound(){
   container.className = "balloon-container";
   game.appendChild(container);
 
-  /* SHUFFLED LETTER ORDER (IMPORTANT FIX) */
   const shuffledLetters = shuffle([...letters]);
 
-  shuffledLetters.forEach((ltr, i)=>{
+  shuffledLetters.forEach((ltr,i)=>{
 
     const b = document.createElement("img");
     b.className="balloon";
     b.src = `assets/balloon-${ltr.toLowerCase()}.png`;
 
-    // FIXED GRID POSITION (NOT RANDOM SCATTER)
     const pos = slots[i];
     b.style.gridColumn = pos.x + 1;
     b.style.gridRow = pos.y + 1;
@@ -190,14 +194,19 @@ function loadRound(){
 
         correctSound.onended = () => {
 
-          /* REMOVE ALL BALLOONS BEFORE FRIEND */
+          /* REMOVE BALLOONS */
           container.innerHTML = "";
 
+          /* SHOW FRIEND */
           const friend = document.getElementById("friendPopup");
           friend.src = friendMap[target];
           friend.style.display="block";
           friend.style.left="40%";
           friend.style.top="35%";
+
+          /* 🔊 NEW: PLAY FRIEND AUDIO */
+          const audio = new Audio(friendAudioMap[target]);
+          audio.play();
 
           setTimeout(()=>{
 
@@ -211,6 +220,7 @@ function loadRound(){
             }
 
           },5000);
+
         };
 
       } else {
