@@ -51,7 +51,7 @@ body{
   color:#ff4d6d;
 }
 
-/* GRID FIX */
+/* GRID */
 .balloon-container{
   width:100%;
   max-width:100vw;
@@ -72,22 +72,26 @@ body{
   box-sizing:border-box;
 }
 
-/* RESPONSIVE BALLOON SIZE FIX */
+/* 🎈 SMALLER WHITE CARD FIX */
 .balloon{
-  width:clamp(90px, 18vw, 150px);
+  width:clamp(80px, 15vw, 120px);
   cursor:pointer;
   animation: float 3s ease-in-out infinite;
 
   background:white;
-  padding:10px;
-  border-radius:18px;
-  box-shadow:0 6px 14px rgba(0,0,0,0.18);
-  border:3px solid rgba(255,255,255,0.7);
+  padding:5px;              /* reduced */
+  border-radius:12px;       /* smaller */
+  box-shadow:0 3px 8px rgba(0,0,0,0.12);
+  border:2px solid rgba(255,255,255,0.7);
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
 
 @keyframes float{
   0%{ transform: translateY(0px); }
-  50%{ transform: translateY(-12px); }
+  50%{ transform: translateY(-10px); }
   100%{ transform: translateY(0px); }
 }
 
@@ -97,7 +101,7 @@ body{
   opacity:0;
 }
 
-/* FRIEND IMAGE FIX (CENTER + FIT SCREEN) */
+/* FRIEND IMAGE */
 #friendPopup{
   position:absolute;
   max-width:70vw;
