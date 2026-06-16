@@ -3,201 +3,163 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Letter Balloon Pop Game</title>
+<title>Letter Balloon Pop</title>
+
 <style>
-body {
+body{
   margin:0;
-  font-family: 'Arial', sans-serif;
-  background: linear-gradient(to top, #a8edea, #fed6e3);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  height:100vh;
+  font-family:Arial;
   overflow:hidden;
+  background: linear-gradient(to bottom, #ffe6f0, #d6f7ff);
 }
-#logoScreen, #gameScreen, #scoreScreen {
+
+/* Screens */
+#logoScreen,#gameScreen,#scoreScreen{
+  position:absolute;
   width:100%;
   height:100%;
-  position:absolute;
-  top:0;
-  left:0;
   display:flex;
-  flex-direction:column;
   align-items:center;
   justify-content:center;
+  flex-direction:column;
 }
-#logoScreen img {
-  width:200px;
+
+/* Logo */
+#logoScreen img{
+  width:220px;
 }
-#instruction {
-  background:white;
-  padding:10px 20px;
-  border-radius:10px;
-  font-size:28px;
-  font-weight:bold;
-  text-align:center;
-  margin-bottom:20px;
-  color:#ff4f81;
-}
-.balloon {
+
+/* Instruction */
+#instruction{
   position:absolute;
-  width:120px;
+  top:20px;
+  background:white;
+  padding:12px 20px;
+  border-radius:12px;
+  font-size:30px;
+  font-weight:bold;
+  color:#ff4d6d;
+}
+
+/* Balloon */
+.balloon{
+  width:110px;
+  position:absolute;
   cursor:pointer;
-  transition: transform 0.3s, opacity 0.3s;
+  transition:transform 0.2s ease;
 }
-#scoreScreen {
-  background:#fff7e0;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
+
+/* Score */
+#scoreScreen{
   display:none;
-  font-size:28px;
+  background:#fff7e6;
+  font-size:32px;
 }
-#scoreScreen button {
+
+button{
   margin-top:20px;
   padding:10px 20px;
-  font-size:22px;
+  font-size:20px;
   border:none;
-  border-radius:8px;
-  background:#ffdd57;
-  cursor:pointer;
-}
-#confetti-canvas {
-  position:absolute;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  pointer-events:none;
+  background:#ffd166;
+  border-radius:10px;
 }
 </style>
 </head>
+
 <body>
 
-<!-- Logo -->
+<!-- LOGO -->
 <div id="logoScreen">
-  <img src="assets/innovine-logo.png" alt="Innovine Logo">
+  <img src="assets/innovine-logo.png">
 </div>
 
-<!-- Game Screen -->
+<!-- GAME -->
 <div id="gameScreen" style="display:none;">
   <div id="instruction">Tap the correct balloon!</div>
 </div>
 
-<!-- Score Screen -->
+<!-- SCORE -->
 <div id="scoreScreen">
-  <div id="scoreText">Well Done!</div>
-  <canvas id="confetti-canvas"></canvas>
-  <button id="playAgain">Play Again</button>
+  <div>🎉 Well Done!</div>
+  <button onclick="restart()">Play Again</button>
 </div>
 
 <script>
-// Slides definition
-const slides = [
-  {letter:'Q', balloon:'balloon-q.png', audio:'assets/letter-q.mp3'},
-  {letter:'R', balloon:'balloon-r.png', audio:'assets/letter-r.mp3'},
-  {letter:'S', balloon:'balloon-s.png', audio:'assets/letter-s.mp3'},
-  {letter:'T', balloon:'balloon-t.png', audio:'assets/letter-t.mp3'}
-];
 
-let currentSlide = 0;
+const letters = ["Q","R","S","T"];
+let currentIndex = 0;
 
-// Audio
 const correctSound = new Audio("assets/correct.mp3");
 const wrongSound = new Audio("assets/wrong.mp3");
 
-// Show logo for 5s
+/* SPLASH SCREEN */
 window.onload = () => {
   setTimeout(()=>{
     document.getElementById("logoScreen").style.display="none";
     document.getElementById("gameScreen").style.display="flex";
-    loadSlide(currentSlide);
+    loadRound();
   },5000);
 };
 
-function loadSlide(index){
-  const slide = slides[index];
-  const gameScreen = document.getElementById('gameScreen');
-  gameScreen.innerHTML = `<div id="instruction">Tap the ${slide.letter} balloon!</div>`;
+function loadRound(){
 
-  // Play instruction audio
-  const instrAudio = new Audio(slide.audio);
-  instrAudio.play();
+  const game = document.getElementById("gameScreen");
+  game.innerHTML = `<div id="instruction">Pop the letter ${letters[currentIndex]} balloon!</div>`;
 
-  // Create multiple balloons
-  for(let i=0;i<5;i++){
-    const b = document.createElement('img');
-    b.src = `assets/${slide.balloon}`;
-    b.classList.add('balloon');
-    // Random position
-    b.style.left = `${Math.random()*70 + 10}%`;
-    b.style.top = `${Math.random()*70 + 10}%`;
-    b.style.transform = `scale(${0.8 + Math.random()*0.4})`;
-    b.addEventListener('click', ()=>{
-      if(i===0){ // correct balloon
+  const target = letters[currentIndex];
+
+  // create all 4 balloons
+  letters.forEach((ltr)=>{
+    
+    const b = document.createElement("img");
+    b.className="balloon";
+    b.src = `assets/balloon-${ltr.toLowerCase()}.png`;
+
+    // random position
+    b.style.left = Math.random()*80 + "%";
+    b.style.top = Math.random()*70 + 20 + "%";
+
+    b.onclick = () => {
+
+      if(ltr === target){
         correctSound.play();
-        // Pop animation
+
         b.style.transform="scale(0)";
-        b.style.opacity=0;
-        // wait until correct sound finishes
-        correctSound.onended = ()=>{
-          currentSlide++;
-          if(currentSlide<slides.length){
-            loadSlide(currentSlide);
-          }else{
-            document.getElementById("gameScreen").style.display="none";
-            document.getElementById("scoreScreen").style.display="flex";
-            launchConfetti();
+        b.style.opacity="0";
+
+        correctSound.onended = () => {
+          currentIndex++;
+
+          if(currentIndex < letters.length){
+            loadRound();
+          } else {
+            showScore();
           }
         };
-      }else{
+
+      } else {
         wrongSound.play();
       }
-    });
-    gameScreen.appendChild(b);
-  }
+    };
+
+    game.appendChild(b);
+  });
 }
 
-// Play again
-document.getElementById("playAgain").onclick = ()=>{
-  currentSlide = 0;
+function showScore(){
+  document.getElementById("gameScreen").style.display="none";
+  document.getElementById("scoreScreen").style.display="flex";
+}
+
+function restart(){
+  currentIndex = 0;
   document.getElementById("scoreScreen").style.display="none";
   document.getElementById("gameScreen").style.display="flex";
-  loadSlide(currentSlide);
-};
-
-// Confetti
-function launchConfetti(){
-  const canvas = document.getElementById('confetti-canvas');
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  const ctx = canvas.getContext('2d');
-  const confettis = [];
-  for(let i=0;i<200;i++){
-    confettis.push({
-      x: Math.random()*canvas.width,
-      y: Math.random()*canvas.height,
-      r: Math.random()*6+4,
-      d: Math.random()*20+10,
-      color:`hsl(${Math.random()*360},100%,50%)`
-    });
-  }
-  let angle=0;
-  function draw(){
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    confettis.forEach(c=>{
-      ctx.fillStyle=c.color;
-      ctx.beginPath();
-      ctx.arc(c.x,c.y,c.r,0,2*Math.PI);
-      ctx.fill();
-      c.y += 1+Math.sin(angle)*2;
-      if(c.y>canvas.height){c.y=-10; c.x=Math.random()*canvas.width;}
-    });
-    angle+=0.01;
-    requestAnimationFrame(draw);
-  }
-  draw();
+  loadRound();
 }
+
 </script>
+
 </body>
 </html>
