@@ -10,7 +10,7 @@ body{
   margin:0;
   font-family:Arial;
   overflow:hidden;
-  background: linear-gradient(to bottom, #ffe6f0, #d6f7ff);
+  background: linear-gradient(135deg, #ffe6f0, #d6f7ff, #fff3cd);
 }
 
 /* Screens */
@@ -34,35 +34,50 @@ body{
   position:absolute;
   top:20px;
   background:white;
-  padding:12px 20px;
-  border-radius:12px;
-  font-size:30px;
+  padding:14px 22px;
+  border-radius:14px;
+  font-size:34px;
   font-weight:bold;
   color:#ff4d6d;
+  box-shadow:0 4px 12px rgba(0,0,0,0.15);
 }
 
 /* Balloon */
 .balloon{
-  width:110px;
+  width:150px;   /* BIGGER */
   position:absolute;
   cursor:pointer;
-  transition:transform 0.2s ease;
+  animation: float 3s ease-in-out infinite;
+  transition: transform 0.2s ease, opacity 0.3s ease;
+}
+
+/* floating animation */
+@keyframes float{
+  0%{ transform: translateY(0px); }
+  50%{ transform: translateY(-15px); }
+  100%{ transform: translateY(0px); }
+}
+
+/* Pop animation */
+.pop{
+  transform: scale(1.5);
+  opacity:0;
 }
 
 /* Score */
 #scoreScreen{
   display:none;
   background:#fff7e6;
-  font-size:32px;
+  font-size:34px;
 }
 
 button{
   margin-top:20px;
-  padding:10px 20px;
-  font-size:20px;
+  padding:12px 24px;
+  font-size:22px;
   border:none;
   background:#ffd166;
-  border-radius:10px;
+  border-radius:12px;
 }
 </style>
 </head>
@@ -76,7 +91,7 @@ button{
 
 <!-- GAME -->
 <div id="gameScreen" style="display:none;">
-  <div id="instruction">Tap the correct balloon!</div>
+  <div id="instruction">Loading...</div>
 </div>
 
 <!-- SCORE -->
@@ -93,7 +108,15 @@ let currentIndex = 0;
 const correctSound = new Audio("assets/correct.mp3");
 const wrongSound = new Audio("assets/wrong.mp3");
 
-/* SPLASH SCREEN */
+// 🎤 Voice instruction
+function speak(text){
+  const msg = new SpeechSynthesisUtterance(text);
+  msg.rate = 0.9;
+  msg.pitch = 1.1;
+  window.speechSynthesis.speak(msg);
+}
+
+/* START */
 window.onload = () => {
   setTimeout(()=>{
     document.getElementById("logoScreen").style.display="none";
@@ -107,30 +130,34 @@ function loadRound(){
   const game = document.getElementById("gameScreen");
   game.innerHTML = `<div id="instruction">Pop the letter ${letters[currentIndex]} balloon!</div>`;
 
+  speak(`Pop the letter ${letters[currentIndex]} balloon`);
+
   const target = letters[currentIndex];
 
-  // create all 4 balloons
   letters.forEach((ltr)=>{
-    
+
     const b = document.createElement("img");
     b.className="balloon";
     b.src = `assets/balloon-${ltr.toLowerCase()}.png`;
 
-    // random position
-    b.style.left = Math.random()*80 + "%";
-    b.style.top = Math.random()*70 + 20 + "%";
+    // KEEP INSIDE SCREEN
+    const x = Math.random() * (window.innerWidth - 160);
+    const y = Math.random() * (window.innerHeight - 200);
+
+    b.style.left = x + "px";
+    b.style.top = y + "px";
 
     b.onclick = () => {
 
       if(ltr === target){
+
         correctSound.play();
 
-        b.style.transform="scale(0)";
-        b.style.opacity="0";
+        // POP EFFECT 💥
+        b.classList.add("pop");
 
         correctSound.onended = () => {
           currentIndex++;
-
           if(currentIndex < letters.length){
             loadRound();
           } else {
