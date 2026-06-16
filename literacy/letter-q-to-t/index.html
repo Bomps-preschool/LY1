@@ -56,13 +56,12 @@ body{
   top:18%;
 }
 
-/* 🎈 FIXED BALLOON CARD */
+/* 🎈 BALLOONS (KEEP WHITE CARD) */
 .balloon{
   width:150px;
   cursor:pointer;
   animation: float 3s ease-in-out infinite;
 
-  /* WHITE CARD FIX */
   background:white;
   padding:12px;
   border-radius:18px;
@@ -82,12 +81,19 @@ body{
   opacity:0;
 }
 
-/* FRIEND */
+/* 👑 FRIEND IMAGE (NO WHITE CARD FIX) */
 #friendPopup{
   position:absolute;
   width:220px;
   display:none;
   z-index:999;
+
+  background: transparent;
+  padding: 0;
+  border: none;
+  box-shadow: none;
+
+  object-fit: contain;
 }
 
 /* SCORE */
@@ -118,7 +124,7 @@ button{
 <!-- GAME -->
 <div id="gameScreen" style="display:none;"></div>
 
-<!-- FRIEND -->
+<!-- FRIEND IMAGE -->
 <img id="friendPopup">
 
 <!-- SCORE -->
@@ -135,7 +141,7 @@ let currentIndex = 0;
 const correctSound = new Audio("assets/correct.mp3");
 const wrongSound = new Audio("assets/wrong.mp3");
 
-/* FRIEND IMAGE */
+/* FRIEND IMAGES */
 const friendMap = {
   Q: "assets/queen.png",
   R: "assets/rainbow.png",
