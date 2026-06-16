@@ -13,7 +13,6 @@ body{
 
   background: url("assets/background.png") no-repeat center center fixed;
   background-size: cover;
-
   -webkit-text-size-adjust: 100%;
   touch-action: manipulation;
 }
@@ -56,7 +55,7 @@ body{
   top:18%;
 }
 
-/* 🎈 BALLOONS (KEEP WHITE CARD) */
+/* 🎈 BALLOONS (KEEP CARD) */
 .balloon{
   width:150px;
   cursor:pointer;
@@ -81,19 +80,17 @@ body{
   opacity:0;
 }
 
-/* 👑 FRIEND IMAGE (NO WHITE CARD FIX) */
+/* 👑 FRIEND IMAGE (CLEAN FIX) */
 #friendPopup{
   position:absolute;
-  width:220px;
+  width:260px;
   display:none;
   z-index:999;
 
+  /* IMPORTANT: do NOT force any card look */
   background: transparent;
-  padding: 0;
   border: none;
   box-shadow: none;
-
-  object-fit: contain;
 }
 
 /* SCORE */
@@ -124,7 +121,7 @@ button{
 <!-- GAME -->
 <div id="gameScreen" style="display:none;"></div>
 
-<!-- FRIEND IMAGE -->
+<!-- FRIEND -->
 <img id="friendPopup">
 
 <!-- SCORE -->
@@ -177,7 +174,6 @@ const slots = [
   {x:1,y:1}
 ];
 
-/* START */
 window.onload = () => {
   setTimeout(()=>{
     document.getElementById("logoScreen").style.display="none";
