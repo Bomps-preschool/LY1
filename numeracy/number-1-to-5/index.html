@@ -34,12 +34,12 @@ body::after {
 #logoScreen, #gameScreen, #scoreScreen { 
   width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; position:absolute; top:0; left:0; 
 }
-#logoScreen img { width:200px; }
-#instruction { background: #fffca0; padding:10px 20px; border-radius:8px; font-size:20px; margin-bottom:20px; text-align:center; position:absolute; top:20px;}
+#logoScreen img { width:300px; }
+#instruction { background: #fffca0; padding:10px 20px; border-radius:8px; font-size:50px; margin-bottom:20px; text-align:center; position:absolute; top:20px;}
 #objects { display:flex; gap:20px; margin:20px 0; flex-wrap: wrap; justify-content:center;}
-#objects img { width:80px; height:80px; border-radius:10px; background:white; padding:5px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2);}
+#objects img { width:120px; height:120px; border-radius:10px; background:white; padding:5px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2);}
 #numbers { display:flex; gap:20px; margin-top:30px; flex-wrap: wrap; justify-content:center;}
-.number { padding:10px 20px; font-size:28px; border-radius:10px; border:2px solid #000; background:white; user-select:none; cursor: pointer;}
+.number { padding:10px 20px; font-size:40px; border-radius:10px; border:2px solid #000; background:white; user-select:none; cursor: pointer;}
 .number.correct { background:#a0ffaf; }
 .number.wrong { background:#ff9a9a; }
 #scoreScreen { background:#fff7e0; flex-direction:column; font-size:24px; display:none; align-items:center; justify-content:center; height:100%; position:relative; }
@@ -79,10 +79,10 @@ body::after {
 <script>
 const slides = [
   { object:"popsicle.png", count:4, numbers:[4,5,8], correctNumber:4 },
-  { object:"drum.png", count:1, numbers:[1,3,5], correctNumber:1 },
-  { object:"cupcake.png", count:3, numbers:[3,1,6], correctNumber:3 },
+  { object:"drum.png", count:1, numbers:[5,3,1], correctNumber:1 },
+  { object:"cupcake.png", count:3, numbers:[1,3,6], correctNumber:3 },
   { object:"ball.png", count:5, numbers:[5,2,7], correctNumber:5 },
-  { object:"lollipop.png", count:2, numbers:[2,4,6], correctNumber:2 }
+  { object:"lollipop.png", count:2, numbers:[6,4,2], correctNumber:2 }
 ];
 
 let currentSlide = 0;
