@@ -61,19 +61,16 @@ body::after {
 </head>
 <body>
 
-<!-- Innovine Logo Slide -->
 <div id="logoScreen">
   <img src="assets/innovine-logo.png" alt="Innovine Logo">
 </div>
 
-<!-- Game Screen -->
 <div id="gameScreen" style="display:none;">
   <div id="instruction">Count and tap the correct numbers</div>
   <div id="objects"></div>
   <div id="numbers"></div>
 </div>
 
-<!-- Score Screen -->
 <div id="scoreScreen">
   <div id="scoreText"></div>
   <button id="playAgain">Play Again</button>
@@ -81,11 +78,11 @@ body::after {
 
 <script>
 const slides = [
-  { object:"popsicle.png", count:4, numbers:[[3,5,4,8],[4,1,4,9]], correctNumber:4 },
-  { object:"drum.png", count:1, numbers:[[1,3,2,5],[1,4,1,6]], correctNumber:1 },
-  { object:"cupcake.png", count:3, numbers:[[2,3,5,6],[3,1,3,2]], correctNumber:3 },
-  { object:"ball.png", count:5, numbers:[[4,5,2,7],[5,8,5,1]], correctNumber:5 },
-  { object:"lollipop.png", count:2, numbers:[[1,2,3,4],[2,5,2,6]], correctNumber:2 }
+  { object:"popsicle.png", count:4, numbers:[4,5,8], correctNumber:4 },
+  { object:"drum.png", count:1, numbers:[1,3,5], correctNumber:1 },
+  { object:"cupcake.png", count:3, numbers:[3,1,6], correctNumber:3 },
+  { object:"ball.png", count:5, numbers:[5,2,7], correctNumber:5 },
+  { object:"lollipop.png", count:2, numbers:[2,4,6], correctNumber:2 }
 ];
 
 let currentSlide = 0;
@@ -107,9 +104,12 @@ window.onload = () => {
 
 function loadSlide(index){
   const slide = slides[index];
-  remainingCorrect = slide.numbers.flat().filter(n => n===slide.correctNumber).length;
+
+  remainingCorrect = slide.numbers.filter(n => n === slide.correctNumber).length;
+
   const objectsDiv = document.getElementById("objects");
   const numbersDiv = document.getElementById("numbers");
+
   objectsDiv.innerHTML="";
   numbersDiv.innerHTML="";
 
@@ -119,29 +119,38 @@ function loadSlide(index){
     objectsDiv.appendChild(obj);
   }
 
-  slide.numbers.forEach(row=>{
-    const rowDiv = document.createElement("div");
-    rowDiv.style.display="flex"; rowDiv.style.gap="20px"; rowDiv.style.margin="10px 0";
-    row.forEach(n=>{
-      const span = document.createElement("div");
-      span.classList.add("number"); span.textContent=n;
-      span.addEventListener("click",()=> checkNumber(span, slide.correctNumber));
-      rowDiv.appendChild(span);
-    });
-    numbersDiv.appendChild(rowDiv);
+  // ✅ ONLY ONE ROW (3 OPTIONS)
+  const rowDiv = document.createElement("div");
+  rowDiv.style.display="flex";
+  rowDiv.style.gap="20px";
+
+  slide.numbers.forEach(n=>{
+    const span = document.createElement("div");
+    span.classList.add("number");
+    span.textContent=n;
+    span.addEventListener("click",()=> checkNumber(span, slide.correctNumber));
+    rowDiv.appendChild(span);
   });
+
+  numbersDiv.appendChild(rowDiv);
 }
 
 function checkNumber(element, correctNumber){
   const n = parseInt(element.textContent);
+
   if(n===correctNumber && !element.classList.contains("correct")){
-    element.classList.add("correct"); correctSound.play();
+    element.classList.add("correct");
+    correctSound.play();
+
     remainingCorrect--;
-    if(remainingCorrect===0){ 
+
+    if(remainingCorrect===0){
       setTimeout(()=> nextSlide(),500);
     }
+
   }else if(n!==correctNumber){
-    element.classList.add("wrong"); wrongSound.play();
+    element.classList.add("wrong");
+    wrongSound.play();
     setTimeout(()=> element.classList.remove("wrong"),600);
   }
 }
