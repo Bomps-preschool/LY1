@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+
+<title>Patterning Game</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+-webkit-tap-highlight-color:transparent;
+}
+
+body{
+font-family:Arial,sans-serif;
+height:100vh;
+overflow:hidden;
+background:
+linear-gradient(180deg,
+#ffe066 0%,
+#ffb3d9 30%,
+#8fd3ff 65%,
+#c3ffb0 100%);
+}
+
+/* LOGO */
+
+#logoScreen{
+position:fixed;
+inset:0;
+display:flex;
+justify-content:center;
+align-items:center;
+background:
+linear-gradient(180deg,#ffe066,#ffb3d9,#8fd3ff);
+z-index:999;
+}
+
+#logoScreen img{
+width:min(280px,70vw);
+animation:pulse 2s infinite;
+}
+
+@keyframes pulse{
+0%{transform:scale(1);}
+50%{transform:scale(1.08);}
+100%{transform:scale(1);}
+}
+
+/* TITLE */
+
+#titleScreen{
+position:fixed;
+inset:0;
+display:none;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+gap:22px;
+background:
+linear-gradient(180deg,
+#ffe066,
+#ffb3d9,
+#8fd3ff,
+#c3ffb0);
+}
+
+.gameTitle{
+font-size:clamp(38px,7vw,70px);
+font-weight:bold;
+color:#ff2f7d;
+text-shadow:3px 3px white;
+}
+
+.subTitle{
+font-size:clamp(24px,5vw,42px);
+font-weight:bold;
+color:#5b38ff;
+}
+
+.startBtn{
+padding:16px 34px;
+font-size:26px;
+border:none;
+border-radius:20px;
+background:#ff8c42;
+color:white;
+font-weight:bold;
+box-shadow:0 5px 0 #d96c24;
+cursor:pointer;
+}
+
+/* GAME */
+
+#gameContainer{
+height:100vh;
+display:none;
+flex-direction:column;
+align-items:center;
+padding:8px;
+overflow:hidden;
+}
+
+.header h1{
+font-size:clamp(34px,6vw,54px);
+color:#ff2f7d;
+text-shadow:3px 3px white;
+}
+
+.roundInfo{
+font-size:clamp(18px,3vw,28px);
+color:#4d39ff;
+font-weight:bold;
+margin-top:2px;
+}
+
+.questionBox{
+margin-top:6px;
+background:white;
+width:95%;
+max-width:1000px;
+border-radius:24px;
+padding:12px;
+text-align:center;
+box-shadow:0 6px 18px rgba(0,0,0,0.12);
+}
+
+.questionText{
+font-size:clamp(17px,2vw,24px);
+line-height:1.4;
+color:#444;
+font-weight:bold;
+}
+
+.listenBtn{
+margin-top:10px;
+padding:10px 18px;
+font-size:18px;
+border:none;
+border-radius:14px;
+background:#4fc3ff;
+color:white;
+font-weight:bold;
+}
+
+/* PATTERN */
+
+.patternArea{
+flex:1;
+width:100%;
+display:flex;
+justify-content:center;
+align-items:center;
+overflow:hidden;
+padding:0 10px;
+}
+
+.patternRow{
+width:100%;
+max-width:1200px;
+background:#ffffffd9;
+border-radius:30px;
+padding:14px 10px;
+display:flex;
+justify-content:space-evenly;
+align-items:center;
+flex-wrap:nowrap;
+gap:8px;
+box-shadow:0 8px 20px rgba(0,0,0,0.12);
+overflow:visible;
+}
+
+/* SHAPES */
+
+.shape{
+width:78px;
+height:78px;
+border:3px solid #444;
+flex-shrink:0;
+transition:0.2s;
+}
+
+.square{
+border-radius:14px;
+}
+
+.circle{
+border-radius:50%;
+}
+
+.diamond{
+transform:rotate(45deg);
+border-radius:10px;
+}
+
+.heart{
+position:relative;
+width:68px;
+height:68px;
+transform:rotate(-45deg);
+border:none;
+flex-shrink:0;
+margin-left:10px;
+}
+
+.heart:before,
+.heart:after{
+content:"";
+position:absolute;
+width:38px;
+height:60px;
+background:inherit;
+border-radius:40px 40px 0 0;
+border:3px solid #444;
+}
+
+.heart:before{
+left:34px;
+top:0;
+}
+
+.heart:after{
+left:0;
+top:-34px;
+}
+
+.blank{
+outline:4px dashed #999;
+}
+
+/* PALETTE */
+
+.palette{
+width:100%;
+display:flex;
+justify-content:center;
+align-items:center;
+gap:34px;
+padding-bottom:14px;
+margin-top:8px;
+height:120px;
+position:relative;
+}
+
+.colorBall{
+width:82px;
+height:82px;
+border-radius:50%;
+border:6px solid white;
+box-shadow:0 6px 16px rgba(0,0,0,0.2);
+position:absolute;
+touch-action:none;
+z-index:9999;
+cursor:grab;
+}
+
+.dragging{
+transform:scale(1.15);
+opacity:0.9;
+}
+
+/* FEEDBACK */
+
+.feedback{
+height:40px;
+display:flex;
+justify-content:center;
+align-items:center;
+font-size:32px;
+font-weight:bold;
+color:#1f9d3a;
+}
+
+/* ANIMATION */
+
+.wiggle{
+animation:wiggle 0.35s;
+}
+
+@keyframes wiggle{
+0%{transform:translateX(0);}
+25%{transform:translateX(-5px);}
+50%{transform:translateX(5px);}
+75%{transform:translateX(-5px);}
+100%{transform:translateX(0);}
+}
+
+.correctGlow{
+animation:glow 1s infinite;
+}
+
+@keyframes glow{
+0%{box-shadow:0 0 0 gold;}
+50%{box-shadow:0 0 18px gold;}
+100%{box-shadow:0 0 0 gold;}
+}
+
+/* END */
+
+#endScreen{
+position:fixed;
+inset:0;
+display:none;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+background:
+linear-gradient(180deg,
+#ffe066,
+#ffb3d9,
+#8fd3ff,
+#c3ffb0);
+gap:20px;
+text-align:center;
+}
+
+#endScreen h2{
+font-size:clamp(40px,7vw,70px);
+color:#ff2f7d;
+}
+
+#endScreen p{
+font-size:clamp(24px,5vw,40px);
+color:#4d39ff;
+font-weight:bold;
+}
+
+/* CONFETTI */
+
+.confetti{
+position:fixed;
+width:14px;
+height:14px;
+border-radius:50%;
+top:-20px;
+animation:fall linear forwards;
+}
+
+@keyframes fall{
+to{
+transform:translateY(110vh) rotate(720deg);
+}
+}
+
+/* MOBILE */
+
+@media(max-width:700px){
+
+.patternRow{
+gap:4px;
+padding:10px 6px;
+}
+
+.shape{
+width:48px;
+height:48px;
+border-width:2px;
+}
+
+.heart{
+width:42px;
+height:42px;
+margin-left:6px;
+}
+
+.heart:before,
+.heart:after{
+width:24px;
+height:38px;
+border-width:2px;
+}
+
+.heart:before{
+left:21px;
+}
+
+.heart:after{
+top:-21px;
+}
+
+.colorBall{
+width:62px;
+height:62px;
+border-width:4px;
+}
+
+.palette{
+height:90px;
+gap:24px;
+}
+
+.questionText{
+font-size:15px;
+}
+
+.listenBtn{
+font-size:16px;
+padding:8px 14px;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<audio id="rightSound" src="assets/right.mp3"></audio>
+<audio id="wrongSound" src="assets/wrong.mp3"></audio>
+<audio id="clapSound" src="assets/freesound_community-claps-44774.mp3"></audio>
+
+<!-- LOGO -->
+
+<div id="logoScreen">
+<img src="assets/innovine-logo.png">
+</div>
+
+<!-- TITLE -->
+
+<div id="titleScreen">
+
+<div class="gameTitle">Patterning</div>
+
+<div class="subTitle">Complete the Pattern</div>
+
+<button class="startBtn" onclick="startGame()">
+Start Game
+</button>
+
+</div>
+
+<!-- GAME -->
+
+<div id="gameContainer">
+
+<div class="header">
+<h1>Patterning</h1>
+<div class="roundInfo" id="roundInfo"></div>
+</div>
+
+<div class="questionBox">
+
+<div class="questionText">
+Look at the pattern. Colour the shape with correct colour to complete the pattern.
+</div>
+
+<button class="listenBtn" onclick="speakQuestion()">
+🔊 Hear Again
+</button>
+
+</div>
+
+<div class="patternArea">
+
+<div class="patternRow" id="patternRow"></div>
+
+</div>
+
+<div class="palette" id="palette"></div>
+
+<div class="feedback" id="feedback"></div>
+
+</div>
+
+<!-- END -->
+
+<div id="endScreen">
+
+<h2>🎉 Great Job! 🎉</h2>
+
+<p>You completed all the patterns!</p>
+
+<button class="startBtn" onclick="restartGame()">
+Play Again
+</button>
+
+</div>
+
+<script>
+
+const rounds = [
+
+{
+shapes:[
+{type:"square", color:"yellow"},
+{type:"square", color:"blue"},
+{type:"square", color:"yellow"},
+{type:"square", color:"blue"},
+{type:"square", blank:true, answer:"yellow"},
+{type:"square", blank:true, answer:"blue"}
+],
+palette:["yellow","blue"]
+},
+
+{
+shapes:[
+{type:"square", color:"orange"},
+{type:"circle", color:"red"},
+{type:"square", color:"orange"},
+{type:"circle", color:"red"},
+{type:"square", blank:true, answer:"orange"},
+{type:"circle", blank:true, answer:"red"}
+],
+palette:["red","orange"]
+},
+
+{
+shapes:[
+{type:"square", color:"#7ad9ff"},
+{type:"square", color:"#90ee90"},
+{type:"square", color:"#7ad9ff"},
+{type:"square", color:"#90ee90"},
+{type:"square", blank:true, answer:"#7ad9ff"},
+{type:"square", blank:true, answer:"#90ee90"}
+],
+palette:["#90ee90","#7ad9ff"]
+},
+
+{
+shapes:[
+{type:"diamond", color:"pink"},
+{type:"diamond", color:"yellow"},
+{type:"diamond", color:"pink"},
+{type:"diamond", color:"yellow"},
+{type:"diamond", blank:true, answer:"pink"},
+{type:"diamond", blank:true, answer:"yellow"}
+],
+palette:["pink","yellow"]
+},
+
+{
+shapes:[
+{type:"circle", color:"red"},
+{type:"circle", color:"blue"},
+{type:"circle", color:"red"},
+{type:"circle", color:"blue"},
+{type:"circle", blank:true, answer:"red"},
+{type:"circle", blank:true, answer:"blue"}
+],
+palette:["red","blue"]
+},
+
+{
+shapes:[
+{type:"square", color:"pink"},
+{type:"square", color:"purple"},
+{type:"square", color:"pink"},
+{type:"square", color:"purple"},
+{type:"square", blank:true, answer:"pink"},
+{type:"square", blank:true, answer:"purple"}
+],
+palette:["pink","purple"]
+},
+
+{
+shapes:[
+{type:"heart", color:"pink"},
+{type:"square", color:"yellow"},
+{type:"heart", color:"pink"},
+{type:"square", color:"yellow"},
+{type:"heart", blank:true, answer:"pink"},
+{type:"square", blank:true, answer:"yellow"}
+],
+palette:["pink","yellow"]
+}
+
+];
+
+let currentRound = 0;
+let completedTargets = 0;
+let wrongAttempts = 0;
+
+const patternRow = document.getElementById("patternRow");
+const palette = document.getElementById("palette");
+const feedback = document.getElementById("feedback");
+const roundInfo = document.getElementById("roundInfo");
+
+const question =
+"Look at the pattern. Colour the shape with correct colour to complete the pattern.";
+
+window.onload = ()=>{
+
+setTimeout(()=>{
+
+document.getElementById("logoScreen").style.display="none";
+
+document.getElementById("titleScreen").style.display="flex";
+
+},5000);
+
+};
+
+function startGame(){
+
+document.getElementById("titleScreen").style.display="none";
+
+document.getElementById("gameContainer").style.display="flex";
+
+loadRound();
+
+}
+
+function loadRound(){
+
+completedTargets = 0;
+wrongAttempts = 0;
+
+feedback.innerHTML = "";
+patternRow.innerHTML = "";
+palette.innerHTML = "";
+
+roundInfo.innerText =
+`Round ${currentRound+1} / ${rounds.length}`;
+
+speakQuestion();
+
+const round = rounds[currentRound];
+
+/* SHAPES */
+
+round.shapes.forEach(shapeData=>{
+
+const shape = document.createElement("div");
+
+shape.classList.add("shape",shapeData.type);
+
+shape.style.background =
+shapeData.blank ? "white" : shapeData.color;
+
+if(shapeData.blank){
+
+shape.classList.add("blank");
+
+shape.dataset.answer = shapeData.answer;
+
+}
+
+patternRow.appendChild(shape);
+
+});
+
+/* DESKTOP DROP */
+
+document.querySelectorAll(".blank")
+.forEach(shape=>{
+
+shape.addEventListener("dragover",(e)=>{
+e.preventDefault();
+});
+
+shape.addEventListener("drop",(e)=>{
+
+e.preventDefault();
+
+const draggedColor =
+e.dataTransfer.getData("color");
+
+checkAnswer(shape,draggedColor);
+
+});
+
+});
+
+/* PALETTE */
+
+round.palette.forEach((color,index)=>{
+
+const ball = document.createElement("div");
+
+ball.classList.add("colorBall");
+
+ball.style.background = color;
+
+if(index===0){
+ball.style.left = "calc(50% - 100px)";
+}else{
+ball.style.left = "calc(50% + 20px)";
+}
+
+ball.style.top = "10px";
+
+palette.appendChild(ball);
+
+/* DESKTOP */
+
+ball.draggable = true;
+
+ball.addEventListener("dragstart",(e)=>{
+
+e.dataTransfer.setData("color",color);
+
+});
+
+/* MOBILE */
+
+let startX,startY;
+
+ball.addEventListener("touchstart",(e)=>{
+
+const touch = e.touches[0];
+
+startX = touch.clientX -
+ball.getBoundingClientRect().left;
+
+startY = touch.clientY -
+ball.getBoundingClientRect().top;
+
+ball.classList.add("dragging");
+
+});
+
+ball.addEventListener("touchmove",(e)=>{
+
+e.preventDefault();
+
+const touch = e.touches[0];
+
+ball.style.left =
+(touch.clientX - startX) + "px";
+
+ball.style.top =
+(touch.clientY - startY) + "px";
+
+});
+
+ball.addEventListener("touchend",(e)=>{
+
+ball.classList.remove("dragging");
+
+const touch = e.changedTouches[0];
+
+const target =
+document.elementFromPoint(
+touch.clientX,
+touch.clientY
+);
+
+if(
+target &&
+target.classList.contains("blank")
+){
+
+checkAnswer(target,color);
+
+}
+
+/* RESET */
+
+if(index===0){
+ball.style.left = "calc(50% - 100px)";
+}else{
+ball.style.left = "calc(50% + 20px)";
+}
+
+ball.style.top = "10px";
+
+});
+
+});
+
+}
+
+function checkAnswer(shape,color){
+
+if(shape.dataset.done) return;
+
+const correct = shape.dataset.answer;
+
+if(color === correct){
+
+shape.style.background = color;
+
+shape.classList.remove("blank");
+
+shape.dataset.done = true;
+
+document.getElementById("rightSound").play();
+
+completedTargets++;
+
+feedback.innerHTML = "✅ Good Job!";
+
+if(completedTargets === 2){
+
+document.getElementById("clapSound").play();
+
+setTimeout(()=>{
+
+currentRound++;
+
+if(currentRound >= rounds.length){
+
+endGame();
+
+}else{
+
+loadRound();
+
+}
+
+},1600);
+
+}
+
+}else{
+
+wrongAttempts++;
+
+document.getElementById("wrongSound").play();
+
+shape.classList.add("wiggle");
+
+setTimeout(()=>{
+shape.classList.remove("wiggle");
+},400);
+
+if(wrongAttempts >= 2){
+
+document.querySelectorAll(".blank")
+.forEach(t=>{
+
+if(!t.dataset.done){
+
+t.classList.add("correctGlow");
+
+setTimeout(()=>{
+t.classList.remove("correctGlow");
+},2500);
+
+}
+
+});
+
+}
+
+}
+
+}
+
+function speakQuestion(){
+
+speechSynthesis.cancel();
+
+const speech =
+new SpeechSynthesisUtterance(question);
+
+speech.rate = 0.9;
+speech.pitch = 1;
+
+speechSynthesis.speak(speech);
+
+}
+
+function endGame(){
+
+document.getElementById("gameContainer")
+.style.display="none";
+
+document.getElementById("endScreen")
+.style.display="flex";
+
+createConfetti();
+
+}
+
+function createConfetti(){
+
+for(let i=0;i<120;i++){
+
+const confetti =
+document.createElement("div");
+
+confetti.classList.add("confetti");
+
+confetti.style.left =
+Math.random()*100+"vw";
+
+confetti.style.background =
+["#ff2f7d","#ffb703","#5b38ff","#4fc3ff","#7dff7d"]
+[Math.floor(Math.random()*5)];
+
+confetti.style.animationDuration =
+(Math.random()*3+2)+"s";
+
+document.body.appendChild(confetti);
+
+setTimeout(()=>{
+confetti.remove();
+},5000);
+
+}
+
+}
+
+function restartGame(){
+
+currentRound = 0;
+
+document.getElementById("endScreen")
+.style.display="none";
+
+document.getElementById("gameContainer")
+.style.display="flex";
+
+loadRound();
+
+}
+
+</script>
+
+</body>
+</html>
