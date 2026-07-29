@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width,
+initial-scale=1.0,
+maximum-scale=1.0,
+user-scalable=no">
+
+<title>Feed The Monster</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+font-family:Arial,sans-serif;
+overflow:hidden;
+background:linear-gradient(to bottom,#87CEEB 0%,#bdefff 40%,#7bd85a 40%,#4CAF50 100%);
+height:100vh;
+width:100vw;
+touch-action:none;
+}
+
+/* BACKGROUND */
+
+.sun{
+position:absolute;
+top:20px;
+right:20px;
+width:80px;
+height:80px;
+background:#FFD93D;
+border-radius:50%;
+box-shadow:0 0 30px #FFD93D;
+}
+
+.cloud{
+position:absolute;
+background:white;
+border-radius:50%;
+}
+
+.cloud1{
+width:140px;
+height:60px;
+top:30px;
+left:20px;
+}
+
+.cloud2{
+width:150px;
+height:65px;
+top:50px;
+right:100px;
+}
+
+.cloud::before{
+content:'';
+position:absolute;
+background:white;
+border-radius:50%;
+}
+
+.cloud1::before{
+width:70px;
+height:70px;
+top:-20px;
+left:25px;
+}
+
+.cloud2::before{
+width:80px;
+height:80px;
+top:-20px;
+left:30px;
+}
+
+/* LOGO */
+
+#logoScreen{
+position:absolute;
+inset:0;
+background:white;
+display:flex;
+justify-content:center;
+align-items:center;
+z-index:9999;
+}
+
+#logoScreen img{
+width:250px;
+max-width:70vw;
+}
+
+/* SCREENS */
+
+.screen{
+position:absolute;
+inset:0;
+display:none;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+}
+
+.active{
+display:flex;
+}
+
+/* TITLE */
+
+.title{
+font-size:clamp(40px,7vw,70px);
+font-weight:bold;
+color:#ff4fa0;
+text-shadow:
+0 0 10px white,
+0 4px 0 #d63384;
+margin-bottom:20px;
+text-align:center;
+}
+
+/* BUTTON */
+
+.playBtn{
+padding:15px 35px;
+font-size:clamp(22px,4vw,34px);
+border:none;
+border-radius:20px;
+background:linear-gradient(to bottom,#ffd43b,#ff8c00);
+color:white;
+font-weight:bold;
+cursor:pointer;
+box-shadow:0 5px 0 #cc7000;
+}
+
+/* INSTRUCTION */
+
+#instruction{
+margin-top:10px;
+background:white;
+padding:12px 20px;
+border-radius:20px;
+font-size:clamp(18px,3vw,28px);
+font-weight:bold;
+text-align:center;
+max-width:95%;
+box-shadow:0 5px 12px rgba(0,0,0,0.2);
+}
+
+/* MONSTER */
+
+#monsterArea{
+position:relative;
+width:100%;
+height:38vh;
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+#monsterContainer{
+position:relative;
+}
+
+#monster{
+width:min(45vw,250px);
+min-width:170px;
+pointer-events:none;
+}
+
+/* LETTER */
+
+#monsterLetter{
+position:absolute;
+left:50%;
+top:63%;
+transform:translate(-50%,-50%);
+font-size:clamp(50px,9vw,90px);
+font-weight:bold;
+color:#ff1744;
+text-shadow:
+0 0 10px white,
+0 0 15px white;
+pointer-events:none;
+}
+
+/* MOUTH HIT AREA */
+
+#mouth{
+position:absolute;
+left:50%;
+top:26%;
+transform:translateX(-50%);
+width:42%;
+height:22%;
+}
+
+/* OBJECTS AREA */
+
+#objects{
+position:relative;
+width:100%;
+height:55vh;
+}
+
+/* OBJECTS */
+
+.object{
+position:absolute;
+width:min(16vw,90px);
+max-width:90px;
+min-width:60px;
+touch-action:none;
+user-select:none;
+cursor:pointer;
+}
+
+/* FINAL */
+
+#finalScreen{
+background:linear-gradient(to bottom,#002d62,#00152d);
+}
+
+/* CONFETTI */
+
+.confetti{
+position:absolute;
+width:8px;
+height:8px;
+animation:fall linear infinite;
+}
+
+@keyframes fall{
+
+from{
+transform:translateY(-100px) rotate(0deg);
+}
+
+to{
+transform:translateY(110vh) rotate(360deg);
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- BACKGROUND -->
+
+<div class="sun"></div>
+
+<div class="cloud cloud1"></div>
+<div class="cloud cloud2"></div>
+
+<!-- LOGO -->
+
+<div id="logoScreen">
+<img src="assets/innovine-logo.png">
+</div>
+
+<!-- AUDIO -->
+
+<audio id="correctSound"
+src="assets/freesound_community-claps-44774.mp3"></audio>
+
+<audio id="wrongSound"
+src="assets/wrong.mp3"></audio>
+
+<!-- START SCREEN -->
+
+<div class="screen active"
+id="startScreen">
+
+<div class="title">
+Feed The Monster
+</div>
+
+<button class="playBtn"
+onclick="startGame()">
+Play
+</button>
+
+</div>
+
+<!-- GAME SCREEN -->
+
+<div class="screen"
+id="gameScreen">
+
+<div id="instruction">
+Feed the monster with letter A objects
+</div>
+
+<div id="monsterArea">
+
+<div id="monsterContainer">
+
+<img src="assets/monster.png"
+id="monster">
+
+<div id="monsterLetter">
+A
+</div>
+
+<div id="mouth"></div>
+
+</div>
+
+</div>
+
+<div id="objects"></div>
+
+</div>
+
+<!-- FINAL SCREEN -->
+
+<div class="screen"
+id="finalScreen">
+
+<div id="confettiContainer"></div>
+
+<div class="title">
+Great Job!
+</div>
+
+<button class="playBtn"
+onclick="restartGame()">
+Play Again
+</button>
+
+</div>
+
+<script>
+
+/* LEVELS */
+
+const levels=[
+
+{
+letter:'A',
+correct:[
+'assets/apple.png',
+'assets/ant.png',
+'assets/alligator.png',
+'assets/aeroplane.png',
+'assets/axe.png'
+],
+wrong:[
+'assets/ball.png',
+'assets/car.png',
+'assets/dog.png'
+]
+},
+
+{
+letter:'B',
+correct:[
+'assets/bag.png',
+'assets/ball.png',
+'assets/balloon.png',
+'assets/bat.png',
+'assets/bear.png'
+],
+wrong:[
+'assets/apple.png',
+'assets/car.png',
+'assets/dog.png'
+]
+},
+
+{
+letter:'C',
+correct:[
+'assets/cake.png',
+'assets/cap.png',
+'assets/car.png',
+'assets/carrot.png',
+'assets/cat.png'
+],
+wrong:[
+'assets/apple.png',
+'assets/dog.png',
+'assets/ball.png'
+]
+},
+
+{
+letter:'D',
+correct:[
+'assets/dog.png',
+'assets/doll.png',
+'assets/door.png',
+'assets/duckling.png',
+'assets/dum.png'
+],
+wrong:[
+'assets/apple.png',
+'assets/car.png',
+'assets/bag.png'
+]
+}
+
+];
+
+let currentLevel=0;
+let correctCount=0;
+
+/* LOGO */
+
+window.onload=function(){
+
+setTimeout(function(){
+
+document.getElementById('logoScreen')
+.style.display='none';
+
+},5000);
+
+}
+
+/* START */
+
+function startGame(){
+
+document.getElementById('startScreen')
+.classList.remove('active');
+
+document.getElementById('gameScreen')
+.classList.add('active');
+
+currentLevel=0;
+
+loadLevel();
+
+}
+
+/* LOAD LEVEL */
+
+function loadLevel(){
+
+correctCount=0;
+
+const level=levels[currentLevel];
+
+document.getElementById('monsterLetter')
+.innerHTML=level.letter;
+
+document.getElementById('instruction')
+.innerHTML=
+'Feed the monster with letter '+
+level.letter+
+' objects';
+
+const area=
+document.getElementById('objects');
+
+area.innerHTML='';
+
+const allImages=[
+...level.correct,
+...level.wrong
+];
+
+allImages.sort(()=>Math.random()-0.5);
+
+allImages.forEach(function(img,index){
+
+const object=
+document.createElement('img');
+
+object.src=img;
+
+object.className='object';
+
+object.draggable=false;
+
+/* RESPONSIVE POSITIONS */
+
+let col=index%4;
+let row=Math.floor(index/4);
+
+object.style.left=
+(8 + col*22)+'vw';
+
+object.style.top=
+(5 + row*18)+'vh';
+
+object.dataset.startLeft=
+object.style.left;
+
+object.dataset.startTop=
+object.style.top;
+
+area.appendChild(object);
+
+dragElement(object,img);
+
+});
+
+}
+
+/* DRAG SYSTEM */
+
+function dragElement(el,img){
+
+let offsetX=0;
+let offsetY=0;
+let dragging=false;
+
+/* DESKTOP */
+
+el.onmousedown=dragMouseDown;
+
+/* MOBILE */
+
+el.ontouchstart=dragTouchStart;
+
+function dragMouseDown(e){
+
+e.preventDefault();
+
+dragging=true;
+
+offsetX=e.clientX-el.offsetLeft;
+offsetY=e.clientY-el.offsetTop;
+
+document.onmousemove=elementDrag;
+document.onmouseup=closeDrag;
+
+}
+
+function dragTouchStart(e){
+
+dragging=true;
+
+const touch=e.touches[0];
+
+offsetX=touch.clientX-el.offsetLeft;
+offsetY=touch.clientY-el.offsetTop;
+
+document.ontouchmove=elementTouchDrag;
+document.ontouchend=closeTouchDrag;
+
+}
+
+function elementDrag(e){
+
+if(!dragging)return;
+
+e.preventDefault();
+
+el.style.left=
+(e.clientX-offsetX)+'px';
+
+el.style.top=
+(e.clientY-offsetY)+'px';
+
+}
+
+function elementTouchDrag(e){
+
+if(!dragging)return;
+
+const touch=e.touches[0];
+
+el.style.left=
+(touch.clientX-offsetX)+'px';
+
+el.style.top=
+(touch.clientY-offsetY)+'px';
+
+}
+
+/* DESKTOP DROP */
+
+function closeDrag(){
+
+dragging=false;
+
+document.onmouseup=null;
+document.onmousemove=null;
+
+checkAnswer(el,img);
+
+}
+
+/* MOBILE DROP */
+
+function closeTouchDrag(){
+
+dragging=false;
+
+document.ontouchend=null;
+document.ontouchmove=null;
+
+checkAnswer(el,img);
+
+}
+
+}
+
+/* CHECK ANSWER */
+
+function checkAnswer(el,img){
+
+const mouth=
+document.getElementById('mouth');
+
+const mouthRect=
+mouth.getBoundingClientRect();
+
+const objectRect=
+el.getBoundingClientRect();
+
+const overlap=
+
+!(
+objectRect.right < mouthRect.left ||
+
+objectRect.left > mouthRect.right ||
+
+objectRect.bottom < mouthRect.top ||
+
+objectRect.top > mouthRect.bottom
+);
+
+const level=levels[currentLevel];
+
+if(overlap){
+
+if(level.correct.includes(img)){
+
+playCorrect();
+
+el.style.transition='0.4s';
+
+el.style.opacity='0';
+el.style.transform='scale(0.2)';
+
+correctCount++;
+
+setTimeout(function(){
+
+el.remove();
+
+},400);
+
+if(correctCount>=level.correct.length){
+
+setTimeout(function(){
+
+nextLevel();
+
+},800);
+
+}
+
+}else{
+
+playWrong();
+
+resetObject(el);
+
+}
+
+}else{
+
+resetObject(el);
+
+}
+
+}
+
+/* RESET */
+
+function resetObject(el){
+
+el.style.transition='0.3s';
+
+el.style.left=
+el.dataset.startLeft;
+
+el.style.top=
+el.dataset.startTop;
+
+}
+
+/* NEXT */
+
+function nextLevel(){
+
+currentLevel++;
+
+if(currentLevel>=levels.length){
+
+endGame();
+
+}else{
+
+loadLevel();
+
+}
+
+}
+
+/* END */
+
+function endGame(){
+
+document.getElementById('gameScreen')
+.classList.remove('active');
+
+document.getElementById('finalScreen')
+.classList.add('active');
+
+createConfetti();
+
+}
+
+/* RESTART */
+
+function restartGame(){
+
+document.getElementById('finalScreen')
+.classList.remove('active');
+
+document.getElementById('gameScreen')
+.classList.add('active');
+
+currentLevel=0;
+
+loadLevel();
+
+}
+
+/* SOUNDS */
+
+function playCorrect(){
+
+const sound=
+document.getElementById('correctSound');
+
+sound.currentTime=0;
+
+sound.play();
+
+setTimeout(function(){
+
+sound.pause();
+sound.currentTime=0;
+
+},1000);
+
+}
+
+function playWrong(){
+
+const sound=
+document.getElementById('wrongSound');
+
+sound.currentTime=0;
+
+sound.play();
+
+}
+
+/* CONFETTI */
+
+function createConfetti(){
+
+const container=
+document.getElementById('confettiContainer');
+
+container.innerHTML='';
+
+const colors=[
+'#ff4081',
+'#2196f3',
+'#4caf50',
+'#ffeb3b',
+'#ff9800',
+'#9c27b0'
+];
+
+for(let i=0;i<120;i++){
+
+const paper=
+document.createElement('div');
+
+paper.className='confetti';
+
+paper.style.left=
+Math.random()*100+'vw';
+
+paper.style.background=
+colors[
+Math.floor(Math.random()*colors.length)
+];
+
+paper.style.animationDuration=
+(2+Math.random()*3)+'s';
+
+paper.style.width=
+(4+Math.random()*6)+'px';
+
+paper.style.height=
+(4+Math.random()*6)+'px';
+
+container.appendChild(paper);
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
