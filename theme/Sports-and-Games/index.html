@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<title>Sports and Games</title>
+
+<style>
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+-webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+width:100%;
+height:100%;
+overflow:hidden;
+font-family:Arial,Helvetica,sans-serif;
+}
+
+body{
+background:url("assets/background.png") center center/cover no-repeat;
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+.screen{
+position:absolute;
+inset:0;
+display:none;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+padding:10px;
+}
+
+.screen.active{
+display:flex;
+}
+
+#logoScreen{
+background:url("assets/background.png") center center/cover no-repeat;
+}
+
+#logoScreen img{
+width:min(300px,70vw);
+max-height:50vh;
+object-fit:contain;
+}
+
+#titleScreen{
+background:url("assets/background.png") center center/cover no-repeat;
+text-align:center;
+}
+
+.title{
+font-size:clamp(34px,5vw,58px);
+font-weight:900;
+line-height:1.1;
+margin-bottom:25px;
+text-shadow:2px 2px 4px rgba(0,0,0,.25);
+animation:titleGlow 2s infinite alternate;
+}
+
+.title span:nth-child(1){color:#ff6b6b;}
+.title span:nth-child(2){color:#4dabf7;}
+.title span:nth-child(3){color:#51cf66;}
+.title span:nth-child(4){color:#fcc419;}
+
+@keyframes titleGlow{
+from{transform:scale(1);}
+to{transform:scale(1.05);}
+}
+
+#startBtn{
+padding:16px 36px;
+font-size:clamp(22px,3vw,30px);
+font-weight:bold;
+border:none;
+border-radius:18px;
+background:#ff922b;
+color:white;
+cursor:pointer;
+box-shadow:0 6px 15px rgba(0,0,0,.25);
+animation:startPulse 1s infinite;
+}
+
+@keyframes startPulse{
+0%,100%{
+transform:scale(1);
+}
+50%{
+transform:scale(1.08);
+}
+}
+
+#startBtn:active{
+transform:scale(.95);
+}
+
+#gameScreen{
+background:url("assets/background.png") center center/cover no-repeat;
+}
+
+.game-header{
+font-size:clamp(28px,4vw,48px);
+font-weight:900;
+text-align:center;
+margin-top:10px;
+margin-bottom:8px;
+}
+
+.game-header span:nth-child(1){color:#ff6b6b;}
+.game-header span:nth-child(2){color:#4dabf7;}
+.game-header span:nth-child(3){color:#51cf66;}
+.game-header span:nth-child(4){color:#fcc419;}
+}
+
+.question{
+font-size:clamp(16px,1.8vw,24px);
+font-weight:900;
+color:#e03131;
+text-align:center;
+background:rgba(255,255,255,.88);
+padding:8px 12px;
+border-radius:16px;
+max-width:900px;
+margin-bottom:8px;
+}
+
+.listen-btn{
+padding:8px 18px;
+border:none;
+border-radius:14px;
+background:#4dabf7;
+color:white;
+font-weight:bold;
+margin-bottom:10px;
+cursor:pointer;
+}
+
+.main-image{
+width:min(40vh,360px);
+height:min(34vh,300px);
+object-fit:contain;
+margin-bottom:8px;
+}
+
+.options{
+display:flex;
+flex-direction:row;
+justify-content:center;
+align-items:center;
+gap:20px;
+width:100%;
+margin-top:10px;
+flex-wrap:nowrap;
+}
+
+.option{
+width:160px;
+height:160px;
+background:white;
+border-radius:24px;
+padding:8px;
+border:5px solid transparent;
+display:flex;
+justify-content:center;
+align-items:center;
+cursor:pointer;
+transition:.3s;
+box-shadow:0 6px 12px rgba(0,0,0,.15);
+}
+
+.option img{
+width:100%;
+height:100%;
+object-fit:contain;
+}
+
+.option.correct{
+border-color:#37b24d;
+}
+
+.option.glow{
+animation:glow 1s infinite;
+}
+
+@keyframes glow{
+0%{
+box-shadow:0 0 5px #37b24d;
+}
+50%{
+box-shadow:0 0 25px #37b24d;
+}
+100%{
+box-shadow:0 0 5px #37b24d;
+}
+}
+
+.wrong{
+animation:shake .35s;
+}
+
+@keyframes shake{
+0%{transform:translateX(0);}
+25%{transform:translateX(-8px);}
+50%{transform:translateX(8px);}
+75%{transform:translateX(-8px);}
+100%{transform:translateX(0);}
+}
+
+.feedback{
+position:absolute;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+font-size:clamp(32px,5vw,60px);
+font-weight:900;
+display:none;
+z-index:50;
+text-shadow:2px 2px 5px rgba(0,0,0,.3);
+}
+
+.good{
+color:#51cf66;
+text-shadow:
+0 0 10px #51cf66,
+0 0 20px #51cf66;
+}
+
+#finishScreen{
+background:url("assets/background.png") center center/cover no-repeat;
+text-align:center;
+}
+
+.finish-text{
+font-size:clamp(40px,6vw,80px);
+font-weight:900;
+color:#ff6b6b;
+text-shadow:2px 2px 5px rgba(0,0,0,.2);
+margin-bottom:20px;
+}
+
+#playAgainBtn{
+padding:16px 32px;
+font-size:24px;
+font-weight:bold;
+border:none;
+border-radius:18px;
+background:#4dabf7;
+color:white;
+cursor:pointer;
+}
+
+canvas{
+position:absolute;
+inset:0;
+pointer-events:none;
+}
+
+@media(max-width:700px){
+
+.main-image{
+width:60vw;
+height:34vh;
+}
+
+.options{
+display:flex;
+flex-direction:row;
+justify-content:center;
+align-items:center;
+gap:12px;
+flex-wrap:nowrap;
+}
+
+.option{
+width:120px;
+height:120px;
+}
+
+.question{
+font-size:18px;
+}
+}
+</style>
+
+</head>
+<body>
+
+<audio id="clapSound" src="assets/clap.mp3"></audio> <audio id="wrongSound" src="assets/wrong.mp3"></audio>
+
+<!-- LOGO SCREEN -->
+
+<div id="logoScreen" class="screen active">
+<img src="assets/innovine-logo.png" alt="">
+</div>
+
+<!-- TITLE SCREEN -->
+
+<div id="titleScreen" class="screen">
+
+<h1 class="title">
+<span>Sports</span>
+<span>and</span>
+<span>Games</span>
+</h1>
+
+<button id="startBtn">
+👆 TAP TO START
+</button>
+
+</div>
+
+<!-- GAME SCREEN -->
+
+<div id="gameScreen" class="screen">
+
+<h2 class="game-header">
+<span>Sports</span>
+<span>and</span>
+<span>Games</span>
+</h2>
+
+<div class="question" id="questionText"></div>
+
+<button class="listen-btn" id="listenBtn">
+🔊 Hear Again
+</button>
+
+<img id="mainImage" class="main-image" src="" alt="">
+
+<div class="options" id="optionsContainer"></div>
+
+<div id="feedback" class="feedback good">
+Good Job!
+</div>
+
+</div>
+
+<!-- FINISH SCREEN -->
+
+<div id="finishScreen" class="screen">
+
+<canvas id="confettiCanvas"></canvas>
+
+<div class="finish-text">
+🎉 GREAT JOB! 🎉
+</div>
+
+<button id="playAgainBtn">
+Play Again
+</button>
+
+</div>
+
+<script>
+
+const logoScreen=document.getElementById("logoScreen");
+const titleScreen=document.getElementById("titleScreen");
+const gameScreen=document.getElementById("gameScreen");
+const finishScreen=document.getElementById("finishScreen");
+
+const startBtn=document.getElementById("startBtn");
+const playAgainBtn=document.getElementById("playAgainBtn");
+const listenBtn=document.getElementById("listenBtn");
+
+const questionText=document.getElementById("questionText");
+const mainImage=document.getElementById("mainImage");
+const optionsContainer=document.getElementById("optionsContainer");
+const feedback=document.getElementById("feedback");
+
+const clapSound=document.getElementById("clapSound");
+const wrongSound=document.getElementById("wrongSound");
+
+let currentRound=0;
+let wrongAttempts=0;
+
+const rounds=[
+
+{
+question:"Look at the picture carefully. Tap the correct ball that matches the sport shown in the picture.",
+mainImage:"assets/cricket.png",
+
+options:[
+{
+image:"assets/ball.png",
+correct:true
+},
+{
+image:"assets/rugby.png",
+correct:false
+}
+]
+},
+
+{
+question:"Look at the picture carefully. Tap the correct ball that matches the sport shown in the picture.",
+mainImage:"assets/boy-football.png",
+
+options:[
+{
+image:"assets/football.png",
+correct:true
+},
+{
+image:"assets/tennis.png",
+correct:false
+}
+]
+},
+
+{
+question:"Look at the picture carefully. Tap the correct ball that matches the sport shown in the picture.",
+mainImage:"assets/basketballgame.png",
+
+options:[
+{
+image:"assets/rugby.png",
+correct:false
+},
+{
+image:"assets/basketball.png",
+correct:true
+}
+]
+},
+
+{
+question:"Look at the picture carefully. Tap the correct object that matches the game shown in the picture.",
+mainImage:"assets/carrom.png",
+
+options:[
+{
+image:"assets/carromcoin.png",
+correct:true
+},
+{
+image:"assets/coin.png",
+correct:false
+}
+]
+}
+
+];
+
+setTimeout(()=>{
+logoScreen.classList.remove("active");
+titleScreen.classList.add("active");
+},5000);
+
+function speak(text){
+
+speechSynthesis.cancel();
+
+const utterance=new SpeechSynthesisUtterance(text);
+
+utterance.rate=0.9;
+utterance.pitch=1;
+
+speechSynthesis.speak(utterance);
+}
+
+startBtn.addEventListener("click",()=>{
+
+titleScreen.classList.remove("active");
+gameScreen.classList.add("active");
+
+loadRound();
+
+});
+
+listenBtn.addEventListener("click",()=>{
+
+speak(rounds[currentRound].question);
+
+});
+
+function loadRound(){
+
+wrongAttempts=0;
+
+const round=rounds[currentRound];
+
+questionText.textContent=round.question;
+
+mainImage.src=round.mainImage;
+
+optionsContainer.innerHTML="";
+
+round.options.forEach(option=>{
+
+const card=document.createElement("div");
+
+card.className="option";
+
+card.innerHTML=`<img src="${option.image}">`;
+
+card.addEventListener("click",()=>checkAnswer(card,option.correct));
+
+optionsContainer.appendChild(card);
+
+});
+
+setTimeout(()=>{
+speak(round.question);
+},500);
+
+}
+
+function checkAnswer(card,isCorrect){
+
+if(isCorrect){
+
+card.classList.add("correct");
+
+feedback.style.display="block";
+
+clapSound.currentTime=0;
+clapSound.play();
+
+setTimeout(()=>{
+feedback.style.display="none";
+
+currentRound++;
+
+if(currentRound<rounds.length){
+
+loadRound();
+
+}else{
+
+showFinish();
+
+}
+
+},1800);
+
+}else{
+
+wrongAttempts++;
+
+wrongSound.currentTime=0;
+wrongSound.play();
+
+card.classList.add("wrong");
+
+setTimeout(()=>{
+card.classList.remove("wrong");
+},400);
+
+if(wrongAttempts>=2){
+
+const cards=document.querySelectorAll(".option");
+
+const round=rounds[currentRound];
+
+cards.forEach((c,index)=>{
+
+if(round.options[index].correct){
+
+c.classList.add("glow");
+
+}
+
+});
+
+}
+
+}
+
+}
+const canvas=document.getElementById("confettiCanvas");
+const ctx=canvas.getContext("2d");
+
+function startConfetti(){
+
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
+
+let confetti=[];
+
+for(let i=0;i<150;i++){
+
+confetti.push({
+x:Math.random()*canvas.width,
+y:Math.random()*canvas.height-canvas.height,
+r:Math.random()*8+4,
+d:Math.random()*150
+});
+
+}
+
+function draw(){
+
+ctx.clearRect(0,0,canvas.width,canvas.height);
+
+confetti.forEach(c=>{
+
+ctx.beginPath();
+
+ctx.fillStyle=
+["#ff6b6b","#4dabf7","#51cf66","#fcc419","#f783ac"]
+[Math.floor(Math.random()*5)];
+
+ctx.arc(c.x,c.y,c.r,0,Math.PI*2);
+
+ctx.fill();
+
+c.y+=3;
+
+if(c.y>canvas.height){
+c.y=-20;
+}
+
+});
+
+requestAnimationFrame(draw);
+
+}
+
+draw();
+
+}
+  
+function showFinish(){
+
+gameScreen.classList.remove("active");
+finishScreen.classList.add("active");
+
+startConfetti();
+
+}
+
+playAgainBtn.addEventListener("click",()=>{
+location.reload();
+});
+
+</script>
+
+
+</body>
+</html>
