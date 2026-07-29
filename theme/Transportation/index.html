@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Transportation Game</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial;
+  height: 100vh;
+  overflow: hidden;
+  background: linear-gradient(135deg, #ffd1dc, #a1c4fd); /* cute ombre */
+}
+
+/* SCREENS */
+#logoScreen, #endScreen {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  background: white;
+}
+
+#logoScreen { z-index: 10; }
+#game { display: none; height: 100%; z-index: 5; }
+#endScreen { display: none; z-index: 20; }
+
+/* TEXT */
+h1 {
+  text-align: center;
+  font-size: 5vw;
+  color: #4a6fa5;
+}
+
+/* LAYOUT */
+.container {
+  display: flex;
+  height: 75%;
+}
+
+.left, .right {
+  width: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+/* LEFT IMAGE */
+.vehicle {
+  width: 70%;
+  border: 3px solid #ddd;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+/* OPTIONS */
+.dropzone {
+  width: 70%;
+  height: 22vh;
+  border: 2px dashed #bbb;
+  border-radius: 10px;
+  margin: 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.dropzone img {
+  max-height: 70%;
+}
+
+/* EFFECTS */
+.bounce {
+  animation: bounce 0.5s;
+}
+
+@keyframes bounce {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.correct {
+  border-color: green;
+}
+
+.wrong {
+  border-color: red;
+}
+
+.hint {
+  box-shadow: 0 0 20px gold;
+}
+
+/* CONFETTI */
+.confetti-piece {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-color: #ff0;
+  opacity: 0.8;
+  pointer-events: none;
+  z-index: 50;
+}
+</style>
+</head>
+
+<body>
+
+<!-- LOGO -->
+<div id="logoScreen">
+  <img src="assets/innovine-logo.png" width="200">
+</div>
+
+<!-- GAME -->
+<div id="game">
+  <h1 id="questionText"></h1>
+  <button onclick="speakQuestion()">🔊 Hear Again</button>
+
+  <div class="container">
+    <div class="left">
+      <img id="vehicle" class="vehicle">
+      <div id="vehicleName"></div>
+    </div>
+
+    <div class="right" id="options"></div>
+  </div>
+</div>
+
+<!-- END -->
+<div id="endScreen">
+  <div>🎉 You did a great job! 🎉</div>
+  <br>
+  <button onclick="resetGame()">Play Again</button>
+</div>
+
+<audio id="rightSound" src="assets/correct.mp3"></audio>
+<audio id="wrongSound" src="assets/wrong.mp3"></audio>
+
+<script>
+const data = [
+  { vehicle: "assets/bus.png", name: "Bus", correct: "Road" },
+  { vehicle: "assets/car.png", name: "Car", correct: "Road" },
+  { vehicle: "assets/truck.png", name: "Truck", correct: "Road" },
+  { vehicle: "assets/bicycle.png", name: "Bicycle", correct: "Road" },
+  { vehicle: "assets/airplane.png", name: "Airplane", correct: "Sky" },
+  { vehicle: "assets/Helicopter.png", name: "Helicopter", correct: "Sky" },
+  { vehicle: "assets/Hotairballoon.png", name: "Hot Air Balloon", correct: "Sky" },
+  { vehicle: "assets/boat.png", name: "Boat", correct: "Sea" },
+  { vehicle: "assets/Cruises.png", name: "Cruise Ship", correct: "Sea" },
+  { vehicle: "assets/Motorcycle.png", name: "Motorcycle", correct: "Road" }
+];
+
+const optionsBase = [
+  { img: "assets/road.png", label: "Road" },
+  { img: "assets/SKy (1).png", label: "Sky" },
+  { img: "assets/sea.png", label: "Sea" }
+];
+
+let current = 0;
+let wrongAttempts = 0;
+
+/* Shuffle the data array */
+function shuffleArray(array) {
+  for (let i = array.length -1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i+1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+}
+
+shuffleArray(data);
+
+/* VOICE */
+function speak(text) {
+  if ('speechSynthesis' in window) {
+    speechSynthesis.cancel();
+    speechSynthesis.speak(new SpeechSynthesisUtterance(text));
+  }
+}
+
+function speakQuestion() {
+  speak(`Where does the ${data[current].name} go?`);
+}
+
+/* LOAD GAME */
+function loadGame() {
+  if (current >= data.length) {
+    document.getElementById("game").style.display = "none";
+    document.getElementById("logoScreen").style.display = "none";
+    document.getElementById("endScreen").style.display = "flex";
+    launchConfetti();
+    return;
+  }
+
+  wrongAttempts = 0;
+
+  const item = data[current];
+
+  document.getElementById("vehicle").src = item.vehicle;
+  document.getElementById("vehicleName").innerText = item.name;
+  document.getElementById("questionText").innerText =
+    `Where does the ${item.name} go?`;
+
+  speakQuestion();
+
+  const optionsDiv = document.getElementById("options");
+  optionsDiv.innerHTML = "";
+
+  optionsBase.sort(() => Math.random() - 0.5).forEach(opt => {
+    const div = document.createElement("div");
+    div.className = "dropzone";
+    div.dataset.label = opt.label;
+
+    div.innerHTML = `<img src="${opt.img}"><div>${opt.label}</div>`;
+
+    div.onclick = () => handleTap(div);
+
+    optionsDiv.appendChild(div);
+  });
+}
+
+/* TAP */
+function handleTap(element) {
+  const selected = element.dataset.label;
+  const correct = data[current].correct;
+
+  if (selected === correct) {
+    document.getElementById("rightSound").play();
+    speak("Correct! Great job!");
+
+    element.classList.add("bounce", "correct");
+
+    current++;
+    setTimeout(loadGame, 700);
+
+  } else {
+    document.getElementById("wrongSound").play();
+    speak("Try again");
+
+    element.classList.add("wrong");
+    wrongAttempts++;
+
+    setTimeout(() => element.classList.remove("wrong"), 500);
+
+    if (wrongAttempts >= 2) {
+      document.querySelectorAll(".dropzone").forEach(z => {
+        if (z.dataset.label === correct) {
+          z.classList.add("hint");
+        }
+      });
+    }
+  }
+}
+
+/* RESET */
+function resetGame() {
+  current = 0;
+  shuffleArray(data);
+  document.getElementById("endScreen").style.display = "none";
+  document.getElementById("game").style.display = "block";
+  loadGame();
+}
+
+/* CONFETTI */
+function launchConfetti() {
+  const colors = ['#ff0', '#f0f', '#0ff', '#f55', '#5f5', '#55f'];
+  for (let i=0;i<100;i++){
+    const confetti = document.createElement('div');
+    confetti.className = 'confetti-piece';
+    confetti.style.backgroundColor = colors[Math.floor(Math.random()*colors.length)];
+    confetti.style.left = Math.random()*100 + 'vw';
+    confetti.style.top = '0';
+    confetti.style.transform = `rotate(${Math.random()*360}deg)`;
+    document.body.appendChild(confetti);
+
+    const fall = confetti.animate([
+      { transform: `translateY(0) rotate(${Math.random()*360}deg)` },
+      { transform: `translateY(100vh) rotate(${Math.random()*720}deg)` }
+    ], {
+      duration: 3000 + Math.random()*2000,
+      iterations: 1,
+      easing: 'ease-out'
+    });
+
+    fall.onfinish = () => confetti.remove();
+  }
+}
+
+/* START */
+window.onload = () => {
+  setTimeout(() => {
+    document.getElementById("logoScreen").style.display = "none";
+    document.getElementById("game").style.display = "block";
+    loadGame();
+  }, 3000);
+};
+</script>
+
+</body>
+</html>
