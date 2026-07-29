@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>In and Out Game</title>
+<style>
+  body {
+    margin: 0;
+    font-family: 'Comic Sans MS', sans-serif;
+    background: linear-gradient(135deg, #b0e0f5, #f0f5b0);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  .container {
+    width: 360px;
+    background-color: #fff8b8;
+    border-radius: 15px;
+    padding: 15px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    text-align: center;
+    position: relative;
+  }
+  .logo-slide img {
+    width: 200px;
+    margin: 0 auto;
+    display: block;
+  }
+  .question-box {
+    background-color: #fff59d;
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    font-size: 18px;
+    color: #034ea2;
+  }
+  .score-box {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #fff59d;
+    padding: 5px 10px;
+    border-radius: 10px;
+    font-weight: bold;
+  }
+  .options {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 15px;
+  }
+  .option-btn {
+    flex: 1;
+    margin: 0 5px;
+    padding: 15px 0;
+    font-size: 20px;
+    border: 2px solid #034ea2;
+    border-radius: 15px;
+    background-color: #fff59d;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .option-btn:hover {
+    transform: scale(1.05);
+  }
+  .image-box img {
+    width: 100%;
+    max-height: 200px;
+    object-fit: contain;
+    border-radius: 10px;
+  }
+  #end-slide {
+    display: none;
+    font-size: 24px;
+    color: #e91e63;
+  }
+  #play-again {
+    margin-top: 15px;
+    padding: 10px 20px;
+    font-size: 18px;
+    border-radius: 12px;
+    background-color: #034ea2;
+    color: #fff;
+    cursor: pointer;
+  }
+  .confetti {
+    width: 10px;
+    height: 10px;
+    position: absolute;
+    z-index: 1000;
+    animation: fall 3s linear forwards;
+  }
+  @keyframes fall {
+    0% {transform: translateY(0) rotate(0deg);}
+    100% {transform: translateY(300px) rotate(360deg); opacity: 0;}
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Logo Slide -->
+  <div id="logo-slide" class="logo-slide">
+    <img src="assets/innovine-logo.png" alt="Logo">
+  </div>
+
+  <!-- Game Slide -->
+  <div id="game-slide" style="display:none;">
+    <div class="score-box" id="score">★ 0/5 ✓ 0</div>
+    <div class="question-box" id="question">Where is the Fruit placed?</div>
+    <div class="options">
+      <button class="option-btn" id="in-btn">In</button>
+      <button class="option-btn" id="out-btn">Out</button>
+    </div>
+    <div class="image-box">
+      <img id="question-img" src="assets/fruit-in.png" alt="question">
+    </div>
+  </div>
+
+  <!-- End Slide -->
+  <div id="end-slide">
+    Good Job!
+    <button id="play-again">Play Again</button>
+  </div>
+
+</div>
+
+<audio id="correct-sound" src="assets/freesound_community-claps-44774.mp3"></audio>
+<audio id="wrong-sound" src="assets/wrong.mp3"></audio>
+
+<script>
+const questions = [
+  {img: "assets/fruit-in.png", answer: "In", text: "Where is the Fruit placed?"},
+  {img: "assets/lion-in.png", answer: "In", text: "Where is the Lion?"},
+  {img: "assets/cat-out.png", answer: "Out", text: "Where is the Cat?"},
+  {img: "assets/dog-in.png", answer: "In", text: "Where is the Dog?"}
+];
+
+// Randomize order for replay
+function shuffle(array) {
+  for (let i=array.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+}
+shuffle(questions);
+
+let current = 0;
+let score = 0;
+let attempts = 0;
+
+const logoSlide = document.getElementById("logo-slide");
+const gameSlide = document.getElementById("game-slide");
+const endSlide = document.getElementById("end-slide");
+const questionBox = document.getElementById("question");
+const questionImg = document.getElementById("question-img");
+const scoreBox = document.getElementById("score");
+const inBtn = document.getElementById("in-btn");
+const outBtn = document.getElementById("out-btn");
+const correctSound = document.getElementById("correct-sound");
+const wrongSound = document.getElementById("wrong-sound");
+const playAgainBtn = document.getElementById("play-again");
+
+function showSlide(slide) {
+  logoSlide.style.display = "none";
+  gameSlide.style.display = "none";
+  endSlide.style.display = "none";
+  slide.style.display = "block";
+}
+
+// Initial logo slide
+showSlide(logoSlide);
+setTimeout(() => { loadQuestion(); showSlide(gameSlide); }, 2000);
+
+function loadQuestion() {
+  if(current >= questions.length){
+    showEndSlide();
+    return;
+  }
+  const q = questions[current];
+  questionBox.textContent = q.text;
+  questionImg.src = q.img;
+  scoreBox.textContent = `★ ${current}/${questions.length} ✓ ${score}`;
+  attempts = 0;
+}
+
+function playConfetti(){
+  const imgRect = questionImg.getBoundingClientRect();
+  for(let i=0;i<50;i++){
+    const confetti = document.createElement('div');
+    confetti.classList.add('confetti');
+    confetti.style.backgroundColor = `hsl(${Math.random()*360}, 100%, 50%)`;
+    confetti.style.left = (imgRect.left + imgRect.width/2 + (Math.random()*100 - 50)) + "px";
+    confetti.style.top = imgRect.top + "px";
+    document.body.appendChild(confetti);
+    setTimeout(()=>{ confetti.remove() },3000);
+  }
+}
+
+function handleAnswer(ans){
+  const correct = questions[current].answer;
+  if(ans === correct){
+    correctSound.currentTime = 0;
+    correctSound.play();
+    score++;
+    playConfetti();
+    current++;
+    setTimeout(loadQuestion, 500);
+  } else {
+    attempts++;
+    wrongSound.currentTime = 0;
+    wrongSound.play();
+    const btn = ans === "In" ? inBtn : outBtn;
+    btn.style.transform = "translateX(-10px)";
+    setTimeout(()=>{btn.style.transform="translateX(0px)"}, 100);
+  }
+}
+
+function showEndSlide(){
+  showSlide(endSlide);
+  playConfetti();
+}
+
+inBtn.onclick = () => handleAnswer("In");
+outBtn.onclick = () => handleAnswer("Out");
+playAgainBtn.onclick = () => { current=0; score=0; shuffle(questions); loadQuestion(); showSlide(gameSlide); }
+</script>
+</body>
+</html>
