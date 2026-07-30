@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<title>Big and Small</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial, sans-serif;
+}
+
+body{
+overflow:hidden;
+}
+
+.screen{
+width:100vw;
+height:100vh;
+display:none;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+padding:15px;
+position:relative;
+
+background-image:
+linear-gradient(
+rgba(255,255,255,0.7),
+rgba(255,255,255,0.7)
+),
+url("assets/background.jpg");
+
+background-size:cover;
+background-position:center;
+background-repeat:no-repeat;
+}
+
+.screen.active{
+display:flex;
+}
+
+#screen0{
+background:white;
+}
+
+.logo{
+width:min(320px,75vw);
+height:auto;
+}
+
+.instruction{
+font-size:clamp(26px,4vw,50px);
+font-weight:bold;
+color:#ff4d6d;
+margin-bottom:25px;
+text-align:center;
+}
+
+.game-area{
+width:100%;
+display:flex;
+justify-content:space-evenly;
+align-items:center;
+gap:20px;
+}
+
+.option{
+display:flex;
+justify-content:center;
+align-items:center;
+background:white;
+padding:12px;
+border-radius:28px;
+cursor:pointer;
+border:8px solid;
+transition:0.2s;
+}
+
+.option:nth-child(1){
+border-color:#ff6b6b;
+}
+
+.option:nth-child(2){
+border-color:#4ecdc4;
+}
+
+.option:active{
+transform:scale(0.95);
+}
+
+.option img{
+object-fit:contain;
+}
+
+.big{
+width:min(340px,42vw);
+height:min(340px,42vw);
+}
+
+.small{
+width:min(160px,22vw);
+height:min(160px,22vw);
+}
+
+.feedback{
+position:absolute;
+font-size:min(150px,25vw);
+display:none;
+z-index:100;
+}
+
+.tick{
+color:green;
+}
+
+.cross{
+color:red;
+}
+
+.amazing{
+font-size:clamp(50px,8vw,90px);
+font-weight:bold;
+color:#ff4081;
+text-align:center;
+z-index:5;
+}
+
+.confetti{
+position:absolute;
+width:12px;
+height:12px;
+animation:fall linear infinite;
+}
+
+@keyframes fall{
+
+from{
+transform:translateY(-100px) rotate(0deg);
+}
+
+to{
+transform:translateY(110vh) rotate(720deg);
+}
+
+}
+
+@media(max-width:768px){
+
+.game-area{
+gap:10px;
+}
+
+.big{
+width:44vw;
+height:44vw;
+}
+
+.small{
+width:24vw;
+height:24vw;
+}
+
+.instruction{
+font-size:32px;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<audio id="clap" src="assets/clap.mp3"></audio>
+<audio id="wrong" src="assets/wrong.mp3"></audio>
+
+<!-- Logo Screen -->
+
+<div class="screen active" id="screen0">
+<img src="assets/innovine-logo.png" class="logo">
+</div>
+
+<!-- Question 1 -->
+
+<div class="screen" id="screen1">
+
+<div class="instruction">Identify big</div>
+
+<div class="game-area">
+
+<div class="option" onclick="checkAnswer(true)">
+<img src="assets/elephant.png" class="big">
+</div>
+
+<div class="option" onclick="checkAnswer(false)">
+<img src="assets/ant.png" class="small">
+</div>
+
+</div>
+
+<div class="feedback tick">✓</div>
+<div class="feedback cross">✗</div>
+
+</div>
+
+<!-- Question 2 -->
+
+<div class="screen" id="screen2">
+
+<div class="instruction">Identify small</div>
+
+<div class="game-area">
+
+<div class="option" onclick="checkAnswer(false)">
+<img src="assets/tree.png" class="big">
+</div>
+
+<div class="option" onclick="checkAnswer(true)">
+<img src="assets/plant.png" class="small">
+</div>
+
+</div>
+
+<div class="feedback tick">✓</div>
+<div class="feedback cross">✗</div>
+
+</div>
+
+<!-- Question 3 -->
+
+<div class="screen" id="screen3">
+
+<div class="instruction">Identify big</div>
+
+<div class="game-area">
+
+<div class="option" onclick="checkAnswer(true)">
+<img src="assets/basketball.png" class="big">
+</div>
+
+<div class="option" onclick="checkAnswer(false)">
+<img src="assets/tennisball.png" class="small">
+</div>
+
+</div>
+
+<div class="feedback tick">✓</div>
+<div class="feedback cross">✗</div>
+
+</div>
+
+<!-- Question 4 -->
+
+<div class="screen" id="screen4">
+
+<div class="instruction">Identify small</div>
+
+<div class="game-area">
+
+<div class="option" onclick="checkAnswer(false)">
+<img src="assets/truck.png" class="big">
+</div>
+
+<div class="option" onclick="checkAnswer(true)">
+<img src="assets/scooty.png" class="small">
+</div>
+
+</div>
+
+<div class="feedback tick">✓</div>
+<div class="feedback cross">✗</div>
+
+</div>
+
+<!-- Final Screen -->
+
+<div class="screen" id="screen5">
+
+<div class="amazing">
+🎉 Amazing! 🎉
+</div>
+
+</div>
+
+<script>
+
+let currentScreen = 0;
+
+setTimeout(() => {
+
+document.getElementById("screen0").classList.remove("active");
+
+currentScreen = 1;
+
+document.getElementById("screen1").classList.add("active");
+
+}, 2000);
+
+function checkAnswer(correct){
+
+let screen =
+document.getElementById("screen" + currentScreen);
+
+let tick =
+screen.querySelector(".tick");
+
+let cross =
+screen.querySelector(".cross");
+
+if(correct){
+
+document.getElementById("clap").currentTime = 0;
+document.getElementById("clap").play();
+
+tick.style.display = "block";
+
+setTimeout(() => {
+
+tick.style.display = "none";
+
+goToNextQuestion();
+
+},1200);
+
+}
+else{
+
+document.getElementById("wrong").currentTime = 0;
+document.getElementById("wrong").play();
+
+cross.style.display = "block";
+
+setTimeout(() => {
+
+cross.style.display = "none";
+
+},1000);
+
+}
+
+}
+
+function goToNextQuestion(){
+
+document.getElementById(
+"screen" + currentScreen
+).classList.remove("active");
+
+currentScreen++;
+
+document.getElementById(
+"screen" + currentScreen
+).classList.add("active");
+
+if(currentScreen === 5){
+
+createConfetti();
+
+}
+
+}
+
+function createConfetti(){
+
+const colors = [
+"#ff4081",
+"#ff9800",
+"#4caf50",
+"#2196f3",
+"#9c27b0",
+"#ffeb3b"
+];
+
+for(let i=0;i<150;i++){
+
+let conf =
+document.createElement("div");
+
+conf.classList.add("confetti");
+
+conf.style.left =
+Math.random()*100 + "vw";
+
+conf.style.background =
+colors[Math.floor(
+Math.random()*colors.length
+)];
+
+conf.style.animationDuration =
+(Math.random()*3+3) + "s";
+
+conf.style.animationDelay =
+(Math.random()*2) + "s";
+
+document.getElementById("screen5")
+.appendChild(conf);
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
