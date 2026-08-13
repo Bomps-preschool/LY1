@@ -1,13 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Farmers Market Sorting Game</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<title>Farmer's Basket Challenge</title>
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;}
-body{overflow:hidden;background:#fff}
+:root{
+  --app-height: 100dvh;
+  --green:#7ccf7a;
+  --light-green:#eef9e9;
+  --orange:#ffb347;
+  --light-orange:#fff5e9;
+  --blue:#2f80ed;
+  --text:#2e2e2e;
+}
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+  font-family:Arial,sans-serif;
+}
+
+html,body{
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#ffffff;
+  touch-action:manipulation;
+  overscroll-behavior:none;
+}
+
+body{
+  position:fixed;
+  inset:0;
+}
 
 /* SPLASH */
 #splash{
@@ -19,286 +48,569 @@ body{overflow:hidden;background:#fff}
   align-items:center;
   z-index:9999;
 }
-#splash img{width:220px;max-width:70%;}
+
+#splash img{
+  width:min(240px,70vw);
+  max-height:40vh;
+  object-fit:contain;
+}
+
+/* INTRO */
+#intro{
+  position:fixed;
+  inset:0;
+  background:#fffdf8;
+  display:none;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  gap:16px;
+  padding:
+    calc(20px + env(safe-area-inset-top))
+    calc(18px + env(safe-area-inset-right))
+    calc(20px + env(safe-area-inset-bottom))
+    calc(18px + env(safe-area-inset-left));
+  text-align:center;
+  z-index:9998;
+}
+
+#introCard{
+  width:min(92vw,520px);
+  background:#ffffff;
+  border:3px solid var(--orange);
+  border-radius:24px;
+  padding:20px 18px;
+  box-shadow:0 6px 18px rgba(0,0,0,0.08);
+}
+
+#intro h1{
+  color:#2f6b2f;
+  font-size:clamp(24px,6vw,34px);
+  margin-bottom:10px;
+}
+
+#intro p{
+  color:var(--text);
+  font-size:clamp(15px,4vw,20px);
+  line-height:1.45;
+  margin:6px 0;
+}
+
+#startBtn{
+  margin-top:14px;
+  padding:12px 22px;
+  border:none;
+  border-radius:14px;
+  background:#4caf50;
+  color:#fff;
+  font-weight:bold;
+  font-size:18px;
+  cursor:pointer;
+}
 
 /* GAME */
 #game{
   display:none;
-  height:100vh;
+  width:100%;
+  height:var(--app-height);
+  min-height:0;
   flex-direction:column;
+  overflow:hidden;
+  background:#fff;
+  padding-top:env(safe-area-inset-top);
+  padding-bottom:env(safe-area-inset-bottom);
+  padding-left:env(safe-area-inset-left);
+  padding-right:env(safe-area-inset-right);
 }
 
-/* INSTRUCTION */
-#instruction{
+#topBar{
+  flex:0 0 auto;
   background:#cde7c4;
+  padding:8px 10px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  font-weight:bold;
+  color:#234b1f;
+  font-size:clamp(14px,4vw,20px);
+}
+
+#instruction{
+  flex:0 0 auto;
+  background:#fff4d7;
+  color:#6b4c00;
   text-align:center;
   font-weight:bold;
-  font-size:22px;
-  padding:10px;
+  font-size:clamp(14px,4vw,20px);
+  line-height:1.2;
+  padding:8px 10px;
 }
 
-/* ZONES */
-.middle{
-  flex:1;
+#mainArea{
+  flex:1 1 auto;
+  min-height:0;
   display:flex;
+  flex-direction:column;
   justify-content:space-between;
   padding:10px;
   gap:10px;
 }
 
-.zone{
-  flex:1;
-  border-radius:20px;
-  position:relative;
-  border:4px solid #ffb347;
+#questionCard{
+  flex:1 1 48%;
+  min-height:0;
+  background:linear-gradient(180deg,#fffef8 0%,#f8fff4 100%);
+  border:3px solid #e4efd9;
+  border-radius:22px;
   display:flex;
+  flex-direction:column;
+  justify-content:center;
   align-items:center;
-  justify-content:center;
-  overflow:hidden;
-  font-size:20px;
-  font-weight:bold;
-}
-
-.fruitZone{
-  background:url("assets/fruits-zone-background.png") center/cover;
-}
-
-.vegZone{
-  background:url("assets/vegetable-zone-background.png") center/cover;
-  border-color:#7ccf7a;
-}
-
-/* CLEAN TEMP GLOW */
-.glow{
-  box-shadow:0 0 18px 6px rgba(255, 235, 59, 0.95);
-  transition:0.2s;
-}
-
-/* OPTIONS */
-.bottom{
-  height:38%;
   padding:10px;
+  gap:10px;
+  overflow:hidden;
+}
+
+#prompt{
+  color:#456b2d;
+  font-weight:bold;
+  text-align:center;
+  font-size:clamp(16px,4.5vw,24px);
+}
+
+#itemHolder{
+  width:min(44vw,220px);
+  height:min(44vw,220px);
+  max-width:52%;
+  max-height:52%;
+  background:#fff;
+  border:3px solid #ffe2b9;
+  border-radius:22px;
   display:flex;
-  flex-wrap:wrap;
   justify-content:center;
-  align-content:flex-start;
+  align-items:center;
+  box-shadow:0 4px 14px rgba(0,0,0,0.06);
+}
+
+#itemImg{
+  width:88%;
+  height:88%;
+  object-fit:contain;
+  user-select:none;
+  -webkit-user-drag:none;
+}
+
+#feedback{
+  min-height:24px;
+  text-align:center;
+  font-weight:bold;
+  font-size:clamp(14px,4vw,19px);
+  color:#2f6b2f;
+  padding:0 8px;
+}
+
+#zones{
+  flex:0 0 40%;
+  min-height:0;
+  display:grid;
+  grid-template-columns:1fr 1fr;
   gap:10px;
 }
 
-/* CARD */
-.card{
-  width:85px;
-  height:85px;
-  border:2px solid #ffd4a3;
-  border-radius:14px;
-  background:#fff;
+.zone{
+  border:none;
+  border-radius:22px;
+  padding:10px;
   display:flex;
+  flex-direction:column;
   justify-content:center;
   align-items:center;
+  gap:10px;
   cursor:pointer;
+  font-weight:bold;
+  color:#2e2e2e;
+  box-shadow:0 5px 12px rgba(0,0,0,0.08);
+  transition:transform .12s ease, box-shadow .12s ease;
 }
 
-.card img{
-  width:92%;
-  height:92%;
-  object-fit:contain;
+.zone:active{
+  transform:scale(0.98);
 }
 
-.selected{
-  outline:3px solid #2f80ed;
-  transform:scale(1.05);
+.zoneIcon{
+  font-size:clamp(34px,10vw,58px);
+  line-height:1;
+}
+
+.zoneLabel{
+  font-size:clamp(16px,4.6vw,24px);
+  text-align:center;
+}
+
+#fruitBtn{
+  background:var(--light-orange);
+  border:3px solid var(--orange);
+}
+
+#vegBtn{
+  background:var(--light-green);
+  border:3px solid var(--green);
+}
+
+.glowFruit{
+  box-shadow:0 0 0 5px rgba(255,179,71,0.35), 0 0 18px 6px rgba(255,179,71,0.65);
+}
+
+.glowVeg{
+  box-shadow:0 0 0 5px rgba(124,207,122,0.35), 0 0 18px 6px rgba(124,207,122,0.65);
 }
 
 /* END */
 #end{
   position:fixed;
   inset:0;
-  background:#fff;
+  background:#ffffff;
   display:none;
+  flex-direction:column;
   justify-content:center;
   align-items:center;
-  flex-direction:column;
+  gap:18px;
+  z-index:10000;
+  text-align:center;
+  padding:
+    calc(24px + env(safe-area-inset-top))
+    calc(18px + env(safe-area-inset-right))
+    calc(24px + env(safe-area-inset-bottom))
+    calc(18px + env(safe-area-inset-left));
 }
 
-button{
-  padding:12px 18px;
+#end h1{
+  font-size:clamp(28px,9vw,52px);
+  color:#2f6b2f;
+}
+
+#end p{
+  font-size:clamp(18px,5vw,28px);
+  color:#333;
+  font-weight:bold;
+}
+
+#playAgain{
+  padding:12px 22px;
   border:none;
-  border-radius:12px;
+  border-radius:14px;
   background:#4caf50;
-  color:white;
+  color:#fff;
   font-size:18px;
+  font-weight:bold;
+  cursor:pointer;
 }
 
-/* PINK + YELLOW CONFETTI */
+/* CONFETTI */
 .confetti{
   position:fixed;
   width:10px;
   height:10px;
-  top:-10px;
-  z-index:9999;
+  top:-12px;
+  z-index:11000;
   animation:fall linear forwards;
 }
 
 @keyframes fall{
   to{
-    transform:translateY(110vh) rotate(720deg);
+    transform:translateY(110dvh) rotate(720deg);
     opacity:0;
+  }
+}
+
+/* SHORT PHONES */
+@media (max-height: 680px){
+  #topBar,#instruction{
+    padding:6px 8px;
+    font-size:14px;
+  }
+
+  #mainArea{
+    padding:8px;
+    gap:8px;
+  }
+
+  #questionCard{
+    border-radius:18px;
+    padding:8px;
+    gap:8px;
+  }
+
+  #itemHolder{
+    width:min(38vw,180px);
+    height:min(38vw,180px);
+  }
+
+  #zones{
+    gap:8px;
+  }
+
+  .zone{
+    border-radius:16px;
+    padding:8px;
+    gap:8px;
+  }
+
+  .zoneIcon{
+    font-size:32px;
+  }
+
+  .zoneLabel{
+    font-size:15px;
   }
 }
 </style>
 </head>
-
 <body>
 
 <div id="splash">
-  <img src="assets/innovine-logo.png">
+  <img src="assets/innovine-logo.png" alt="Innovine logo">
+</div>
+
+<div id="intro">
+  <div id="introCard">
+    <h1>Farmer's Basket Challenge</h1>
+    <p>Look at the picture.</p>
+    <p>Tap the correct basket: <b>Fruit</b> or <b>Vegetable</b>.</p>
+    <p>You get <b>1 retry</b>. After 2 wrong taps, the correct basket will be shown.</p>
+    <p>Try to score <b>20 out of 20</b>.</p>
+    <button id="startBtn" type="button">Start Game</button>
+  </div>
 </div>
 
 <div id="game">
-
-  <div id="instruction">Tap a fruit or vegetable, then tap zone</div>
-
-  <div class="middle">
-    <div id="fruitZone" class="zone fruitZone">🍎 Fruits</div>
-    <div id="vegZone" class="zone vegZone">🥕 Vegetables</div>
+  <div id="topBar">
+    <div id="scoreText">Score: 0</div>
+    <div id="qText">Q 1 of 20</div>
   </div>
 
-  <div class="bottom" id="board"></div>
+  <div id="instruction">Tap the correct basket</div>
 
+  <div id="mainArea">
+    <div id="questionCard">
+      <div id="prompt">What is this?</div>
+      <div id="itemHolder">
+        <img id="itemImg" src="" alt="Question item">
+      </div>
+      <div id="feedback"></div>
+    </div>
+
+    <div id="zones">
+      <button id="fruitBtn" class="zone" type="button">
+        <div class="zoneIcon">🍎</div>
+        <div class="zoneLabel">Fruit Basket</div>
+      </button>
+
+      <button id="vegBtn" class="zone" type="button">
+        <div class="zoneIcon">🥕</div>
+        <div class="zoneLabel">Vegetable Basket</div>
+      </button>
+    </div>
+  </div>
 </div>
 
 <div id="end">
   <h1>🎉 Good Job!</h1>
-  <button onclick="location.reload()">Play Again</button>
+  <p id="finalScore">Your Score: 0 / 20</p>
+  <button id="playAgain" type="button">Play Again</button>
 </div>
 
-<audio id="correct" src="assets/correct.mp3"></audio>
-<audio id="wrong" src="assets/wrong.mp3"></audio>
-<audio id="clap" src="assets/claps.mp3"></audio>
+<audio id="clap" src="assets/claps.mp3" preload="auto"></audio>
+<audio id="wrong" src="assets/wrong.mp3" preload="auto"></audio>
 
 <script>
+const splash = document.getElementById("splash");
+const intro = document.getElementById("intro");
+const startBtn = document.getElementById("startBtn");
+const game = document.getElementById("game");
+const scoreText = document.getElementById("scoreText");
+const qText = document.getElementById("qText");
+const itemImg = document.getElementById("itemImg");
+const feedback = document.getElementById("feedback");
+const fruitBtn = document.getElementById("fruitBtn");
+const vegBtn = document.getElementById("vegBtn");
+const end = document.getElementById("end");
+const finalScore = document.getElementById("finalScore");
+const playAgain = document.getElementById("playAgain");
 
-let items=[];
+let questions = [];
+let currentIndex = 0;
+let score = 0;
+let wrongAttempts = 0;
+let lockAnswer = false;
 
-/* 🔥 FIXED: TRUE MIXING (NO GROUPING ISSUE) */
-for(let i=1;i<=10;i++) items.push({img:`assets/fruit-${i}.png`,type:"fruit"});
-for(let i=1;i<=10;i++) items.push({img:`assets/vegetable-${i}.png`,type:"veg"});
+function setAppHeight(){
+  const h = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+  document.documentElement.style.setProperty("--app-height", h + "px");
+}
+setAppHeight();
+window.addEventListener("resize", setAppHeight);
+window.addEventListener("orientationchange", () => setTimeout(setAppHeight, 150));
+if(window.visualViewport){
+  window.visualViewport.addEventListener("resize", setAppHeight);
+  window.visualViewport.addEventListener("scroll", setAppHeight);
+}
 
-let selected=null;
-let score=0;
-let wrong={};
+function play(id){
+  const audio = document.getElementById(id);
+  try{
+    audio.pause();
+    audio.currentTime = 0;
+    audio.play().catch(()=>{});
+  }catch(e){}
+}
 
-setTimeout(()=>{
-  document.getElementById("splash").style.display="none";
-  document.getElementById("game").style.display="flex";
-  load();
-},2000);
-
-/* 🔥 PROPER GLOBAL SHUFFLE (FIXES YOUR ISSUE) */
 function shuffle(arr){
-  for(let i=arr.length-1;i>0;i--){
-    let j=Math.floor(Math.random()*(i+1));
-    [arr[i],arr[j]]=[arr[j],arr[i]];
+  for(let i = arr.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
   }
   return arr;
 }
 
-function load(){
-  const board=document.getElementById("board");
-  board.innerHTML="";
-
-  shuffle(items); // IMPORTANT FIX
-
-  items.forEach((it,i)=>{
-    const div=document.createElement("div");
-    div.className="card";
-    div.dataset.type=it.type;
-    div.dataset.id=i;
-
-    div.innerHTML=`<img src="${it.img}">`;
-
-    div.onclick=()=>{
-      document.querySelectorAll(".card").forEach(c=>c.classList.remove("selected"));
-      selected=div;
-      div.classList.add("selected");
-    };
-
-    board.appendChild(div);
-  });
+function buildQuestions(){
+  questions = [];
+  for(let i=1;i<=10;i++){
+    questions.push({
+      src:`assets/fruit-${i}.png`,
+      type:"fruit"
+    });
+  }
+  for(let i=1;i<=10;i++){
+    questions.push({
+      src:`assets/vegetable-${i}.png`,
+      type:"veg"
+    });
+  }
+  shuffle(questions);
 }
 
-/* SOUND */
-function play(id){
-  const s=document.getElementById(id);
-  s.currentTime=0;
-  s.play();
+function updateTopBar(){
+  scoreText.textContent = `Score: ${score}`;
+  qText.textContent = `Q ${currentIndex + 1} of ${questions.length}`;
 }
 
-/* 🔥 FIXED GLOW (AUTO REMOVE) */
-function glow(zone){
-  zone.classList.add("glow");
-  setTimeout(()=>zone.classList.remove("glow"),1000);
+function clearGlow(){
+  fruitBtn.classList.remove("glowFruit");
+  vegBtn.classList.remove("glowVeg");
 }
 
-/* 🌸 PINK + YELLOW CONFETTI (FIXED) */
-function confetti(){
-  const colors=["#FFD700","#FF69B4"]; // yellow + pink only
+function showQuestion(){
+  clearGlow();
+  feedback.textContent = "";
+  feedback.style.color = "#2f6b2f";
+  wrongAttempts = 0;
+  lockAnswer = false;
 
-  for(let i=0;i<120;i++){
-    const c=document.createElement("div");
-    c.className="confetti";
-    c.style.left=Math.random()*100+"vw";
-    c.style.background=colors[i%2];
-    c.style.animationDuration=(Math.random()*2+2)+"s";
-    document.body.appendChild(c);
+  const q = questions[currentIndex];
+  itemImg.src = q.src;
+  itemImg.alt = q.type === "fruit" ? "Fruit" : "Vegetable";
+  updateTopBar();
+}
 
-    setTimeout(()=>c.remove(),4000);
+function nextQuestion(){
+  currentIndex++;
+  if(currentIndex >= questions.length){
+    endGame();
+  }else{
+    showQuestion();
   }
 }
 
-/* ZONES */
-fruitZone.onclick=()=>check("fruit");
-vegZone.onclick=()=>check("veg");
+function endGame(){
+  finalScore.textContent = `Your Score: ${score} / ${questions.length}`;
+  end.style.display = "flex";
+  createConfetti();
+}
 
-function check(zone){
-  if(!selected) return;
+function createConfetti(){
+  const colors = ["#FFD700","#FF69B4"];
+  for(let i=0;i<100;i++){
+    const c = document.createElement("div");
+    c.className = "confetti";
+    c.style.left = Math.random()*100 + "vw";
+    c.style.background = colors[i % 2];
+    c.style.animationDuration = (Math.random()*1.8 + 1.8) + "s";
+    document.body.appendChild(c);
+    setTimeout(()=>c.remove(), 4000);
+  }
+}
 
-  let correct = selected.dataset.type===zone;
-
-  if(correct){
-
-    play("correct");
-    play("clap");
-
-    selected.style.opacity="0.4";
-    selected.onclick=null;
-
-    selected=null;
-    score++;
-
-    if(score===20){
-      setTimeout(()=>{
-        confetti();
-        document.getElementById("end").style.display="flex";
-      },500);
-    }
-
+function highlightCorrectZone(type){
+  clearGlow();
+  if(type === "fruit"){
+    fruitBtn.classList.add("glowFruit");
   }else{
+    vegBtn.classList.add("glowVeg");
+  }
+  setTimeout(clearGlow, 1000);
+}
 
+function handleAnswer(choice){
+  if(lockAnswer) return;
+
+  const q = questions[currentIndex];
+
+  if(choice === q.type){
+    lockAnswer = true;
+    score++;
+    updateTopBar();
+    feedback.textContent = "Correct! Well done.";
+    feedback.style.color = "#2f6b2f";
+    play("clap");
+    setTimeout(nextQuestion, 850);
+  }else{
+    wrongAttempts++;
     play("wrong");
 
-    selected.style.transform="translateX(-6px)";
-    setTimeout(()=>selected.style.transform="translateX(6px)",100);
-
-    /* 🔥 FIXED: SHOW CORRECT ZONE HINT */
-    if(selected.dataset.type==="fruit"){
-      glow(fruitZone);
+    if(wrongAttempts === 1){
+      feedback.textContent = "Try again.";
+      feedback.style.color = "#c15b00";
     }else{
-      glow(vegZone);
+      lockAnswer = true;
+      highlightCorrectZone(q.type);
+      feedback.textContent = q.type === "fruit"
+        ? "This is a fruit."
+        : "This is a vegetable.";
+      feedback.style.color = "#c62828";
+      setTimeout(nextQuestion, 1200);
     }
   }
 }
 
+fruitBtn.addEventListener("click", ()=>handleAnswer("fruit"));
+vegBtn.addEventListener("click", ()=>handleAnswer("veg"));
+
+startBtn.addEventListener("click", ()=>{
+  intro.style.display = "none";
+  game.style.display = "flex";
+  setAppHeight();
+  buildQuestions();
+  currentIndex = 0;
+  score = 0;
+  showQuestion();
+});
+
+playAgain.addEventListener("click", ()=>{
+  end.style.display = "none";
+  game.style.display = "flex";
+  buildQuestions();
+  currentIndex = 0;
+  score = 0;
+  showQuestion();
+});
+
+setTimeout(()=>{
+  splash.style.display = "none";
+  intro.style.display = "flex";
+  setAppHeight();
+}, 3000);
 </script>
 
 </body>
