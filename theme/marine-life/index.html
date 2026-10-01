@@ -1,331 +1,2032 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
 <title>Peek-a-Boo Marine Life</title>
+
+
+<!-- PRELOAD IMPORTANT IMAGES -->
+
+<link rel="preload" as="image" href="assets/innovine-logo.png">
+<link rel="preload" as="image" href="assets/background-ocean.png">
+
+<link rel="preload" as="image" href="assets/fish.png">
+<link rel="preload" as="image" href="assets/dolphin.png">
+<link rel="preload" as="image" href="assets/crab.png">
+<link rel="preload" as="image" href="assets/octopus.png">
+
+<link rel="preload" as="image" href="assets/coral-1.png">
+<link rel="preload" as="image" href="assets/coral-2.png">
+<link rel="preload" as="image" href="assets/coral-3.png">
+<link rel="preload" as="image" href="assets/coral-4.png">
+
+<link rel="preload" as="image" href="assets/bubble.png">
+
+
 <style>
-body {
-  margin: 0;
-  font-family: 'Comic Sans MS', sans-serif;
-  overflow: hidden;
+
+
+/* =========================================================
+   RESET
+========================================================= */
+
+*{
+
+  box-sizing:border-box;
+
+  -webkit-tap-highlight-color:transparent;
+
 }
 
-/* Screens */
-#logoScreen, #gameScreen, #winScreen {
-  display: none;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 100vw;
-  height: 100vh;
-  position: absolute;
-  top: 0;
-  left: 0;
+
+html,
+body{
+
+  margin:0;
+
+  padding:0;
+
+  width:100%;
+
+  height:100%;
+
+  overflow:hidden;
+
+  font-family:"Comic Sans MS", Arial, sans-serif;
+
+  background:#dff6ff;
+
+  overscroll-behavior:none;
+
 }
 
-#logoScreen img {
-  width: 40vw;
-  max-width: 300px;
-  height: auto;
+
+
+/* =========================================================
+   COMMON SCREENS
+========================================================= */
+
+#logoScreen,
+#gameScreen,
+#winScreen{
+
+  position:fixed;
+
+  inset:0;
+
+  width:100%;
+
+  height:100vh;
+
+  height:100dvh;
+
+  overflow:hidden;
+
 }
 
-#instruction {
-  position: absolute;
-  top: 2vh;
-  width: 100%;
-  text-align: center;
-  font-size: 4vw;
-  max-font-size: 24px;
-  font-weight: bold;
-  color: #003366;
-  text-shadow: 1px 1px 2px #fff;
-  z-index: 10;
+
+
+/* =========================================================
+   LOGO SCREEN
+========================================================= */
+
+#logoScreen{
+
+  display:flex;
+
+  flex-direction:column;
+
+  align-items:center;
+
+  justify-content:center;
+
+  background:white;
+
+  z-index:1000;
+
 }
 
-/* Game screen */
-#gameScreen {
-  background-image: url('assets/background-ocean.png');
-  background-size: cover;
-  background-position: center;
-  overflow: hidden;
+
+#logoScreen img{
+
+  width:min(55vw,380px);
+
+  max-height:65vh;
+
+  object-fit:contain;
+
+  animation:logoPulse 1.4s ease-in-out infinite;
+
 }
 
-/* Corals */
-.coral {
-  position: absolute;
-  width: 15vw;
-  max-width: 200px;
-  height: auto;
-  z-index: 1;
+
+@keyframes logoPulse{
+
+  0%,
+  100%{
+
+    transform:scale(1);
+
+    opacity:.75;
+
+  }
+
+
+  50%{
+
+    transform:scale(1.06);
+
+    opacity:1;
+
+  }
+
 }
 
-/* Hiding spots */
-.hiding-spot {
-  position: absolute;
-  width: 12vw;
-  height: 12vw;
-  max-width: 150px;
-  max-height: 150px;
-  cursor: pointer;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 5;
-  border: 2px dashed rgba(255,255,255,0.7);
-}
-.hiding-spot span {
-  font-size: 2vw;
-  max-font-size: 16px;
-  color: #fff;
-  background-color: rgba(0,0,0,0.5);
-  padding: 2px 6px;
-  border-radius: 6px;
+
+
+/* =========================================================
+   GAME SCREEN
+========================================================= */
+
+#gameScreen{
+
+  display:none;
+
+  background-image:url("assets/background-ocean.png");
+
+  background-size:cover;
+
+  background-position:center;
+
+  background-repeat:no-repeat;
+
 }
 
-/* Animals */
-.animal {
-  position: absolute;
-  width: 18vw;
-  max-width: 200px;
-  height: auto;
-  display: none;
-  transition: transform 0.3s;
-  z-index: 6;
+
+
+/* =========================================================
+   INSTRUCTION
+========================================================= */
+
+#instruction{
+
+  position:absolute;
+
+  top:max(8px,env(safe-area-inset-top));
+
+  left:50%;
+
+  transform:translateX(-50%);
+
+  width:min(94%,950px);
+
+  padding:7px 12px;
+
+  text-align:center;
+
+  font-size:clamp(16px,2.3vw,27px);
+
+  line-height:1.15;
+
+  font-weight:bold;
+
+  color:#003366;
+
+  text-shadow:
+  1px 1px 2px white,
+  -1px -1px 2px white;
+
+  background:rgba(255,255,255,.45);
+
+  border-radius:16px;
+
+  z-index:30;
+
 }
 
-@keyframes bounce {
-  0% { transform: translateY(0); }
-  30% { transform: translateY(-3vh); }
-  50% { transform: translateY(-2vh); }
-  70% { transform: translateY(-0.5vh); }
-  100% { transform: translateY(0); }
+
+
+/* =========================================================
+   CORALS
+========================================================= */
+
+.coral{
+
+  position:absolute;
+
+  width:clamp(70px,13vw,185px);
+
+  height:auto;
+
+  object-fit:contain;
+
+  z-index:2;
+
+  pointer-events:none;
+
+  user-select:none;
+
+  -webkit-user-drag:none;
+
 }
 
-.animal.pop {
-  display: block;
-  animation: bounce 0.5s ease;
+
+#coral1{
+
+  bottom:4%;
+
+  left:2%;
+
 }
 
-/* Win Screen */
-#winScreen {
-  background: rgba(255,255,255,0.8);
-  z-index: 20;
-  flex-direction: column;
-  position: relative;
+
+#coral2{
+
+  bottom:7%;
+
+  right:3%;
+
 }
 
-#winScreen h1 {
-  font-size: 8vw;
-  max-font-size: 48px;
-  color: #28a745;
-  text-align: center;
-  margin-bottom: 2vh;
-  z-index: 25;
+
+#coral3{
+
+  bottom:1%;
+
+  left:44%;
+
 }
 
-#playAgainBtn {
-  padding: 2vh 4vw;
-  font-size: 4vw;
-  max-font-size: 18px;
-  border: none;
-  border-radius: 10px;
-  background-color: #4CAF50;
-  color: white;
-  cursor: pointer;
-  z-index: 26;
-}
-#playAgainBtn:hover { background-color: #45a049; }
 
-/* Bubbles */
-.bubble {
-  position: absolute;
-  width: 6vw;
-  height: 6vw;
-  max-width: 40px;
-  max-height: 40px;
-  background: url('assets/bubble.png') no-repeat center/contain;
-  opacity: 0.7;
-  animation: rise 5s linear infinite;
-}
-@keyframes rise {
-  0% { transform: translateY(100vh) scale(0.5); opacity:0.7; }
-  50% { opacity:1; }
-  100% { transform: translateY(-5vh) scale(1); opacity:0; }
+#coral4{
+
+  bottom:7%;
+
+  right:31%;
+
 }
 
-/* Confetti */
-.confetti {
-  position: absolute;
-  width: 3vw;
-  height: 3vw;
-  max-width: 20px;
-  max-height: 20px;
-  background-size: contain;
-  z-index: 25;
-  animation: fall linear infinite;
+
+
+/* =========================================================
+   HIDING SPOTS
+========================================================= */
+
+.hiding-spot{
+
+  position:absolute;
+
+  width:clamp(85px,11vw,145px);
+
+  height:clamp(85px,11vw,145px);
+
+  border-radius:50%;
+
+  border:3px dashed rgba(255,255,255,.9);
+
+  background:rgba(0,70,130,.12);
+
+  display:flex;
+
+  justify-content:center;
+
+  align-items:center;
+
+  cursor:pointer;
+
+  z-index:10;
+
+  touch-action:manipulation;
+
 }
-@keyframes fall {
-  0% { transform: translate(0,0) rotate(0deg); opacity:1; }
-  100% { transform: translate(var(--x,0vw),100vh) rotate(360deg); opacity:0; }
+
+
+.hiding-spot:active{
+
+  transform:scale(.95);
+
 }
+
+
+.hiding-spot span{
+
+  font-size:clamp(11px,1.4vw,16px);
+
+  color:white;
+
+  font-weight:bold;
+
+  background:rgba(0,0,0,.48);
+
+  padding:4px 7px;
+
+  border-radius:8px;
+
+  white-space:nowrap;
+
+}
+
+
+
+/* =========================================================
+   HIDING SPOT POSITIONS
+========================================================= */
+
+#spot1{
+
+  top:20%;
+
+  left:8%;
+
+}
+
+
+#spot2{
+
+  top:20%;
+
+  right:8%;
+
+}
+
+
+#spot3{
+
+  bottom:18%;
+
+  left:8%;
+
+}
+
+
+#spot4{
+
+  bottom:18%;
+
+  right:8%;
+
+}
+
+
+
+/* =========================================================
+   ANIMALS
+========================================================= */
+
+.animal{
+
+  position:absolute;
+
+  width:clamp(95px,16vw,205px);
+
+  max-height:25vh;
+
+  object-fit:contain;
+
+  display:none;
+
+  z-index:15;
+
+  pointer-events:none;
+
+  user-select:none;
+
+  -webkit-user-drag:none;
+
+}
+
+
+.animal.pop{
+
+  display:block;
+
+  animation:bounce .5s ease;
+
+}
+
+
+@keyframes bounce{
+
+  0%{
+
+    transform:scale(.65) translateY(15px);
+
+    opacity:0;
+
+  }
+
+
+  55%{
+
+    transform:scale(1.08) translateY(-10px);
+
+    opacity:1;
+
+  }
+
+
+  100%{
+
+    transform:scale(1) translateY(0);
+
+    opacity:1;
+
+  }
+
+}
+
+
+
+/* =========================================================
+   ANIMAL POSITIONS
+========================================================= */
+
+#fish{
+
+  top:18%;
+
+  left:7%;
+
+}
+
+
+#dolphin{
+
+  top:18%;
+
+  right:7%;
+
+}
+
+
+#crab{
+
+  bottom:16%;
+
+  left:7%;
+
+}
+
+
+#octopus{
+
+  bottom:16%;
+
+  right:7%;
+
+}
+
+
+
+/* =========================================================
+   BUBBLES
+========================================================= */
+
+.bubble{
+
+  position:absolute;
+
+  bottom:-50px;
+
+  width:clamp(18px,4vw,40px);
+
+  height:clamp(18px,4vw,40px);
+
+  background:url("assets/bubble.png") no-repeat center/contain;
+
+  opacity:.7;
+
+  pointer-events:none;
+
+  z-index:4;
+
+  animation:rise linear infinite;
+
+}
+
+
+@keyframes rise{
+
+  0%{
+
+    transform:translateY(0) scale(.5);
+
+    opacity:.5;
+
+  }
+
+
+  50%{
+
+    opacity:.9;
+
+  }
+
+
+  100%{
+
+    transform:translateY(-115vh) scale(1.1);
+
+    opacity:0;
+
+  }
+
+}
+
+
+
+/* =========================================================
+   WIN SCREEN
+========================================================= */
+
+#winScreen{
+
+  display:none;
+
+  flex-direction:column;
+
+  align-items:center;
+
+  justify-content:center;
+
+  text-align:center;
+
+  background:
+  linear-gradient(
+    rgba(255,255,255,.94),
+    rgba(220,250,255,.97)
+  );
+
+  padding:
+  max(20px,env(safe-area-inset-top))
+  max(20px,env(safe-area-inset-right))
+  max(20px,env(safe-area-inset-bottom))
+  max(20px,env(safe-area-inset-left));
+
+  z-index:100;
+
+}
+
+
+#winScreen h1{
+
+  margin:0 0 24px;
+
+  font-size:clamp(40px,7vw,72px);
+
+  color:#28a745;
+
+  z-index:110;
+
+}
+
+
+#playAgainBtn{
+
+  padding:14px 30px;
+
+  font-size:clamp(18px,2.4vw,25px);
+
+  font-weight:bold;
+
+  border:none;
+
+  border-radius:28px;
+
+  background:#4CAF50;
+
+  color:white;
+
+  cursor:pointer;
+
+  box-shadow:0 5px 12px rgba(0,0,0,.2);
+
+  z-index:111;
+
+  touch-action:manipulation;
+
+}
+
+
+#playAgainBtn:active{
+
+  transform:scale(.96);
+
+}
+
+
+
+/* =========================================================
+   CONFETTI
+========================================================= */
+
+.confetti{
+
+  position:absolute;
+
+  width:clamp(8px,1.5vw,17px);
+
+  height:clamp(8px,1.5vw,17px);
+
+  pointer-events:none;
+
+  z-index:105;
+
+  animation:fall linear forwards;
+
+}
+
+
+@keyframes fall{
+
+  0%{
+
+    transform:
+    translateY(-10vh)
+    rotate(0deg);
+
+    opacity:1;
+
+  }
+
+
+  100%{
+
+    transform:
+    translateY(110vh)
+    rotate(720deg);
+
+    opacity:0;
+
+  }
+
+}
+
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media(max-width:900px){
+
+  #instruction{
+
+    font-size:19px;
+
+  }
+
+
+  .hiding-spot{
+
+    width:105px;
+
+    height:105px;
+
+  }
+
+
+  .animal{
+
+    width:145px;
+
+  }
+
+
+}
+
+
+
+/* =========================================================
+   MOBILE PORTRAIT
+========================================================= */
+
+@media(max-width:600px){
+
+  #instruction{
+
+    top:max(6px,env(safe-area-inset-top));
+
+    width:95%;
+
+    font-size:15px;
+
+    padding:6px 7px;
+
+  }
+
+
+  .hiding-spot{
+
+    width:clamp(70px,22vw,98px);
+
+    height:clamp(70px,22vw,98px);
+
+  }
+
+
+  .hiding-spot span{
+
+    font-size:10px;
+
+    padding:4px 5px;
+
+  }
+
+
+  .animal{
+
+    width:clamp(88px,27vw,125px);
+
+    max-height:22vh;
+
+  }
+
+
+  #spot1{
+
+    top:22%;
+
+    left:4%;
+
+  }
+
+
+  #spot2{
+
+    top:22%;
+
+    right:4%;
+
+  }
+
+
+  #spot3{
+
+    bottom:17%;
+
+    left:4%;
+
+  }
+
+
+  #spot4{
+
+    bottom:17%;
+
+    right:4%;
+
+  }
+
+
+  #fish{
+
+    top:21%;
+
+    left:3%;
+
+  }
+
+
+  #dolphin{
+
+    top:21%;
+
+    right:3%;
+
+  }
+
+
+  #crab{
+
+    bottom:16%;
+
+    left:3%;
+
+  }
+
+
+  #octopus{
+
+    bottom:16%;
+
+    right:3%;
+
+  }
+
+
+  .coral{
+
+    width:clamp(60px,21vw,100px);
+
+  }
+
+
+  #coral1{
+
+    bottom:2%;
+
+    left:0;
+
+  }
+
+
+  #coral2{
+
+    bottom:4%;
+
+    right:0;
+
+  }
+
+
+  #coral3{
+
+    bottom:0;
+
+    left:39%;
+
+  }
+
+
+  #coral4{
+
+    bottom:7%;
+
+    right:29%;
+
+  }
+
+}
+
+
+
+/* =========================================================
+   VERY SMALL PHONES
+========================================================= */
+
+@media(max-width:390px){
+
+  #instruction{
+
+    font-size:13px;
+
+  }
+
+
+  .hiding-spot{
+
+    width:70px;
+
+    height:70px;
+
+  }
+
+
+  .animal{
+
+    width:90px;
+
+  }
+
+
+  #spot1,
+  #spot2{
+
+    top:24%;
+
+  }
+
+
+  #fish,
+  #dolphin{
+
+    top:23%;
+
+  }
+
+
+  #spot3,
+  #spot4{
+
+    bottom:18%;
+
+  }
+
+
+  #crab,
+  #octopus{
+
+    bottom:17%;
+
+  }
+
+}
+
+
+
+/* =========================================================
+   SHORT SCREENS
+========================================================= */
+
+@media(max-height:650px){
+
+  #instruction{
+
+    font-size:14px;
+
+    padding:4px 7px;
+
+  }
+
+
+  .hiding-spot{
+
+    width:76px;
+
+    height:76px;
+
+  }
+
+
+  .animal{
+
+    width:105px;
+
+    max-height:24vh;
+
+  }
+
+
+  #spot1,
+  #spot2{
+
+    top:22%;
+
+  }
+
+
+  #fish,
+  #dolphin{
+
+    top:20%;
+
+  }
+
+
+  #spot3,
+  #spot4{
+
+    bottom:14%;
+
+  }
+
+
+  #crab,
+  #octopus{
+
+    bottom:13%;
+
+  }
+
+}
+
+
+
+/* =========================================================
+   MOBILE / TABLET LANDSCAPE
+========================================================= */
+
+@media(orientation:landscape) and (max-height:600px){
+
+  #instruction{
+
+    top:4px;
+
+    width:72%;
+
+    font-size:13px;
+
+    padding:4px 7px;
+
+  }
+
+
+  .hiding-spot{
+
+    width:68px;
+
+    height:68px;
+
+  }
+
+
+  .hiding-spot span{
+
+    font-size:9px;
+
+  }
+
+
+  .animal{
+
+    width:95px;
+
+    max-height:28vh;
+
+  }
+
+
+  #spot1{
+
+    top:22%;
+
+    left:12%;
+
+  }
+
+
+  #spot2{
+
+    top:22%;
+
+    right:12%;
+
+  }
+
+
+  #spot3{
+
+    bottom:13%;
+
+    left:12%;
+
+  }
+
+
+  #spot4{
+
+    bottom:13%;
+
+    right:12%;
+
+  }
+
+
+  #fish{
+
+    top:19%;
+
+    left:10%;
+
+  }
+
+
+  #dolphin{
+
+    top:19%;
+
+    right:10%;
+
+  }
+
+
+  #crab{
+
+    bottom:10%;
+
+    left:10%;
+
+  }
+
+
+  #octopus{
+
+    bottom:10%;
+
+    right:10%;
+
+  }
+
+
+  .coral{
+
+    width:70px;
+
+  }
+
+
+  #coral1{
+
+    bottom:0;
+
+    left:1%;
+
+  }
+
+
+  #coral2{
+
+    bottom:0;
+
+    right:1%;
+
+  }
+
+
+  #coral3{
+
+    bottom:0;
+
+    left:47%;
+
+  }
+
+
+  #coral4{
+
+    bottom:1%;
+
+    right:34%;
+
+  }
+
+}
+
 </style>
+
 </head>
+
+
 <body>
 
-<div id="logoScreen"><img src="assets/innovine-logo.png" alt="Innovine Logo"></div>
+
+<!-- =========================================================
+     LOGO SCREEN
+========================================================= -->
+
+<div id="logoScreen">
+
+  <img
+  src="assets/innovine-logo.png"
+  alt="Innovine Logo"
+  draggable="false">
+
+</div>
+
+
+
+<!-- =========================================================
+     GAME SCREEN
+========================================================= -->
 
 <div id="gameScreen">
-  <div id="instruction">Tap the spot to reveal the ocean friend and name the sea animal.</div>
 
-  <!-- Corals -->
-  <img src="assets/coral-1.png" class="coral" style="bottom:10%; left:5%;">
-  <img src="assets/coral-2.png" class="coral" style="bottom:15%; right:10%;">
-  <img src="assets/coral-3.png" class="coral" style="bottom:5%; left:50%;">
-  <img src="assets/coral-4.png" class="coral" style="bottom:12%; right:40%;">
 
-  <!-- Hiding spots -->
-  <div class="hiding-spot" id="spot1" style="top: 20%; left: 10%;"><span>Tap Here</span></div>
-  <div class="hiding-spot" id="spot2" style="top: 20%; right: 10%;"><span>Tap Here</span></div>
-  <div class="hiding-spot" id="spot3" style="bottom: 20%; left: 10%;"><span>Tap Here</span></div>
-  <div class="hiding-spot" id="spot4" style="bottom: 20%; right: 10%;"><span>Tap Here</span></div>
+  <div id="instruction">
 
-  <!-- Animals -->
-  <img src="assets/fish.png" class="animal" id="fish" style="top:20%; left:10%;">
-  <img src="assets/dolphin.png" class="animal" id="dolphin" style="top:20%; right:10%;">
-  <img src="assets/crab.png" class="animal" id="crab" style="bottom:20%; left:10%;">
-  <img src="assets/octopus.png" class="animal" id="octopus" style="bottom:20%; right:10%;">
+    Tap the spot to reveal the ocean friend and name the sea animal.
+
+  </div>
+
+
+
+  <!-- CORALS -->
+
+  <img
+  src="assets/coral-1.png"
+  class="coral"
+  id="coral1"
+  alt=""
+  draggable="false">
+
+
+  <img
+  src="assets/coral-2.png"
+  class="coral"
+  id="coral2"
+  alt=""
+  draggable="false">
+
+
+  <img
+  src="assets/coral-3.png"
+  class="coral"
+  id="coral3"
+  alt=""
+  draggable="false">
+
+
+  <img
+  src="assets/coral-4.png"
+  class="coral"
+  id="coral4"
+  alt=""
+  draggable="false">
+
+
+
+  <!-- HIDING SPOTS -->
+
+  <div
+  class="hiding-spot"
+  id="spot1">
+
+    <span>Tap Here</span>
+
+  </div>
+
+
+  <div
+  class="hiding-spot"
+  id="spot2">
+
+    <span>Tap Here</span>
+
+  </div>
+
+
+  <div
+  class="hiding-spot"
+  id="spot3">
+
+    <span>Tap Here</span>
+
+  </div>
+
+
+  <div
+  class="hiding-spot"
+  id="spot4">
+
+    <span>Tap Here</span>
+
+  </div>
+
+
+
+  <!-- ANIMALS -->
+
+  <img
+  src="assets/fish.png"
+  class="animal"
+  id="fish"
+  alt="Fish"
+  draggable="false">
+
+
+  <img
+  src="assets/dolphin.png"
+  class="animal"
+  id="dolphin"
+  alt="Dolphin"
+  draggable="false">
+
+
+  <img
+  src="assets/crab.png"
+  class="animal"
+  id="crab"
+  alt="Crab"
+  draggable="false">
+
+
+  <img
+  src="assets/octopus.png"
+  class="animal"
+  id="octopus"
+  alt="Octopus"
+  draggable="false">
+
+
 </div>
+
+
+
+<!-- =========================================================
+     WIN SCREEN
+========================================================= -->
 
 <div id="winScreen">
-  <h1>Good Job!</h1>
-  <button id="playAgainBtn">Play Again</button>
+
+
+  <h1>
+    🎉 Good Job!
+  </h1>
+
+
+  <button
+  id="playAgainBtn"
+  type="button">
+
+    Play Again
+
+  </button>
+
+
 </div>
 
-<!-- Sounds -->
-<audio id="popSound" src="assets/pop.mp3"></audio>
-<audio id="fishSound" src="assets/fish.mp3"></audio>
-<audio id="dolphinSound" src="assets/dolphin.mp3"></audio>
-<audio id="crabSound" src="assets/crab.mp3"></audio>
-<audio id="octopusSound" src="assets/octopus.mp3"></audio>
+
+
+<!-- =========================================================
+     AUDIO
+========================================================= -->
+
+<audio
+id="popSound"
+src="assets/pop.mp3"
+preload="auto">
+</audio>
+
+
+<audio
+id="fishSound"
+src="assets/fish.mp3"
+preload="auto">
+</audio>
+
+
+<audio
+id="dolphinSound"
+src="assets/dolphin.mp3"
+preload="auto">
+</audio>
+
+
+<audio
+id="crabSound"
+src="assets/crab.mp3"
+preload="auto">
+</audio>
+
+
+<audio
+id="octopusSound"
+src="assets/octopus.mp3"
+preload="auto">
+</audio>
+
+
 
 <script>
-const logoScreen = document.getElementById('logoScreen');
-const gameScreen = document.getElementById('gameScreen');
-const winScreen = document.getElementById('winScreen');
-const playAgainBtn = document.getElementById('playAgainBtn');
-const popSound = document.getElementById('popSound');
 
-const fishSound = document.getElementById('fishSound');
-const dolphinSound = document.getElementById('dolphinSound');
-const crabSound = document.getElementById('crabSound');
-const octopusSound = document.getElementById('octopusSound');
 
-const spotAnimalMap = {'spot1':'fish','spot2':'dolphin','spot3':'crab','spot4':'octopus'};
-const animalAudioMap = {
-  'fish': fishSound,
-  'dolphin': dolphinSound,
-  'crab': crabSound,
-  'octopus': octopusSound
+/* =========================================================
+   REFERENCES
+========================================================= */
+
+const logoScreen =
+document.getElementById("logoScreen");
+
+
+const gameScreen =
+document.getElementById("gameScreen");
+
+
+const winScreen =
+document.getElementById("winScreen");
+
+
+const playAgainBtn =
+document.getElementById("playAgainBtn");
+
+
+const popSound =
+document.getElementById("popSound");
+
+
+const fishSound =
+document.getElementById("fishSound");
+
+
+const dolphinSound =
+document.getElementById("dolphinSound");
+
+
+const crabSound =
+document.getElementById("crabSound");
+
+
+const octopusSound =
+document.getElementById("octopusSound");
+
+
+
+/* =========================================================
+   MAP
+========================================================= */
+
+const spotAnimalMap = {
+
+  spot1:"fish",
+
+  spot2:"dolphin",
+
+  spot3:"crab",
+
+  spot4:"octopus"
+
 };
 
-function startGame(){
-  logoScreen.style.display='flex';
-  gameScreen.style.display='none';
-  winScreen.style.display='none';
-  setTimeout(()=>{
-    logoScreen.style.display='none';
-    gameScreen.style.display='block';
-    resetAnimals();
-    generateBubbles();
-  },5000);
+
+const animalAudioMap = {
+
+  fish:fishSound,
+
+  dolphin:dolphinSound,
+
+  crab:crabSound,
+
+  octopus:octopusSound
+
+};
+
+
+let revealedAnimals =
+new Set();
+
+
+
+/* =========================================================
+   IMAGE PRELOADING
+========================================================= */
+
+const preloadImages = [
+
+  "assets/background-ocean.png",
+
+  "assets/fish.png",
+
+  "assets/dolphin.png",
+
+  "assets/crab.png",
+
+  "assets/octopus.png",
+
+  "assets/coral-1.png",
+
+  "assets/coral-2.png",
+
+  "assets/coral-3.png",
+
+  "assets/coral-4.png",
+
+  "assets/bubble.png"
+
+];
+
+
+function preloadGameImages(){
+
+  preloadImages.forEach(
+    function(src){
+
+      const img =
+      new Image();
+
+      img.src = src;
+
+    }
+  );
+
 }
 
-function resetAnimals(){
-  Object.values(spotAnimalMap).forEach(id=>{
-    document.getElementById(id).classList.remove('pop');
-  });
-}
 
-Object.keys(spotAnimalMap).forEach(spotId=>{
-  const spot=document.getElementById(spotId);
-  const animal=document.getElementById(spotAnimalMap[spotId]);
-  spot.addEventListener('click',()=>{
-    animal.classList.remove('pop');
-    void animal.offsetWidth;
-    animal.classList.add('pop');
+preloadGameImages();
 
-    popSound.currentTime=0;
-    popSound.play();
 
-    const sound = animalAudioMap[spotAnimalMap[spotId]];
-    if(sound){
-      sound.currentTime = 0;
-      sound.volume = 1;
-      sound.play();
+
+/* =========================================================
+   AUDIO
+========================================================= */
+
+function playAudio(audio){
+
+  if(!audio){
+    return;
+  }
+
+
+  try{
+
+    audio.pause();
+
+    audio.currentTime = 0;
+
+
+    const promise =
+    audio.play();
+
+
+    if(
+      promise &&
+      typeof promise.catch === "function"
+    ){
+
+      promise.catch(function(){});
+
     }
 
-    checkAllAnimals();
-  });
-});
+  }
+
+  catch(error){}
+
+}
+
+
+
+/* =========================================================
+   START GAME
+========================================================= */
+
+function startGame(){
+
+  logoScreen.style.display =
+  "flex";
+
+
+  gameScreen.style.display =
+  "none";
+
+
+  winScreen.style.display =
+  "none";
+
+
+  resetGame();
+
+
+  /*
+    Background and animal images are already
+    preloading while the 5-second logo is visible.
+  */
+
+  setTimeout(
+    function(){
+
+      logoScreen.style.display =
+      "none";
+
+
+      gameScreen.style.display =
+      "block";
+
+
+      generateBubbles();
+
+    },
+    5000
+  );
+
+}
+
+
+
+/* =========================================================
+   RESET GAME
+========================================================= */
+
+function resetGame(){
+
+  revealedAnimals.clear();
+
+
+  Object.values(
+    spotAnimalMap
+  ).forEach(
+    function(animalId){
+
+      const animal =
+      document.getElementById(
+        animalId
+      );
+
+
+      animal.classList.remove(
+        "pop"
+      );
+
+    }
+  );
+
+
+  Object.keys(
+    spotAnimalMap
+  ).forEach(
+    function(spotId){
+
+      const spot =
+      document.getElementById(
+        spotId
+      );
+
+
+      spot.style.visibility =
+      "visible";
+
+    }
+  );
+
+}
+
+
+
+/* =========================================================
+   SPOT EVENTS
+========================================================= */
+
+Object.keys(
+  spotAnimalMap
+).forEach(
+  function(spotId){
+
+    const spot =
+    document.getElementById(
+      spotId
+    );
+
+
+    const animalId =
+    spotAnimalMap[spotId];
+
+
+    const animal =
+    document.getElementById(
+      animalId
+    );
+
+
+    spot.addEventListener(
+      "click",
+      function(){
+
+        /*
+          Already revealed:
+          do nothing.
+        */
+
+        if(
+          revealedAnimals.has(
+            animalId
+          )
+        ){
+
+          return;
+
+        }
+
+
+        revealedAnimals.add(
+          animalId
+        );
+
+
+        /*
+          Hide the circle so that
+          the animal is completely visible.
+        */
+
+        spot.style.visibility =
+        "hidden";
+
+
+        animal.classList.remove(
+          "pop"
+        );
+
+
+        void animal.offsetWidth;
+
+
+        animal.classList.add(
+          "pop"
+        );
+
+
+        playAudio(
+          popSound
+        );
+
+
+        /*
+          Play animal name/audio just after pop.
+        */
+
+        const animalSound =
+        animalAudioMap[
+          animalId
+        ];
+
+
+        setTimeout(
+          function(){
+
+            playAudio(
+              animalSound
+            );
+
+          },
+          150
+        );
+
+
+        checkAllAnimals();
+
+      }
+    );
+
+  }
+);
+
+
+
+/* =========================================================
+   CHECK COMPLETION
+========================================================= */
 
 function checkAllAnimals(){
-  const allVisible=Object.values(spotAnimalMap).every(id=>document.getElementById(id).classList.contains('pop'));
-  if(allVisible){
-    setTimeout(()=>{
-      gameScreen.style.display='none';
-      winScreen.style.display='flex';
-      createConfetti();
-    },3000);
+
+  if(
+    revealedAnimals.size === 4
+  ){
+
+    setTimeout(
+      function(){
+
+        gameScreen.style.display =
+        "none";
+
+
+        winScreen.style.display =
+        "flex";
+
+
+        createConfetti();
+
+      },
+      2000
+    );
+
   }
+
 }
 
-playAgainBtn.addEventListener('click',()=>{
-  removeConfetti();
-  winScreen.style.display='none';
-  startGame();
-});
+
+
+/* =========================================================
+   PLAY AGAIN
+========================================================= */
+
+playAgainBtn.addEventListener(
+  "click",
+  function(){
+
+    removeConfetti();
+
+
+    winScreen.style.display =
+    "none";
+
+
+    resetGame();
+
+
+    gameScreen.style.display =
+    "block";
+
+
+    generateBubbles();
+
+  }
+);
+
+
+
+/* =========================================================
+   BUBBLES
+========================================================= */
 
 function generateBubbles(){
-  document.querySelectorAll('.bubble').forEach(b=>b.remove());
-  for(let i=0;i<10;i++){
-    const bubble=document.createElement('div');
-    bubble.classList.add('bubble');
-    bubble.style.left=Math.random()*90+'vw';
-    bubble.style.animationDuration=(3+Math.random()*3)+'s';
-    gameScreen.appendChild(bubble);
+
+  document.querySelectorAll(
+    ".bubble"
+  ).forEach(
+    function(bubble){
+
+      bubble.remove();
+
+    }
+  );
+
+
+  for(
+    let i = 0;
+    i < 10;
+    i++
+  ){
+
+    const bubble =
+    document.createElement(
+      "div"
+    );
+
+
+    bubble.className =
+    "bubble";
+
+
+    bubble.style.left =
+    Math.random() * 94 +
+    "%";
+
+
+    bubble.style.animationDuration =
+    (
+      4 +
+      Math.random() * 3
+    ) +
+    "s";
+
+
+    bubble.style.animationDelay =
+    (
+      Math.random() * 2
+    ) +
+    "s";
+
+
+    gameScreen.appendChild(
+      bubble
+    );
+
   }
+
 }
+
+
+
+/* =========================================================
+   CONFETTI
+========================================================= */
 
 function createConfetti(){
-  const colors=["#ff595e","#ffca3a","#8ac926","#1982c4","#6a4c93","#ff85a1","#00c2ff"];
-  for(let i=0;i<400;i++){
-    const confetti=document.createElement("div");
-    confetti.classList.add("confetti");
-    const rand=Math.random();
-    if(rand<0.33){
-      confetti.style.top=Math.random()*80+10+"%";
-      confetti.style.left="100%";
-    }else if(rand<0.66){
-      confetti.style.top=Math.random()*80+10+"%";
-      confetti.style.left="-5%";
-    }else{
-      confetti.style.top="-5%";
-      confetti.style.left=Math.random()*100+"%";
-    }
-    confetti.style.background=colors[Math.floor(Math.random()*colors.length)];
-    confetti.style.animationDelay=Math.random()*0.8+"s";
-    winScreen.appendChild(confetti);
-    setTimeout(()=>confetti.remove(),5500);
+
+  const colors = [
+
+    "#ff595e",
+
+    "#ffca3a",
+
+    "#8ac926",
+
+    "#1982c4",
+
+    "#6a4c93",
+
+    "#ff85a1",
+
+    "#00c2ff"
+
+  ];
+
+
+  /*
+    Reduced from 400 to 100.
+    This keeps the animation smooth
+    on Android and iPhone.
+  */
+
+  for(
+    let i = 0;
+    i < 100;
+    i++
+  ){
+
+    const confetti =
+    document.createElement(
+      "div"
+    );
+
+
+    confetti.className =
+    "confetti";
+
+
+    confetti.style.left =
+    Math.random() * 100 +
+    "%";
+
+
+    confetti.style.top =
+    (
+      -5 -
+      Math.random() * 20
+    ) +
+    "%";
+
+
+    confetti.style.background =
+    colors[
+      Math.floor(
+        Math.random() *
+        colors.length
+      )
+    ];
+
+
+    confetti.style.animationDuration =
+    (
+      2.5 +
+      Math.random() * 2
+    ) +
+    "s";
+
+
+    confetti.style.animationDelay =
+    (
+      Math.random() * .7
+    ) +
+    "s";
+
+
+    winScreen.appendChild(
+      confetti
+    );
+
+
+    setTimeout(
+      function(){
+
+        confetti.remove();
+
+      },
+      5200
+    );
+
   }
+
 }
+
+
+
+/* =========================================================
+   REMOVE CONFETTI
+========================================================= */
 
 function removeConfetti(){
-  document.querySelectorAll('.confetti').forEach(c=>c.remove());
+
+  document.querySelectorAll(
+    ".confetti"
+  ).forEach(
+    function(confetti){
+
+      confetti.remove();
+
+    }
+  );
+
 }
 
+
+
+/* =========================================================
+   STOP IMAGE DRAGGING
+========================================================= */
+
+document.addEventListener(
+  "dragstart",
+  function(event){
+
+    if(
+      event.target.tagName ===
+      "IMG"
+    ){
+
+      event.preventDefault();
+
+    }
+
+  }
+);
+
+
+
+/* =========================================================
+   START
+========================================================= */
+
 startGame();
+
+
 </script>
+
 </body>
+
 </html>
