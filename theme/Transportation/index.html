@@ -1,430 +1,176 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>LY1 • Transportation</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LY1 Transportation Match</title>
 
 <style>
-* {
-  box-sizing: border-box;
+*{box-sizing:border-box}
+html,body{
+  margin:0;height:100%;overflow:hidden;
+  font-family:Arial,sans-serif;
+  background:#fff7e8;color:#294958;
+}
+button{
+  font:inherit;touch-action:manipulation;cursor:pointer;
+}
+button:focus{outline:3px solid #488bbc}
+.screen{
+  position:absolute;top:0;left:0;
+  width:100%;height:100%;padding:12px;
+  display:flex;align-items:center;justify-content:center;
+}
+.hidden{display:none!important}
+.panel{
+  width:100%;max-width:900px;height:100%;max-height:760px;
+  text-align:center;display:flex;
+  flex-direction:column;align-items:center;
+}
+#splash{background:white;z-index:10}
+#splash img{width:55%;max-width:260px}
+.welcome{justify-content:center}
+h1{font-size:30px;margin:10px 0}
+h2{font-size:25px;margin:8px 0}
+p{font-size:20px;line-height:1.4;margin:12px 0}
+.main{
+  background:#28795d;color:white;border:0;
+  border-radius:18px;padding:14px 32px;
+  font-size:23px;min-height:50px;
+}
+header{
+  display:flex;justify-content:space-between;align-items:center;
+  width:100%;min-height:38px;font-size:15px;font-weight:bold;
+}
+#sound{
+  background:white;border:2px solid #b9d5ca;
+  border-radius:12px;padding:8px;
+}
+.vehicle{
+  flex:1;min-height:0;width:100%;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+}
+.vehicle svg{
+  width:100%;max-width:280px;
+  height:calc(100% - 32px);max-height:190px;min-height:0;
+}
+.vehicle strong{font-size:24px;height:32px}
+.choices{
+  display:flex;flex-wrap:wrap;width:100%;max-width:760px;
+  flex:1.25;min-height:0;align-content:stretch;
+}
+.choice{
+  position:relative;width:calc(50% - 12px);margin:6px;
+  border:3px solid #dacdac;border-radius:20px;
+  background:#fffdf8;color:#294958;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  min-height:0;padding:6px;box-shadow:0 3px 0 #e5d9be;
+}
+.choice svg{
+  width:100%;height:calc(100% - 27px);
+  max-height:95px;min-height:0;
+}
+.label{font-size:20px;font-weight:bold;height:27px}
+.sign{
+  position:absolute;right:7px;top:7px;
+  background:white;border:2px solid currentColor;
+  border-radius:50%;width:34px;height:34px;
+  line-height:30px;font-size:27px;font-weight:bold;
+}
+.wrong-sign{color:#bd3535}
+.right-sign{color:#218347}
+.correct{background:#e7f7e9;border-color:#26965a}
+.jiggle{animation:jiggle .4s}
+.glow{
+  border-color:#29975e;
+  box-shadow:0 0 0 3px #bae3c3,0 0 22px #76c890;
+  animation:glow 1s infinite alternate;
+}
+.feedback{
+  width:100%;height:48px;flex-shrink:0;
+  display:flex;justify-content:center;align-items:center;
+  font-size:23px;font-weight:bold;color:#28795d;
+}
+.feedback.bad{color:#bd3535}
+#confetti{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  pointer-events:none;overflow:hidden;z-index:20;
+}
+.piece{
+  position:absolute;top:-20px;width:9px;height:13px;
+  animation:fall 3s linear forwards;
+}
+.big-tick{font-size:76px;color:#28795d}
+
+@keyframes jiggle{
+  25%{transform:translateX(-6px) rotate(-2deg)}
+  50%{transform:translateX(6px) rotate(2deg)}
+  75%{transform:translateX(-6px)}
+}
+@keyframes glow{
+  to{box-shadow:0 0 0 4px #bae3c3,0 0 30px #48b576}
+}
+@keyframes fall{
+  to{transform:translateY(110vh) rotate(540deg)}
 }
 
-html, body {
-  margin: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  font-family: Arial, sans-serif;
-  color: #264458;
-  background: #fff6e6;
-}
-
-button {
-  font: inherit;
-  cursor: pointer;
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-}
-
-button:focus {
-  outline: 3px solid #347aaa;
-  outline-offset: 3px;
-}
-
-.screen {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-}
-
-.hidden {
-  display: none !important;
-}
-
-#splash {
-  background: white;
-  z-index: 10;
-}
-
-#splash img {
-  width: 55%;
-  max-width: 260px;
-  height: auto;
-}
-
-.panel {
-  width: 100%;
-  max-width: 960px;
-  height: 100%;
-  max-height: 740px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  gap: 14px;
-}
-
-h1, h2, p {
-  margin: 0;
-}
-
-h1 {
-  font-size: 32px;
-  font-size: clamp(24px, 5vw, 42px);
-}
-
-h2 {
-  font-size: 26px;
-  font-size: clamp(23px, 4vw, 36px);
-}
-
-p {
-  font-size: 19px;
-  font-size: clamp(17px, 3vw, 23px);
-  line-height: 1.4;
-}
-
-.primary {
-  border: 0;
-  border-radius: 22px;
-  background: #28775b;
-  color: white;
-  padding: 14px 36px;
-  font-size: 24px;
-  min-height: 52px;
-  box-shadow: 0 5px 0 #16523d;
-}
-
-.intro-art {
-  display: flex;
-  width: 100%;
-  max-width: 520px;
-  height: 140px;
-  gap: 10px;
-}
-
-.intro-art svg {
-  width: 33%;
-  height: 100%;
-}
-
-.badge {
-  font-size: 15px;
-  font-weight: bold;
-  color: #577074;
-}
-
-.game-panel {
-  justify-content: flex-start;
-  gap: 10px;
-}
-
-header {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 32px;
-}
-
-#sound {
-  background: white;
-  border: 2px solid #c4d9d4;
-  border-radius: 12px;
-  padding: 7px 12px;
-  font-size: 15px;
-}
-
-.progress {
-  width: 100%;
-  height: 9px;
-  flex-shrink: 0;
-  border-radius: 9px;
-  background: #e1e6db;
-  overflow: hidden;
-}
-
-.progress span {
-  display: block;
-  height: 100%;
-  background: #69ac87;
-  width: 0;
-  transition: width .3s;
-}
-
-.prompt {
-  flex: 1;
-  min-height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.options {
-  width: 100%;
-  display: flex;
-  gap: 16px;
-  flex: 4;
-  min-height: 0;
-  max-height: 390px;
-}
-
-.option {
-  position: relative;
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  border: 3px solid #d9cba8;
-  border-radius: 26px;
-  background: #fffdf6;
-  padding: 12px;
-  box-shadow: 0 6px 0 #e6dbc3;
-  color: #264458;
-}
-
-.option svg {
-  width: 100%;
-  height: 75%;
-  min-height: 0;
-  max-height: 220px;
-}
-
-.option .vehicle-name {
-  font-size: 22px;
-  font-size: clamp(18px, 3vw, 28px);
-  font-weight: bold;
-  margin-top: 8px;
-}
-
-.answer-sign {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 29px;
-  line-height: 1;
-  font-weight: bold;
-  background: white;
-  border: 2px solid currentColor;
-  box-shadow: 0 2px 5px rgba(0,0,0,.15);
-}
-
-.answer-sign.right {
-  color: #218347;
-}
-
-.answer-sign.wrong {
-  color: #bd3535;
-}
-
-.option:disabled {
-  cursor: default;
-  opacity: 1;
-}
-
-.option.jiggle {
-  animation: jiggle .4s;
-}
-
-.option.glow {
-  border-color: #38a36a;
-  box-shadow: 0 0 0 4px #bce8c8, 0 0 24px #70cc91;
-  animation: glow 1s infinite alternate;
-}
-
-.option.correct {
-  background: #e9f8ec;
-  border-color: #299657;
-}
-
-.feedback {
-  flex: 1;
-  min-height: 42px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 25px;
-  font-size: clamp(20px, 4vw, 32px);
-  font-weight: bold;
-  color: #28775b;
-}
-
-.feedback.incorrect {
-  color: #bd3535;
-}
-
-.finish-icon {
-  font-size: 75px;
-  color: #28775b;
-}
-
-#confetti {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 20;
-  overflow: hidden;
-}
-
-.piece {
-  position: absolute;
-  top: -20px;
-  width: 9px;
-  height: 14px;
-  animation: fall 2.8s linear forwards;
-}
-
-@keyframes fall {
-  to {
-    transform: translateY(110vh) rotate(520deg);
+@media(max-height:450px){
+  .screen{padding:6px}
+  header{min-height:32px}
+  h2{font-size:21px;margin:3px 0}
+  .vehicle{flex:1}
+  .vehicle svg{max-height:85px}
+  .vehicle strong{font-size:19px;height:24px}
+  .choices{flex:1}
+  .choice{
+    width:calc(25% - 8px);margin:4px;border-radius:14px;
   }
+  .label{font-size:16px;height:22px}
+  .feedback{height:32px;font-size:20px}
+  h1{font-size:25px}
+  p{font-size:17px;margin:8px 0}
+  .big-tick{font-size:45px}
 }
-
-@keyframes jiggle {
-  0%, 100% {
-    transform: translateX(0);
-  }
-  25%, 75% {
-    transform: translateX(-7px) rotate(-2deg);
-  }
-  50% {
-    transform: translateX(7px) rotate(2deg);
-  }
+@media(max-width:360px){
+  h2{font-size:22px}
+  .label{font-size:18px}
+  .feedback{font-size:20px}
 }
-
-@keyframes glow {
-  to {
-    box-shadow: 0 0 0 4px #bce8c8, 0 0 34px #49b979;
-  }
-}
-
-@media (max-width: 500px) {
-  .screen {
-    padding: 12px;
-  }
-  .options {
-    gap: 8px;
-  }
-  .option {
-    border-radius: 18px;
-    padding: 5px;
-  }
-  .option .vehicle-name {
-    font-size: 16px;
-  }
-  .panel {
-    gap: 10px;
-  }
-}
-
-@media (max-height: 450px) {
-  .screen {
-    padding: 8px;
-  }
-  .panel {
-    gap: 6px;
-  }
-  .intro-art {
-    height: 80px;
-  }
-  h1 {
-    font-size: 26px;
-  }
-  p {
-    font-size: 17px;
-  }
-  .prompt {
-    flex: 0;
-    min-height: 32px;
-  }
-  h2 {
-    font-size: 23px;
-  }
-  .feedback {
-    flex: 0;
-    min-height: 30px;
-    font-size: 22px;
-  }
-  .option svg {
-    max-height: 130px;
-  }
-  .primary {
-    padding: 9px 28px;
-  }
-  .finish-icon {
-    font-size: 48px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .option.glow {
-    animation: none;
-  }
-  .piece {
-    animation-duration: 1s;
-  }
+@media(prefers-reduced-motion:reduce){
+  .glow{animation:none}
+  .piece{animation-duration:1s}
 }
 </style>
 </head>
 
 <body>
 
-<!-- First slide: plain white background and logo for 2 seconds -->
+<!-- Plain white logo screen for two seconds -->
 <div id="splash" class="screen">
   <img src="assets/innovine-logo.png" alt="Innovine">
 </div>
 
-<!-- Instructions -->
 <section id="intro" class="screen hidden">
-  <div class="panel">
-    <div class="badge">LY1 • Transportation</div>
-    <h1>Let’s Go!</h1>
-
-    <div id="introArt" class="intro-art" aria-hidden="true"></div>
-
-    <p>Listen to your teacher.<br>Tap the correct vehicle.</p>
-    <p>If you need help, look for the glowing picture!</p>
-
-    <button id="start" class="primary">Start</button>
+  <div class="panel welcome">
+    <h1>Where Do I Go?</h1>
+    <p>Look at the vehicle.<br>Tap the place where it travels.</p>
+    <p>Road • Railway Tracks • Water • Sky</p>
+    <button id="start" class="main">Start</button>
   </div>
 </section>
 
-<!-- One question at a time -->
 <section id="game" class="screen hidden">
-  <div class="panel game-panel">
+  <div class="panel">
     <header>
-      <span id="counter" class="badge"></span>
+      <span id="count"></span>
       <button id="sound" aria-pressed="true">Sound: On</button>
     </header>
 
-    <div class="progress">
-      <span id="bar"></span>
-    </div>
-
-    <div class="prompt">
-      <h2 id="question"></h2>
-    </div>
-
-    <div id="options" class="options"></div>
+    <h2>Where does this vehicle travel?</h2>
+    <div id="vehicle" class="vehicle"></div>
+    <div id="choices" class="choices"></div>
 
     <div id="feedback"
          class="feedback"
@@ -433,13 +179,12 @@ header {
   </div>
 </section>
 
-<!-- Final slide -->
 <section id="finish" class="screen hidden">
-  <div class="panel">
-    <div class="finish-icon">✓</div>
+  <div class="panel welcome">
+    <div class="big-tick">✓</div>
     <h1>Good job!</h1>
-    <p>You explored transportation!</p>
-    <button id="again" class="primary">Play Again</button>
+    <p>You matched all the vehicles!</p>
+    <button id="again" class="main">Play Again</button>
   </div>
 </section>
 
@@ -456,115 +201,134 @@ header {
        playsinline></audio>
 
 <script>
-(function () {
+(function(){
   'use strict';
 
-  // Built-in vehicle pictures: no image downloads or external libraries.
-  var drawings = {
-    car:
-      '<path d="M35 94h130l-18-37H71z" fill="#e99579"/>' +
-      '<rect x="23" y="88" width="155" height="43" rx="16" fill="#e99579"/>' +
-      '<path d="M76 64h29v26H62zm37 0h27l12 26h-39z" fill="#d3edf1"/>' +
-      '<circle cx="58" cy="131" r="18" fill="#344b5c"/>' +
-      '<circle cx="147" cy="131" r="18" fill="#344b5c"/>' +
-      '<circle cx="58" cy="131" r="8" fill="#eee"/>' +
-      '<circle cx="147" cy="131" r="8" fill="#eee"/>',
-
-    bus:
-      '<rect x="20" y="45" width="164" height="91" rx="15" fill="#edbf62"/>' +
-      '<path d="M30 57h29v35H30zm37 0h29v35H67zm37 0h29v35h-29zm37 0h30v60h-30z" fill="#c8e7ec"/>' +
-      '<circle cx="55" cy="136" r="17" fill="#344b5c"/>' +
-      '<circle cx="152" cy="136" r="17" fill="#344b5c"/>',
-
-    train:
-      '<rect x="18" y="74" width="62" height="54" rx="7" fill="#87b6cc"/>' +
-      '<rect x="88" y="85" width="88" height="43" rx="6" fill="#b990bb"/>' +
-      '<rect x="116" y="48" width="51" height="46" rx="5" fill="#b990bb"/>' +
-      '<rect x="123" y="55" width="29" height="27" fill="#d6f1f3"/>' +
-      '<rect x="95" y="58" width="13" height="31" fill="#46596a"/>' +
-      '<path d="M172 99l22 29h-22" fill="#edbf62"/>' +
-      '<path d="M28 85h16v22H28zm23 0h17v22H51" fill="#d6f1f3"/>' +
-      '<g fill="#344b5c">' +
-      '<circle cx="35" cy="133" r="13"/>' +
-      '<circle cx="65" cy="133" r="13"/>' +
-      '<circle cx="109" cy="133" r="13"/>' +
-      '<circle cx="156" cy="133" r="20"/>' +
-      '</g>' +
-      '<path d="M15 156h180" stroke="#6d7b7e" stroke-width="5"/>',
-
-    boat:
-      '<path d="M28 112h149l-28 38H58z" fill="#df9376"/>' +
-      '<path d="M102 29v84" stroke="#556779" stroke-width="6"/>' +
-      '<path d="M94 38L40 103h54z" fill="#f0ca70"/>' +
-      '<path d="M111 45v57h52z" fill="#9ac6b2"/>' +
-      '<path d="M17 159q15-12 30 0t30 0t30 0t30 0t30 0t30 0" fill="none" stroke="#83bacd" stroke-width="6"/>',
-
-    aeroplane:
-      '<path d="M22 95l59-7 29-52h21l-13 53 58 3q26 3 0 16l-60 3 17 43h-21l-32-40-56-3z" fill="#86b5cd"/>' +
-      '<path d="M40 92L25 61h17l28 29" fill="#e4ad72"/>' +
-      '<path d="M149 94h14l11 8h-25z" fill="#e3f2f6"/>',
-
-    bicycle:
-      '<g fill="none" stroke="#344b5c" stroke-width="6">' +
-      '<circle cx="49" cy="125" r="32"/>' +
-      '<circle cx="158" cy="125" r="32"/>' +
-      '</g>' +
-      '<path d="M49 125l36-52 30 52H49l20-37h75l14 37m-43 0l29-59h-17m-57 7h29" fill="none" stroke="#c77e93" stroke-width="7" stroke-linejoin="round"/>'
-  };
-
-  var names = {
-    car: 'Car',
-    bus: 'Bus',
-    train: 'Train',
-    boat: 'Boat',
-    aeroplane: 'Aeroplane',
-    bicycle: 'Bicycle'
-  };
-
-  var bank = [
-    ['car', 'Find the car.'],
-    ['bus', 'Find the bus.'],
-    ['train', 'Find the train.'],
-    ['boat', 'Find the boat.'],
-    ['aeroplane', 'Find the aeroplane.'],
-    ['bicycle', 'Find the bicycle.'],
-    ['boat', 'Which vehicle sails on water?'],
-    ['aeroplane', 'Which vehicle flies in the sky?'],
-    ['train', 'Which vehicle runs on railway tracks?'],
-    ['bus', 'Which vehicle carries many people on the road?'],
-    ['bicycle', 'Which vehicle has pedals?'],
-    ['car', 'Which vehicle is a car?']
-  ];
-
-  var ids = [
-    'car', 'bus', 'train',
-    'boat', 'aeroplane', 'bicycle'
-  ];
-
-  var order = [];
-  var position = 0;
-  var attempts = 0;
-  var locked = false;
-  var sound = true;
-  var nextTimer = null;
-  var celebrateTimer = null;
-  var splashTimer = null;
-
-  function el(id) {
+  function el(id){
     return document.getElementById(id);
   }
 
-  function art(id) {
-    return '<svg viewBox="0 0 210 180" ' +
+  function svg(d){
+    return '<svg viewBox="0 0 220 160" ' +
       'xmlns="http://www.w3.org/2000/svg" ' +
-      'aria-hidden="true" focusable="false">' +
-      drawings[id] + '</svg>';
+      'aria-hidden="true" focusable="false">' + d + '</svg>';
   }
 
-  function shuffle(a) {
+  // Built-in pictures work without external image downloads.
+  var wheels =
+    '<circle cx="58" cy="125" r="17" fill="#344b5c"/>' +
+    '<circle cx="163" cy="125" r="17" fill="#344b5c"/>';
+
+  var pictures = {
+    car:
+      '<path d="M37 88l30-40h74l30 40" fill="#e9987a"/>' +
+      '<rect x="23" y="82" width="174" height="43" rx="16" fill="#e9987a"/>' +
+      '<path d="M74 57h29v27H54zm38 0h24l20 27h-44z" fill="#d1edf3"/>' +
+      wheels,
+
+    bus:
+      '<rect x="22" y="35" width="175" height="91" rx="13" fill="#edbf62"/>' +
+      '<path d="M34 48h30v35H34zm40 0h30v35H74zm40 0h30v35h-30zm40 0h30v63h-30z" fill="#ccebf0"/>' +
+      wheels,
+
+    bicycle:
+      '<g fill="none" stroke="#344b5c" stroke-width="6">' +
+      '<circle cx="49" cy="112" r="32"/>' +
+      '<circle cx="169" cy="112" r="32"/></g>' +
+      '<path d="M49 112l36-52 32 52H49l20-37h85l15 37m-52 0l37-65h-20m-65 13h29" fill="none" stroke="#c78097" stroke-width="7"/>',
+
+    train:
+      '<rect x="18" y="65" width="65" height="57" rx="6" fill="#8eb8cc"/>' +
+      '<rect x="91" y="75" width="85" height="48" rx="7" fill="#ba96bd"/>' +
+      '<rect x="125" y="34" width="48" height="45" rx="5" fill="#ba96bd"/>' +
+      '<rect x="134" y="43" width="27" height="25" fill="#dbf0f4"/>' +
+      '<rect x="98" y="45" width="14" height="33" fill="#344b5c"/>' +
+      '<path d="M176 90l24 33h-24" fill="#edbf62"/>' +
+      '<path d="M29 76h17v25H29zm25 0h17v25H54" fill="#dbf0f4"/>' +
+      wheels +
+      '<path d="M12 148h196" stroke="#657777" stroke-width="5"/>',
+
+    boat:
+      '<path d="M28 105h163l-30 37H59z" fill="#df977a"/>' +
+      '<path d="M105 20v85" stroke="#526778" stroke-width="6"/>' +
+      '<path d="M97 28l-54 69h54z" fill="#f0cc75"/>' +
+      '<path d="M114 35v62h54z" fill="#9ac5b2"/>',
+
+    ship:
+      '<path d="M19 99h185l-31 43H55z" fill="#87b3ca"/>' +
+      '<rect x="65" y="53" width="92" height="45" fill="#e5b779"/>' +
+      '<rect x="96" y="27" width="47" height="26" fill="#b99cbd"/>' +
+      '<path d="M77 65h17v18H77zm28 0h17v18h-17zm28 0h14v18h-14" fill="#d9eff4"/>',
+
+    aeroplane:
+      '<path d="M20 80l64-7 30-50h22l-13 50 65 3q25 3 0 15l-65 3 16 43h-22L84 97l-61-3z" fill="#89b7ce"/>' +
+      '<path d="M39 76L23 45h17l30 30" fill="#e6b77c"/>',
+
+    helicopter:
+      '<path d="M102 44V28M49 28h122" stroke="#506777" stroke-width="7"/>' +
+      '<ellipse cx="125" cy="80" rx="60" ry="36" fill="#a9c5a0"/>' +
+      '<path d="M136 49q33 5 39 29h-39z" fill="#d3edf3"/>' +
+      '<path d="M68 72L24 52v39l44-6" fill="#a9c5a0"/>' +
+      '<path d="M90 111v18m62-18v18m-75 0h92" stroke="#506777" stroke-width="6"/>'
+  };
+
+  var places = {
+    road: [
+      'Road',
+      '<rect width="220" height="160" fill="#d5e5bb"/>' +
+      '<path d="M48 0h124l30 160H18z" fill="#75818c"/>' +
+      '<path d="M110 4v24m0 20v24m0 20v24m0 20v24" stroke="#fff3cb" stroke-width="6"/>'
+    ],
+
+    tracks: [
+      'Railway Tracks',
+      '<rect width="220" height="160" fill="#e8dfcb"/>' +
+      '<path d="M48 15h124M42 45h136M35 78h150M28 112h164M21 145h178" stroke="#a28064" stroke-width="12"/>' +
+      '<path d="M65 0L40 160M155 0l25 160" stroke="#566673" stroke-width="8"/>'
+    ],
+
+    water: [
+      'Water',
+      '<rect width="220" height="160" fill="#d7eff5"/>' +
+      '<path d="M0 58q22-20 44 0t44 0t44 0t44 0t44 0M0 94q22-20 44 0t44 0t44 0t44 0t44 0M0 130q22-20 44 0t44 0t44 0t44 0t44 0" fill="none" stroke="#70b3cc" stroke-width="8"/>'
+    ],
+
+    sky: [
+      'Sky',
+      '<rect width="220" height="160" fill="#d6edf6"/>' +
+      '<circle cx="170" cy="38" r="22" fill="#f0cb76"/>' +
+      '<g fill="white">' +
+      '<ellipse cx="65" cy="63" rx="45" ry="20"/>' +
+      '<circle cx="54" cy="49" r="21"/>' +
+      '<circle cx="78" cy="50" r="24"/>' +
+      '<ellipse cx="151" cy="117" rx="45" ry="18"/>' +
+      '<circle cx="143" cy="103" r="22"/></g>'
+    ]
+  };
+
+  var bank = [
+    ['car', 'Car', 'road'],
+    ['bus', 'Bus', 'road'],
+    ['bicycle', 'Bicycle', 'road'],
+    ['train', 'Train', 'tracks'],
+    ['boat', 'Boat', 'water'],
+    ['ship', 'Ship', 'water'],
+    ['aeroplane', 'Aeroplane', 'sky'],
+    ['helicopter', 'Helicopter', 'sky']
+  ];
+
+  var order = [];
+  var index = 0;
+  var attempts = 0;
+  var locked = false;
+  var sound = true;
+  var nextTimer;
+  var confettiTimer;
+
+  function shuffle(a){
     a = a.slice();
 
-    for (var i = a.length - 1; i > 0; i--) {
+    for(var i = a.length - 1; i > 0; i--){
       var j = Math.floor(Math.random() * (i + 1));
       var value = a[i];
       a[i] = a[j];
@@ -574,174 +338,123 @@ header {
     return a;
   }
 
-  function screen(id) {
-    ['splash', 'intro', 'game', 'finish'].forEach(function (x) {
-      el(x).className = x === id ? 'screen' : 'screen hidden';
+  function screen(id){
+    ['splash','intro','game','finish'].forEach(function(x){
+      el(x).className =
+        x === id ? 'screen' : 'screen hidden';
     });
   }
 
-  function play(id) {
-    if (!sound) return;
+  function play(id){
+    if(!sound) return;
 
-    var audio = el(id);
-
-    try {
+    try{
+      var audio = el(id);
       audio.currentTime = 0;
       var promise = audio.play();
 
-      if (promise && promise.catch) {
-        promise.catch(function () {});
+      if(promise && promise.catch){
+        promise.catch(function(){});
       }
-    } catch (e) {}
+    }catch(e){}
   }
 
-  function stopAudio() {
-    ['claps', 'wrong'].forEach(function (id) {
+  function stop(){
+    ['claps','wrong'].forEach(function(id){
       el(id).pause();
-
-      try {
-        el(id).currentTime = 0;
-      } catch (e) {}
     });
   }
 
-  // Prepare audio from the learner's Start or Play Again tap.
-  function unlock() {
-    if (!sound) return;
-
-    ['claps', 'wrong'].forEach(function (id) {
-      var audio = el(id);
-      audio.muted = true;
-
-      try {
-        var promise = audio.play();
-
-        if (promise && promise.then) {
-          promise.then(
-            function () {
-              audio.pause();
-              audio.currentTime = 0;
-              audio.muted = false;
-            },
-            function () {
-              audio.muted = false;
-            }
-          );
-        } else {
-          audio.pause();
-          audio.muted = false;
-        }
-      } catch (e) {
-        audio.muted = false;
-      }
-    });
-  }
-
-  function render() {
-    attempts = 0;
+  function render(){
     locked = false;
+    attempts = 0;
 
-    el('feedback').textContent = '';
     el('feedback').className = 'feedback';
+    el('feedback').textContent = '';
 
-    var question = order[position];
+    var question = order[index];
 
-    el('question').textContent = question[1];
+    el('count').textContent =
+      'LY1 • ' + (index + 1) + ' / ' + order.length;
 
-    el('counter').textContent =
-      'Transportation • ' + (position + 1) + ' / ' + order.length;
+    el('vehicle').innerHTML =
+      svg(pictures[question[0]]) +
+      '<strong>' + question[1] + '</strong>';
 
-    el('bar').style.width =
-      (position / order.length * 100) + '%';
+    el('choices').innerHTML = '';
 
-    var others = shuffle(ids.filter(function (id) {
-      return id !== question[0];
-    }));
-
-    var choices = shuffle([
-      question[0], others[0], others[1]
-    ]);
-
-    el('options').innerHTML = '';
-
-    choices.forEach(function (id) {
+    shuffle(['road','tracks','water','sky']).forEach(function(id){
       var button = document.createElement('button');
 
+      button.className = 'choice';
       button.type = 'button';
-      button.className = 'option';
-      button.setAttribute('aria-label', names[id]);
-      button.setAttribute('data-id', id);
+      button.setAttribute('aria-label', places[id][0]);
+      button.setAttribute('data-place', id);
 
       button.innerHTML =
-        art(id) +
-        '<span class="vehicle-name">' + names[id] + '</span>';
+        svg(places[id][1]) +
+        '<span class="label">' + places[id][0] + '</span>';
 
-      button.onclick = function () {
+      button.onclick = function(){
         answer(button, id);
       };
 
-      el('options').appendChild(button);
+      el('choices').appendChild(button);
     });
   }
 
-  function mark(button, correct) {
-    var oldSign = button.querySelector('.answer-sign');
+  function mark(button, right){
+    var old = button.querySelector('.sign');
 
-    if (oldSign) {
-      button.removeChild(oldSign);
+    if(old){
+      button.removeChild(old);
     }
 
     var sign = document.createElement('span');
 
     sign.className =
-      'answer-sign ' + (correct ? 'right' : 'wrong');
+      'sign ' + (right ? 'right-sign' : 'wrong-sign');
 
-    sign.textContent = correct ? '✓' : '✗';
-
-    sign.setAttribute(
-      'aria-label',
-      correct ? 'Correct answer' : 'Wrong answer'
-    );
+    sign.textContent = right ? '✓' : '✗';
+    sign.setAttribute('aria-label', right ? 'Correct' : 'Wrong');
 
     button.appendChild(sign);
   }
 
-  function answer(button, id) {
-    if (locked) return;
+  function answer(button, id){
+    if(locked) return;
 
-    var correct = order[position][0];
-
-    if (id === correct) {
+    if(id === order[index][2]){
       locked = true;
-      stopAudio();
+      stop();
 
-      button.className = 'option correct';
+      button.className = 'choice correct';
       mark(button, true);
 
       el('feedback').className = 'feedback';
       el('feedback').textContent = '✓ Good job!';
 
-      var buttons = el('options').children;
+      var buttons = el('choices').children;
 
-      for (var i = 0; i < buttons.length; i++) {
+      for(var i = 0; i < buttons.length; i++){
         buttons[i].disabled = true;
       }
 
       play('claps');
 
-      nextTimer = setTimeout(function () {
-        position++;
+      nextTimer = setTimeout(function(){
+        index++;
 
-        if (position === order.length) {
+        if(index === order.length){
           screen('finish');
           confetti();
           play('claps');
-        } else {
+        }else{
           render();
         }
-      }, 1900);
+      },1900);
 
-    } else {
+    }else{
       attempts++;
 
       mark(button, false);
@@ -751,96 +464,87 @@ header {
       void button.offsetWidth;
       button.classList.add('jiggle');
 
-      el('feedback').className = 'feedback incorrect';
+      el('feedback').className = 'feedback bad';
 
-      if (attempts >= 2) {
-        el('feedback').textContent =
-          '✗ Tap the glowing picture!';
+      el('feedback').textContent =
+        attempts < 2
+          ? '✗ Try again!'
+          : '✗ Tap the glowing place!';
 
-        var options = el('options').children;
+      if(attempts >= 2){
+        var choices = el('choices').children;
 
-        for (var n = 0; n < options.length; n++) {
-          if (options[n].getAttribute('data-id') === correct) {
-            options[n].classList.add('glow');
-          } else {
-            options[n].disabled = true;
+        for(var j = 0; j < choices.length; j++){
+          if(
+            choices[j].getAttribute('data-place') ===
+            order[index][2]
+          ){
+            choices[j].classList.add('glow');
+          }else{
+            choices[j].disabled = true;
           }
         }
-      } else {
-        el('feedback').textContent = '✗ Try again!';
       }
     }
   }
 
-  function confetti() {
-    clearTimeout(celebrateTimer);
-
+  function confetti(){
     var box = el('confetti');
     box.innerHTML = '';
 
     var colours = [
-      '#e99579', '#edbf62', '#87b6cc',
-      '#9ac6b2', '#b990bb'
+      '#e9987a','#edbf62','#89b7ce','#a9c5a0','#ba96bd'
     ];
 
-    for (var i = 0; i < 55; i++) {
+    for(var i = 0; i < 50; i++){
       var piece = document.createElement('span');
 
       piece.className = 'piece';
       piece.style.left = Math.random() * 100 + '%';
-      piece.style.background = colours[i % colours.length];
-      piece.style.animationDelay = Math.random() * .7 + 's';
+      piece.style.background = colours[i % 5];
+      piece.style.animationDelay = Math.random() * .6 + 's';
 
       box.appendChild(piece);
     }
 
-    celebrateTimer = setTimeout(function () {
+    confettiTimer = setTimeout(function(){
       box.innerHTML = '';
-    }, 3700);
+    },3700);
   }
 
-  function start() {
+  function start(){
     clearTimeout(nextTimer);
-    clearTimeout(celebrateTimer);
-    clearTimeout(splashTimer);
+    clearTimeout(confettiTimer);
 
+    stop();
     el('confetti').innerHTML = '';
 
-    stopAudio();
-    unlock();
-
     order = shuffle(bank);
-    position = 0;
+    index = 0;
 
     screen('game');
     render();
   }
 
-  el('introArt').innerHTML =
-    art('car') + art('boat') + art('aeroplane');
-
   el('start').onclick = start;
   el('again').onclick = start;
 
-  el('sound').onclick = function () {
+  el('sound').onclick = function(){
     sound = !sound;
 
     this.textContent = 'Sound: ' + (sound ? 'On' : 'Off');
     this.setAttribute('aria-pressed', String(sound));
 
-    if (sound) {
-      unlock();
-    } else {
-      stopAudio();
+    if(!sound){
+      stop();
     }
   };
 
-  splashTimer = setTimeout(function () {
+  setTimeout(function(){
     screen('intro');
-  }, 2000);
+  },2000);
 
 })();
 </script>
-
 </body>
 </html>
